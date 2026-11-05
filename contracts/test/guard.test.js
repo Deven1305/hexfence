@@ -149,6 +149,17 @@ describe("HexFenceGuard on a real Safe 1.4.1", function () {
     await expectCustomError(exec(L, 1n, "0x"), gi(), "LookalikeOfApprovedPayee", [L, P]);
   });
 
+  it("refuses the ready-made Sepolia demo lookalike (spec §3.5) once its payee is approved", async () => {
+    // The exact pair the demo uses: P_DEMO is approved on the demo Safe, L_DEMO is its synthetic lookalike.
+    const P_DEMO = A("0x4E185e251Ac7fB83E9DE10723EAda46cadE74120");
+    const L_DEMO = A("0x4E185a3FC4B530244aB9ed0dE38167b403344120");
+    expect(await guard.fingerprint(P_DEMO)).to.equal("0x4e184120");
+    expect(await guard.fingerprint(L_DEMO)).to.equal("0x4e184120");
+    await (await exec(await guard.getAddress(), 0, gi().encodeFunctionData("approvePayee", [P_DEMO]))).wait();
+    await expectCustomError(exec(L_DEMO, 1n, "0x"), gi(), "LookalikeOfApprovedPayee", [L_DEMO, P_DEMO]);
+    await (await exec(P_DEMO, 1n, "0x")).wait();
+  });
+
   it("reports gas for a guarded payment", async () => {
     const rc = await (await exec(P, 1n, "0x")).wait();
     console.log("      gas used by a guarded ETH payment (execTransaction):", rc.gasUsed.toString());
