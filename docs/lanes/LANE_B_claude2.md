@@ -103,7 +103,50 @@ Lane B never commits to, merges into, or pushes `main`, and never enables auto-m
 (not paused)
 
 ## Next step
-T6 PR is open (waits on H6 above). T10 (draft PR `feat/pay-t10`) and T11 (draft PR `feat/pay-t11`) are done on lane-b. Continue with T12: Hindi for RED resembles and AMBER only (strings in spec section 3.4), language toggle, English one tap away; then write the native-speaker check steps here and leave the row ⏸. Optional later: run tor-js and Nym live by temporarily changing `ROUTES` order in `apps/pay/src/anon.ts`.
+T6 PR is open (waits on H6 above). T10 (draft PR `feat/pay-t10`) and T11 (draft PR `feat/pay-t11`) are done on lane-b. Continue with T12: Hindi for RED resembles and AMBER only (strings in spec section 3.4), language toggle, English one tap away; then write the native-speaker check steps here and leave the row ⏸. T11 now uses Nox only; see the contract-read result below.
+
+## T11: Nox-only follow-up (06 Nov 2026)
+
+The one-time Codex exception is on `feat/pay-nox-only`, based on `origin/feat/pay-t11`.
+Removed the tor-js/Nym routes, their mainnet bootstrap settings, Tor gateway config
+and `VITE_TOR_GATEWAYS`. Nox, the skip button, visible status and explicitly labelled
+direct fallback remain. The passthrough specifier remains excluded. Once Nox is
+active, later read failures are errors and never silently switch to direct.
+
+**Live browser contract read: passed.** Headless Chromium loaded the actual
+`src/anon.ts` and `src/rpc.ts` through Vite. `connectAnon` used the real worker and
+Sepolia RPC `https://ethereum-sepolia-rpc.publicnode.com`, with no worker substitute.
+Nox became active and the following read through `outcome.fetchFn` returned
+`"1.4.1"` with no error:
+
+```ts
+const { connectAnon } = await import('/src/anon.ts');
+const { createReadClient } = await import('/src/rpc.ts');
+const rpc = 'https://ethereum-sepolia-rpc.publicnode.com';
+const outcome = await connectAnon({ sepoliaRpcUrl: rpc, timeoutMs: 60000 });
+if (!outcome.active || !outcome.fetchFn) throw new Error('Nox unavailable');
+try {
+  console.log(await createReadClient(rpc, outcome.fetchFn).readContract({
+    address: '0x41675C099F32341bf84BFc5382aF534df5C7461a',
+    abi: [{ type: 'function', name: 'VERSION', inputs: [],
+      outputs: [{ type: 'string' }], stateMutability: 'view' }],
+    functionName: 'VERSION',
+  }));
+} finally { outcome.close(); }
+```
+
+This is Safe's canonical 1.4.1 singleton on Sepolia, not a local contract. The
+one specifier bootstrap read remains direct. No direct contract-read substitute
+was allowed, no transaction was sent, and no Guard/payee read or live Arkiv read
+was exercised. This establishes the requested contract read through Nox; it is
+not an anonymity audit or a claim about future route availability. If a later
+live check fails, report it and return T11 to ⏸.
+
+Validation: `corepack pnpm@10.34.9 -r test` passed (83 tests, 3 integration tests
+skipped); `corepack pnpm@10.34.9 -r build` passed with existing bundle warnings;
+`npx hardhat test` passed all 14. No existing product bug found. Official docs read:
+[Anon-RPC integration](https://github.com/ethereum/anon-rpc/blob/main/docs/integrate-wallet.md)
+and [browser harness](https://github.com/ethereum/anon-rpc/blob/main/impl/README.md).
 
 ## Session log
 
