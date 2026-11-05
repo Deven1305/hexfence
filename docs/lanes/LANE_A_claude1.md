@@ -85,7 +85,7 @@ the same rules (one agent, no subagents, your paths only, commit + push after ev
 (not paused)
 
 ## Next step
-T3: create `apps/detector` (viem mainnet `getLogs`, USDT/USDC Transfer, latest 7,200 blocks in 100-block windows; reference ≥1e6, zero-value victim→lookalike, dust lookalike→victim; match with `fingerprint`) → `out/evidence.jsonl` validated by `PoisoningEvidenceSchema`. Fixture-log unit tests first; the real run needs H4 (`MAINNET_RPC_URL`). Test: `pnpm --filter detector test`.
+T4b: the writer is on main (`packages/arkiv/src/write.ts`: `writeEvidence`, `publishEvidence` batching 25 creates per `executeBatch`). Left: a `publish` command in `apps/detector/src/cli.ts`, then a live run once **H5** is done (`ARKIV_PRIVATE_KEY`, `ARKIV_ACCESS_KEY`, tGLM): publish → re-run publish (must create 0) → `ARKIV_LIVE=1 ARKIV_PUBLISHER=<addr> pnpm --filter @hexfence/arkiv test`. Then fill the publisher + query below for Lane C. Publish scope (43k/day) is an open decision in PROGRESS.
 
 ## Session log
 
@@ -93,3 +93,4 @@ T3: create `apps/detector` (viem mainnet `getLogs`, USDT/USDC Transfer, latest 7
 |---|---|---|---|
 | 06 Nov 01:49 | T2 | ✔ `@hexfence/shared` per INTERFACES, 30 tests; pushed (S1) | 90f8b05 |
 | 06 Nov 01:59 | T4a | ✔ `@hexfence/arkiv` read side + `arkiv/schema.md`; live Rabdi read OK (S2) | 691f634 |
+| 06 Nov 02:16 | T3 | ✔ detector; real 24h run 43,227 pairs, 40/40 receipts confirmed; Guard parity test added to T2 | aaa233c |
