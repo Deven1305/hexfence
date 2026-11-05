@@ -40,6 +40,9 @@
 - [ ] **H7:** run the demo payments (L, B, P) and paste the tx hashes
 - [ ] **H8:** record the video (2:30–3:00, ≥720p)
 - [ ] **H9:** hand-label 30 detector outputs on Etherscan
+- [ ] **H10 (T12):** a native Hindi speaker checks the two Hindi verdict lines in HexFence Pay and writes "checked by <name>" in the T12 row.
+- [ ] **H11 (submission):** host the two static apps and paste the URLs in the table below: `pnpm --filter <explorer|pay> build`, then upload each `dist/` to static hosting (e.g. Vercel or GitHub Pages; set the `VITE_*` values in the host's env). Spec §8 needs both live links.
+- [ ] **H12 (submission):** commits from **all four** accounts (spec §8). Baqir: commit the Sepolia addresses/hashes (H2, H3, H7). Akshat: a README/CROPS review commit. Also copy every GPT/Claude plan, prompt and report you used into `docs/planning/`.
 
 ## Addresses and tx hashes (public values only)
 
