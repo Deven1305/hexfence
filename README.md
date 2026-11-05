@@ -52,8 +52,27 @@ npx hardhat test                 # 14 passing
 ## Run steps *(T7)*
 ## Arkiv publisher + query *(T4)*
 ## CROPS *(T7)*
+- **P:** Pay checks recipients locally from one bulk `payees(safe)` read. It tries
+  Nox (Sphinx mixnet) for Sepolia RPC reads and displays the active route. During
+  start-up, Safe and payee reads wait: wait for the route status, or choose
+  **Skip: read directly (not anonymous)**. Failed start-up uses a labelled direct
+  fallback, which is not anonymous. Once Nox is active, later read failures surface
+  as errors and do not silently switch to direct. There are no trackers.
+
+One local run started in about **9 seconds**; this is **one local measurement**,
+not a hosted measurement or a latency guarantee. The one bootstrap read of the
+routing contract is direct, Arkiv bulk reads are direct, and signing and sending
+still go through the wallet. **Hosted Nox and Guard or payee reads through Nox
+are untested.** The local browser Sepolia `VERSION()` result is recorded in
+[PR #9](https://github.com/Deven1305/hexfence/pull/9).
 
 ## Limits
+- Nox covers the configured Sepolia RPC read route only. The one bootstrap read
+  is direct; Arkiv evidence is fetched directly; signing and sending still go
+  through the wallet. Start-up skip/failure means labelled, non-anonymous direct
+  reads. Later active-route failures remain errors.
+- Hosted Nox and Guard or payee reads through Nox are untested. The roughly
+  9-second start-up figure is one local measurement.
 - Module transactions bypass transaction guards.
 - MultiSend is refused (it's a delegatecall).
 - Only ETH, `transfer` and `transferFrom` are inspected; other calls are allowed and clients show "cannot verify".
