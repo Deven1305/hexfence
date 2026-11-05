@@ -33,6 +33,31 @@ importers:
         specifier: 4.1.12
         version: 4.1.12(@types/node@22.20.5)(vite@8.3.6(@types/node@22.20.5)(esbuild@0.28.2)(tsx@4.23.15))
 
+  apps/pay:
+    dependencies:
+      '@hexfence/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+      '@safe-global/protocol-kit':
+        specifier: 8.0.11
+        version: 8.0.11(typescript@5.9.3)(zod@4.6.7)
+      viem:
+        specifier: 2.57.16
+        version: 2.57.16(typescript@5.9.3)(zod@4.6.7)
+    devDependencies:
+      '@types/node':
+        specifier: ^22.20.5
+        version: 22.20.5
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+      vite:
+        specifier: 8.3.6
+        version: 8.3.6(@types/node@22.20.5)(esbuild@0.28.2)(tsx@4.23.15)
+      vitest:
+        specifier: 4.1.12
+        version: 4.1.12(@types/node@22.20.5)(vite@8.3.6(@types/node@22.20.5)(esbuild@0.28.2)(tsx@4.23.15))
+
   packages/arkiv:
     dependencies:
       '@arkiv-network/sdk':
@@ -266,6 +291,13 @@ packages:
   '@oxc-project/types@0.156.0':
     resolution: {integrity: sha512-1Duyg48TdJNdyhEB8Xn1L36bT9Pv6GUtlKjHxOys8xkaF/rQq3XJE+bAurSK/AgIz5mGFsb77cn9Pb20+WCScw==}
 
+  '@peculiar/asn1-schema@2.11.1':
+    resolution: {integrity: sha512-jaU9OaCcbZUdyXx9hMETZB9xoNmxTGjOGFqd3cOwKFkpKnyKd9WxF3uqj4PvX4cyOMP9bSdHg5YyML2qtx/d/g==}
+    engines: {node: '>=14'}
+
+  '@peculiar/utils@2.0.3':
+    resolution: {integrity: sha512-+oL3HPFRIZ1St2K50lWCXiioIgSoxzz7R1J3uF6neO2yl1sgmpgY6XXJH4BdpoDkMWznQTeYF6oWNDZLCdQ4eQ==}
+
   '@rolldown/binding-android-arm-eabi@1.2.16':
     resolution: {integrity: sha512-ia3DwAs0OsMGS7+IConptSiyk9pEXkOx/AbJ2n/lAGxH3QkWQus1t8d7gnAT38FCU2sQu8lUbeR6AiZFv4JxaA==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -365,6 +397,19 @@ packages:
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
 
+  '@safe-global/protocol-kit@8.0.11':
+    resolution: {integrity: sha512-N0KBBb5fixmttg8hitj9SVSD6qWs2snoW2IEBPsucu+ftWp+xZOEpcmrYcYGPe+BjutyvzF+stLEW2aj5oU/xA==}
+
+  '@safe-global/safe-deployments@1.37.67':
+    resolution: {integrity: sha512-WRQ47OjHJ8Mn6vW72Eby6r4AqL1vA16iSV9U5+cOCj41HuiIMU1c2qm59D5SgkQHfE/bJ/h2dYnK0ki2e1WJWg==}
+    engines: {node: '>=22.0.0', pnpm: '>=10.16.0'}
+
+  '@safe-global/safe-modules-deployments@3.0.14':
+    resolution: {integrity: sha512-Br8QWV4rav2duXNSVe4iahTBrZ6XAEOw11s3SE9/DUhE1FKkWfy7zx18wI2kJg/VIblXWRUidZ4eJLz6bwoClw==}
+
+  '@safe-global/types-kit@4.0.1':
+    resolution: {integrity: sha512-zmIYyAH9mcBcqHszPgcfNjOJYuPSvWCcc/f8zeznh7N1HSA7jEoFErO06O4QDfwAAS4aEyoyjhPyfHbVYRheZg==}
+
   '@scure/base@1.2.6':
     resolution: {integrity: sha512-g/nm5FgUa//MCj1gV09zTJTaM6KBAHqLN907YVQqf7zC49+DcO4B1so4ZX07Ef10Twr6nuqYEH9GEggFXA4Fmg==}
 
@@ -428,6 +473,10 @@ packages:
         optional: true
       zod:
         optional: true
+
+  asn1js@3.1.0:
+    resolution: {integrity: sha512-HWYi1THkOqguCiO+vwj09ZkQFD2kKEsejYHAYCtX0D80WVdoDnvRc9IukXX/jeb0T9NRWJnRtqwdbHltnFjwXA==}
+    engines: {node: '>=12.0.0'}
 
   assertion-error@2.0.1:
     resolution: {integrity: sha512-Izi8RQcffqCeNVgFigKli1ssklIbpHnCYc6AknXGYoB6grJqyeby7jv12JUQgmTAnIDnbck1uxksT4dzN3PWBA==}
@@ -589,9 +638,21 @@ packages:
     resolution: {integrity: sha512-LJlKCCAUFKOuZxipUdYw1NzIITEsPcgyOG9LkvRJvuKj/bRzbuRY0ARXvL0pWGpsZvn8jku+LMep2eU0seHp8g==}
     engines: {node: ^10 || ^12 || >=14}
 
+  pvtsutils@1.3.6:
+    resolution: {integrity: sha512-PLgQXQ6H2FWCaeRak8vvk1GW462lMxB5s3Jm673N82zI4vqtVUPuZdffdZbPDFRoU8kAhItWFtPCWiPpp4/EDg==}
+
+  pvutils@1.2.0:
+    resolution: {integrity: sha512-BbubeCEyTuQjVMakvJQ/Sxbc93F2pwmbsxONT/ZRrwU7Ua38d8unYTwXpTVLAKJ4BDuH9IGztCjQcd/N/39Dvg==}
+    engines: {node: '>=16.0.0'}
+
   rolldown@1.2.16:
     resolution: {integrity: sha512-bWvlMpFKiTfDKfnK7FC2MPgPeWCf/Kpwsq49ApdW+FQaBZb6O6dZ4MAPbPUjp7hYQrw/RobqCzn64BRrQecGHw==}
     engines: {node: ^20.19.0 || >=22.12.0}
+    hasBin: true
+
+  semver@7.8.6:
+    resolution: {integrity: sha512-9lpSSU4Mly3mrtruwLs1eLK6+gzbzqeBFwRNjIjE+9LuDpWdYctrQlQ3ej1Ilgi7gknpsTRnPoLP8DpCHqHIJw==}
+    engines: {node: '>=10'}
     hasBin: true
 
   siginfo@2.0.0:
@@ -621,6 +682,9 @@ packages:
   tinyrainbow@3.2.0:
     resolution: {integrity: sha512-LgO3D9yZJjApUiuUfl9iFAwrtaX4+lok3wJIqttGoKCHlWUqHqbQpnxCf82L8FjgKsh4iGo78hqJwgL8F6To2A==}
     engines: {node: '>=14.0.0'}
+
+  tslib@2.9.1:
+    resolution: {integrity: sha512-a4Ux9VKuIMHsOS7ENbEq6hK2ZGYIT27Rtl0E4eD9KqwxhKiQeMZE/9xb3IdYwWaSOyIBQLExhQgXDTYoiCxnWA==}
 
   tsx@4.23.15:
     resolution: {integrity: sha512-Yiex1Ovn8z2xPpOWckIiysV1SSyRMY9BkLF++q0yKiDxCqRhosKfMg3janKkiLBwZ5c/YryloKwGZcrEmtwxKw==}
@@ -850,6 +914,18 @@ snapshots:
 
   '@oxc-project/types@0.156.0': {}
 
+  '@peculiar/asn1-schema@2.11.1':
+    dependencies:
+      '@peculiar/utils': 2.0.3
+      asn1js: 3.1.0
+      tslib: 2.9.1
+    optional: true
+
+  '@peculiar/utils@2.0.3':
+    dependencies:
+      tslib: 2.9.1
+    optional: true
+
   '@rolldown/binding-android-arm-eabi@1.2.16':
     optional: true
 
@@ -896,6 +972,37 @@ snapshots:
     optional: true
 
   '@rolldown/pluginutils@1.0.1': {}
+
+  '@safe-global/protocol-kit@8.0.11(typescript@5.9.3)(zod@4.6.7)':
+    dependencies:
+      '@safe-global/safe-deployments': 1.37.67
+      '@safe-global/safe-modules-deployments': 3.0.14
+      '@safe-global/types-kit': 4.0.1(typescript@5.9.3)(zod@4.6.7)
+      abitype: 1.2.3(typescript@5.9.3)(zod@4.6.7)
+      semver: 7.8.6
+      viem: 2.57.16(typescript@5.9.3)(zod@4.6.7)
+    optionalDependencies:
+      '@noble/curves': 1.9.1
+      '@peculiar/asn1-schema': 2.11.1
+    transitivePeerDependencies:
+      - bufferutil
+      - mppx
+      - typescript
+      - utf-8-validate
+      - zod
+
+  '@safe-global/safe-deployments@1.37.67':
+    dependencies:
+      semver: 7.8.6
+
+  '@safe-global/safe-modules-deployments@3.0.14': {}
+
+  '@safe-global/types-kit@4.0.1(typescript@5.9.3)(zod@4.6.7)':
+    dependencies:
+      abitype: 1.2.3(typescript@5.9.3)(zod@4.6.7)
+    transitivePeerDependencies:
+      - typescript
+      - zod
 
   '@scure/base@1.2.6': {}
 
@@ -970,6 +1077,13 @@ snapshots:
     optionalDependencies:
       typescript: 5.9.3
       zod: 4.6.7
+
+  asn1js@3.1.0:
+    dependencies:
+      pvtsutils: 1.3.6
+      pvutils: 1.2.0
+      tslib: 2.9.1
+    optional: true
 
   assertion-error@2.0.1: {}
 
@@ -1113,6 +1227,14 @@ snapshots:
       picocolors: 1.1.1
       source-map-js: 1.2.2
 
+  pvtsutils@1.3.6:
+    dependencies:
+      tslib: 2.9.1
+    optional: true
+
+  pvutils@1.2.0:
+    optional: true
+
   rolldown@1.2.16:
     dependencies:
       '@oxc-project/types': 0.156.0
@@ -1134,6 +1256,8 @@ snapshots:
       '@rolldown/binding-win32-arm64-msvc': 1.2.16
       '@rolldown/binding-win32-x64-msvc': 1.2.16
 
+  semver@7.8.6: {}
+
   siginfo@2.0.0: {}
 
   source-map-js@1.2.2: {}
@@ -1152,6 +1276,9 @@ snapshots:
       picomatch: 4.0.7
 
   tinyrainbow@3.2.0: {}
+
+  tslib@2.9.1:
+    optional: true
 
   tsx@4.23.15:
     dependencies:
