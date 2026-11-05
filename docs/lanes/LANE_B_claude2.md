@@ -102,3 +102,4 @@ T6 PR is open and its row waits on H6 (see above). Continue with T10 on `lane-b`
 
 | Time (IST) | Task | Result | Commit |
 |---|---|---|---|
+| 06 Nov ~03:00 | T6a+T6b | Pay shell + verdict UI. 20 Pay tests, tsc, vite build, contracts 14, shared 33, arkiv 4, detector 11 all green. Browser pane: shell and config-error states only (no wallet). Live test = H6. Note: `pnpm -r test` fails on this laptop only because a stray vite.config.ts in the Windows home folder is picked up by vitest in shared/arkiv/detector; run with `--config <empty file>` to verify. | bd20404 |
