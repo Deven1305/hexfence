@@ -8,9 +8,11 @@
   "scripts": {
     "detect": "tsx --env-file-if-exists=../../.env src/cli.ts detect",
     "build": "tsc -p tsconfig.json",
-    "test": "vitest run"
+    "test": "vitest run",
+    "publish:arkiv": "tsx --env-file-if-exists=../../.env src/cli.ts publish"
   },
   "dependencies": {
+    "@hexfence/arkiv": "workspace:*",
     "@hexfence/shared": "workspace:*",
     "viem": "2.57.16"
   },

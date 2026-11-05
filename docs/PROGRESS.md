@@ -4,11 +4,11 @@
 > Status: ☐ todo · ▶ in progress · ✔ done · ⏸ waiting on humans
 
 ## Now
-- **Current task:** T4b (Lane A)
+- **Current task:** T13 prep (Lane A); T4b ⏸ H5, T1 ⏸ H1+H2
 - **Agent working:** Claude Code
 - **Last updated:** 06 Nov 02:16 IST
 - **Tests:** contracts 14 · `@hexfence/shared` 33 (incl. 411-case Guard parity) · `@hexfence/arkiv` 4 (+2 live) · `@hexfence/detector` 11 (+1 live)
-- **Next step for whoever comes next:** Lane A: T4b live publish (writer code is on main; needs **H5**). Decide the publish scope (43k records/day, see Decisions log). T1 ⏸ on H1+H2.
+- **Next step for whoever comes next:** humans: **H5** first (it unblocks the gate's real evidence, T5 and T10), then H1–H3. Lane A: T13 labelling sheet, then T4b live as soon as H5 is ticked.
 
 ## Tasks (strict order)
 
@@ -18,7 +18,7 @@
 | T1 | P0 | Guard. Review the reference, keep its behaviour, document the Sepolia deploy in the README draft | 13 passing; deploy works once H1 is done | ⏸ | ba07540 | Claude Code | Reviewed: logic matches §3.1, unchanged. Added: Hardhat loads root `.env`; `deploy.js` refuses non-Sepolia chains and checks `supportsInterface(0xe6d7a83a)`; a test for the ready-made §3.5 pair → **14 passing**. README draft has the deploy + Safe{Wallet} steps. ⏸ only for the live deploy (H1, H2); H3 is needed by T8. |
 | T2 | P0 | `packages/shared`: `fingerprint()`, the Safe payment decoder (SafeTx typed data; `execTransaction` `0x6a761202`; `transfer` / `transferFrom`), the PoisoningEvidence zod schema | vitest green, including USDT→`0xdac11ec7`, USDC→`0xa0b8eb48`, zero→`0x00000000`, both addresses of the ready pair→`0x4e184120` | ✔ | 90f8b05 | Claude Code | Implements `docs/INTERFACES.md` exactly: `fingerprint`, `sameFingerprint`, `SafeCall`, `safeCallFromTypedData`, `safeCallFromExecTransaction`, `decodeSafeCall`, `verdictFor`, `hexFenceGuardAbi`, `PoisoningEvidence` + `PoisoningEvidenceSchema`, `evidenceId`, `MAINNET_USDT/USDC`. **30 vitest** (vectors, the Guard's decode cases, every verdict branch, 200 random junk calldata blobs, ABI vs compiled artifact). Import from `@hexfence/shared` (`workspace:*`); it exports TS source, so Vite and tsx consume it directly. |
 | T3 | P0 | `apps/detector`: mainnet USDT/USDC Transfer logs (latest 7,200 blocks, 100-block windows), zero-value + dust rules → `evidence.jsonl` | Unit tests on fixture logs pass; a real run (needs H4) finds ≥5 pairs | ✔ | aaa233c | Claude Code | `@hexfence/detector`: streaming `PoisoningDetector` (zero-value + dust rules, 7,200-block window, block/log order), 100-block `getLogs` windows that halve on RPC errors, `out/evidence.jsonl` merged by `evidenceId`. 11 unit tests on fixture logs. **Real run 06 Nov 02:06 IST (blocks 26343865–26351064, public RPC `https://ethereum-rpc.publicnode.com`, no key needed): 1,330,446 logs → 43,227 suspected pairs** (31,801 zero-value, 11,426 dust; 26,532 victims). Live check: **40/40 random records confirmed against mainnet receipts** (`DETECTOR_LIVE=1`). Run: `pnpm --filter @hexfence/detector detect`. |
-| T4 | P0 | Arkiv writer: `hexfence.poisoning.v1`, 30-day expiry, idempotent by `evidenceId`, publisher wallet; one README query | A re-run creates 0 duplicates; the query returns the records (needs H5) | ▶ | 691f634 | Claude Code | **T4a ✔ (read side, S2):** `@hexfence/arkiv` exports `PoisoningSchema`, `arkivReadClient`, `fetchAllEvidence`, `findEvidenceByAddress` (createdBy + key paging, ≤100 rows/page, every row re-validated). 4 unit tests + 2 live Rabdi tests (`ARKIV_LIVE=1`, empty publisher OK). `arkiv/schema.md` written. **T4b** (writer) follows T3. |
+| T4 | P0 | Arkiv writer: `hexfence.poisoning.v1`, 30-day expiry, idempotent by `evidenceId`, publisher wallet; one README query | A re-run creates 0 duplicates; the query returns the records (needs H5) | ⏸ | d56bee3 | Claude Code | **T4a ✔ (read side, S2):** `@hexfence/arkiv` exports `PoisoningSchema`, `arkivReadClient`, `fetchAllEvidence`, `findEvidenceByAddress` (createdBy + key paging, ≤100 rows/page, every row re-validated); `arkiv/schema.md`. **T4b code done:** `writeEvidence` (idempotent single write), `publishEvidence` (one bulk read of what the publisher has, then `executeBatch` of 25 creates, 30-day expiry), CLI `pnpm --filter @hexfence/detector publish:arkiv [--limit N]` with a tGLM balance check. Dry run on live Rabdi with an unfunded throwaway key got through the reads and stopped only at the balance ("total cost … exceeds the balance"). **⏸ on H5** for the live publish + duplicate re-run. |
 | T5 | P0 | `apps/explorer`: a static Vite app reading Arkiv (search, Etherscan links, counts, label "Ethereum mainnet evidence · status: suspected") | Builds; shows real records | ☐ | | | |
 | T6 | P0 | `apps/pay` (HexFence Pay): connect a wallet, load the Safe (Protocol Kit), build an ETH/ERC-20 payment, read `guard.payees(safe)` once, verdicts RED/AMBER/GREEN/GREY with the exact spec strings, 6-character friction, sign + execute | Unit tests for the verdict logic pass; manual Sepolia test (H6) | ☐ | | | |
 | T7 | P0 | Docs draft: README (run steps, architecture, **CROPS**, limits), `arkiv/*.md` (5 files), `docs/AI_USAGE.md` (from the session log) | Real content; placeholders only for tx hashes | ☐ | | | |
@@ -35,7 +35,11 @@
 - [ ] **H2:** `cd contracts && npx hardhat run scripts/deploy.js --network sepolia`. It prints `HexFenceGuard deployed at: 0x…` and `Deploy tx: 0x…`; paste both into the table below and into `.env` as `VITE_GUARD_ADDRESS`.
 - [ ] **H3:** in Safe{Wallet} on Sepolia, create a 1-of-1 demo Safe and fund it with test ETH. In Transaction Builder, one call per transaction: `setGuard(guard)`, then `approvePayee(P)`. Then the removal drill: `setGuard(0x0…0)` → re-enable. Paste the hashes below.
 - [ ] **H4:** `MAINNET_RPC_URL` in `.env`. *Not blocking:* T3 ran on the free public RPC `https://ethereum-rpc.publicnode.com`; put your own RPC here only if that one rate-limits you.
-- [ ] **H5:** an Arkiv access key (hub.arkiv.network) + faucet tGLM for the publisher wallet; the `ARKIV_*` variables in `.env`
+- [ ] **H5 (blocks T4b, the gate's "real evidence on Arkiv", T5 and T10):**
+  1. Make a NEW testnet-only publisher key: `cd packages/arkiv && node -e "const a=require('viem/accounts');const k=a.generatePrivateKey();console.log('key',k);console.log('address',a.privateKeyToAccount(k).address)"`. Put the key in `.env` as `ARKIV_PRIVATE_KEY` (never commit it); keep the address.
+  2. Get an access key at https://hub.arkiv.network/access-keys → `.env` as `ARKIV_ACCESS_KEY`.
+  3. Fund the address at https://hub.arkiv.network/faucet (tGLM on Rabdi).
+  4. Tell Lane A "H5 done, publisher 0x…". Lane A then runs `pnpm --filter @hexfence/detector publish:arkiv --limit 25`, re-runs it (must say `0 created`), measures the cost per batch, and decides the publish scope.
 - [ ] **H6:** test HexFence Pay with a wallet on Sepolia
 - [ ] **H7:** run the demo payments (L, B, P) and paste the tx hashes
 - [ ] **H8:** record the video (2:30–3:00, ≥720p)

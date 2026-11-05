@@ -20,7 +20,7 @@
    - **Done when:** the unit tests pass and a read against Rabdi works (empty is fine). **Push (S2).**
 3. **T3 `apps/detector`:** mainnet logs → rules → `evidence.jsonl`.
    - **Done when:** the fixture tests pass, and a real run (H4) finds ≥5 pairs.
-4. **T4b writer:** `writeEvidence` (idempotent) + `pnpm --filter detector publish`.
+4. **T4b writer:** `writeEvidence` (idempotent) + `pnpm --filter @hexfence/detector publish:arkiv`.
    - **Done when:** a re-run creates 0 duplicates, and the README query is noted in this file for Lane C (H5). **Push (S4).**
 5. **T1 finish:** once H1/H2 are done, record the guard address, and run `contracts` tests to stay green.
 6. **T13:** ≥20 pairs, and a precision table from the H9 labels. Put the numbers in this file for Lane C.
@@ -85,7 +85,9 @@ the same rules (one agent, no subagents, your paths only, commit + push after ev
 (not paused)
 
 ## Next step
-T4b: the writer is on main (`packages/arkiv/src/write.ts`: `writeEvidence`, `publishEvidence` batching 25 creates per `executeBatch`). Left: a `publish` command in `apps/detector/src/cli.ts`, then a live run once **H5** is done (`ARKIV_PRIVATE_KEY`, `ARKIV_ACCESS_KEY`, tGLM): publish → re-run publish (must create 0) → `ARKIV_LIVE=1 ARKIV_PUBLISHER=<addr> pnpm --filter @hexfence/arkiv test`. Then fill the publisher + query below for Lane C. Publish scope (43k/day) is an open decision in PROGRESS.
+- **T4b ⏸ H5:** once H5 is ticked: `pnpm --filter @hexfence/detector publish:arkiv --limit 25` → run it again (must print `0 created`) → `ARKIV_LIVE=1 ARKIV_PUBLISHER=<addr> pnpm --filter @hexfence/arkiv test` → fill "Publisher wallet" + "Arkiv README query" below → decide the publish scope (43k/day).
+- **T13 (now):** draw 30 random records from `apps/detector/out/evidence.jsonl` into a labelling sheet for H9; precision table once labelled.
+- **T1 ⏸ H1+H2:** record the Guard address, keep contracts green.
 
 ## Session log
 
@@ -94,3 +96,4 @@ T4b: the writer is on main (`packages/arkiv/src/write.ts`: `writeEvidence`, `pub
 | 06 Nov 01:49 | T2 | ✔ `@hexfence/shared` per INTERFACES, 30 tests; pushed (S1) | 90f8b05 |
 | 06 Nov 01:59 | T4a | ✔ `@hexfence/arkiv` read side + `arkiv/schema.md`; live Rabdi read OK (S2) | 691f634 |
 | 06 Nov 02:16 | T3 | ✔ detector; real 24h run 43,227 pairs, 40/40 receipts confirmed; Guard parity test added to T2 | aaa233c |
+| 06 Nov 02:24 | T4b | ⏸ code done (writer, batch publisher, CLI); live dry run stops only at the tGLM balance; waiting on H5 | d56bee3 |
