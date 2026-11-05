@@ -57,9 +57,10 @@ Check after every task, or about every 30–45 minutes.
 (not paused)
 
 ## Next step
-T2
+T4a: create `packages/arkiv` (`@hexfence/arkiv`): `PoisoningSchema` via `defineSchema`, `arkivReadClient`, `fetchAllEvidence` (key-paged, ≤100 rows), `findEvidenceByAddress`; plus `arkiv/schema.md`. Test: `pnpm --filter @hexfence/arkiv test`.
 
 ## Session log
 
 | Time (IST) | Task | Result | Commit |
 |---|---|---|---|
+| 06 Nov 02:10 | T2 | ✔ `@hexfence/shared` per INTERFACES, 30 tests; pushed (S1) | 90f8b05 |
