@@ -8,14 +8,18 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -p tsconfig.json && vite build",
-    "test": "vitest run"
+    "test": "vitest run --exclude e2e/**",
+    "test:e2e": "node e2e/run.mjs"
   },
   "dependencies": {
+    "@anon-rpc/browser-harness": "0.4.0",
+    "@hexfence/arkiv": "workspace:*",
     "@hexfence/shared": "workspace:*",
     "@safe-global/protocol-kit": "8.0.11",
     "viem": "2.57.16"
   },
   "devDependencies": {
+    "@playwright/test": "1.58.2",
     "@types/node": "^22.20.5",
     "typescript": "5.9.3",
     "vite": "8.3.6",

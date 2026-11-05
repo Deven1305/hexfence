@@ -1,14 +1,17 @@
 import { decodeSafeCall, verdictFor, type Verdict } from "@hexfence/shared";
+import { connectAnon, routeStatusText, type AnonOutcome } from "./anon";
+import { arkivReadClient, fetchAllEvidence } from "@hexfence/arkiv";
 import { getAddress, getContract, type Address, type EIP1193Provider, type Hex } from "viem";
 import type Safe from "@safe-global/protocol-kit";
 import { ConfigError, loadConfig, SEPOLIA_CHAIN_ID, SEPOLIA_EXPLORER, type Config } from "./config";
+import { listedStatusText, loadListed, type ListedState } from "./evidence";
 import { frictionSatisfied, frictionSuffix, requiresFriction } from "./friction";
 import { planFromSimulation, simulateExec } from "./execute";
 import { buildPaymentCall, erc20Abi, InputError, parseAddress, parseAmount, type Asset } from "./payment";
 import { describeRevert } from "./revert";
 import { compositeProvider, createReadClient, type ReadClient } from "./rpc";
 import { loadSafeInfo, openSafe, type SafeInfo } from "./safe";
-import { verdictText } from "./verdictCopy";
+import { GUARD_INACTIVE_SENTENCE, hindiText, verdictText, type Lang } from "./verdictCopy";
 import { connect, discoverWallets, isUserRejection, switchToSepolia, walletChainId, type WalletOption } from "./wallet";
 
 const app = document.getElementById("app") as HTMLElement;
@@ -34,6 +37,15 @@ interface State {
   provider?: EIP1193Provider;
   safe?: Safe;
   info?: SafeInfo;
+  /** Arkiv evidence, read once in bulk the first time a Safe is loaded. */
+  listed?: Promise<ListedState>;
+  /** Settles when the anonymous-read route is decided (active or direct). Reads wait for it. */
+  route: Promise<void>;
+  outcome?: AnonOutcome;
+  trying?: string;
+  skip: AbortController;
+  lang: Lang;
+  shown?: { verdict: Verdict; box: HTMLElement };
 }
 
 let state: State;
@@ -46,7 +58,8 @@ function boot(): void {
     app.replaceChildren(el("h1", {}, "HexFence Pay"), el("div", { class: "error" }, e instanceof ConfigError ? e.message : String(e)));
     return;
   }
-  state = { config, reads: createReadClient(config.sepoliaRpcUrl) };
+  state = { config, reads: createReadClient(config.sepoliaRpcUrl), route: Promise.resolve(), skip: new AbortController(), lang: "en" };
+  state.route = startRoute();
   render();
 }
 
@@ -54,10 +67,51 @@ function render(): void {
   app.replaceChildren(
     el("h1", {}, "HexFence Pay"),
     el("p", { class: "sub" }, "Checks a payment against your approved payees before you sign. Sepolia test network."),
+    langBar(),
+    routeSection(),
     walletSection(),
     safeSection(),
     paymentSection(),
   );
+}
+
+// ---------- anonymous reads (T11) ----------
+let routeEl: HTMLElement | undefined;
+
+async function startRoute(): Promise<void> {
+  const c = state.config;
+  const outcome = await connectAnon({
+    sepoliaRpcUrl: c.sepoliaRpcUrl,
+    signal: state.skip.signal,
+    onTry: (r) => {
+      state.trying = r.label;
+      fillRoute();
+    },
+  });
+  state.trying = undefined;
+  state.outcome = outcome;
+  if (outcome.fetchFn) state.reads = createReadClient(c.sepoliaRpcUrl, outcome.fetchFn);
+  fillRoute();
+}
+
+function routeSection(): HTMLElement {
+  routeEl = el("section");
+  fillRoute();
+  return routeEl;
+}
+
+function fillRoute(): void {
+  const s = routeEl;
+  if (!s) return;
+  s.replaceChildren(el("h2", {}, "Read route"));
+  if (!state.outcome) {
+    s.append(el("p", { class: "small" }, `Connecting to anonymous read routes (${state.trying ?? "starting"})… Safe and payee reads wait for this.`));
+    const b = el("button", {}, "Skip: read directly (not anonymous)");
+    b.onclick = () => state.skip.abort();
+    s.append(b);
+    return;
+  }
+  for (const line of routeStatusText(state.outcome)) s.append(el("p", { class: "small" }, line));
 }
 
 // ---------- 1. wallet ----------
@@ -112,6 +166,7 @@ function safeSection(): HTMLElement {
   }
   const input = el("input", { id: "safe-address", placeholder: "Safe address (0x…)", spellcheck: "false" });
   const load = el("button", {}, "Load Safe");
+  if (state.info) input.value = state.info.address;
   const out = el("div");
   load.onclick = () => void onLoadSafe(input.value, out);
   s.append(el("label", { for: "safe-address" }, "Safe address on Sepolia"), input, load, out);
@@ -124,12 +179,18 @@ async function onLoadSafe(raw: string, out: HTMLElement): Promise<void> {
   try {
     if (!state.provider || !state.account) throw new InputError("Connect a wallet first.");
     const address = parseAddress(raw, "Safe address");
+    await state.route;
+    if (state.wallet) state.provider = compositeProvider(state.wallet.provider, state.reads);
     const code = await state.reads.getCode({ address });
     if (!code || code === "0x") throw new InputError("There is no contract at that address on Sepolia.");
     const safe = await openSafe(state.provider, state.account, address);
     const info = await loadSafeInfo(safe, state.reads, state.config.guard);
     state.safe = safe;
     state.info = info;
+    const { publisher, arkivAccessKey } = state.config;
+    state.listed ??= loadListed(publisher !== undefined, () =>
+      fetchAllEvidence(arkivReadClient({ accessKey: arkivAccessKey }), publisher as Address),
+    );
     render();
   } catch (e) {
     out.replaceChildren(el("div", { class: "error" }, errText(e)));
@@ -156,6 +217,12 @@ function renderSafeInfo(out: HTMLElement, info: SafeInfo): void {
           : `A different guard is set on this Safe (${info.guard.current}).`;
     out.append(el("div", { class: "error" }, `HexFence Guard is not active on this Safe. ${why} Nothing on-chain will refuse a lookalike payment.`));
   }
+  const evidenceLine = el("p", { class: "small" }, "Public evidence: loading…");
+  out.append(evidenceLine);
+  void state.listed?.then((l) => {
+    evidenceLine.textContent = listedStatusText(l);
+    if (l.status === "unavailable") evidenceLine.className = "error";
+  });
   out.append(el("p", { class: "small" }, `Approved payees (read once from the Guard): ${info.payees.length === 0 ? "none" : ""}`));
   const ul = el("ul");
   for (const p of info.payees) ul.append(el("li", { class: "mono" }, p));
@@ -210,19 +277,50 @@ async function onCheck(f: { asset: string; token: string; to: string; amount: st
     const amount = parseAmount(f.amount, asset.kind === "eth" ? 18 : asset.decimals);
     const call = buildPaymentCall(asset, recipient, amount);
     const decoded = decodeSafeCall(call, { safe: info.address, guard: state.config.guard });
-    const verdict = verdictFor(decoded, info.payees);
+    const listed = await state.listed;
+    const verdict = verdictFor(decoded, info.payees, listed?.status === "ok" ? listed.map : undefined);
     renderVerdict(out, verdict, recipient, call);
   } catch (e) {
     out.replaceChildren(el("div", { class: "error" }, errText(e)));
   }
 }
 
-function renderVerdict(out: HTMLElement, verdict: Verdict, recipient: Address, call: Call): void {
+// ---------- language (T12) ----------
+function langBar(): HTMLElement {
+  const bar = el("p", { class: "small" });
+  for (const [lang, label] of [["en", "English"], ["hi", "हिन्दी"]] as const) {
+    const b = el("button", { type: "button", "aria-pressed": String(state.lang === lang) }, label);
+    b.onclick = () => {
+      state.lang = lang;
+      bar.replaceWith(langBar());
+      if (state.shown) fillVerdictBox(state.shown.box, state.shown.verdict);
+    };
+    bar.append(b);
+  }
+  bar.append(" Hindi covers two verdicts (resembles an approved payee, new recipient); the others stay in English.");
+  return bar;
+}
+
+function fillVerdictBox(box: HTMLElement, verdict: Verdict): void {
   const info = state.info as SafeInfo;
-  const text = verdictText(verdict, { guardActive: info.guard.active, publisher: state.config.publisher });
+  const text = verdictText(verdict, { guardActive: info.guard.active, publisher: state.config.publisher, lang: state.lang });
+  const hindi = state.lang === "hi" && hindiText(verdict, { guardActive: info.guard.active }) !== undefined;
+  box.replaceChildren(el("strong", {}, verdict.level === "GREY" ? "CANNOT VERIFY" : verdict.level));
+  text.sentences.forEach((sentence, i) => {
+    const p = el("p", {}, i === 0 && verdict.level === "RED" ? el("strong", {}, sentence) : sentence);
+    if (hindi && !(sentence === GUARD_INACTIVE_SENTENCE)) p.lang = "hi";
+    box.append(p);
+  });
+  if (verdict.level === "RED" && verdict.reason === "listed") {
+    const url = state.config.explorerUrl;
+    if (url) box.append(el("p", { class: "small" }, link(url, "Open the explorer")));
+  }
+}
+
+function renderVerdict(out: HTMLElement, verdict: Verdict, recipient: Address, call: Call): void {
   const box = el("div", { class: `verdict ${verdict.level}` });
-  box.append(el("strong", {}, verdict.level === "GREY" ? "CANNOT VERIFY" : verdict.level));
-  text.sentences.forEach((sentence, i) => box.append(el("p", {}, i === 0 && verdict.level === "RED" ? el("strong", {}, sentence) : sentence)));
+  fillVerdictBox(box, verdict);
+  state.shown = { verdict, box };
   out.replaceChildren(box);
 
   const friction = requiresFriction(verdict);
