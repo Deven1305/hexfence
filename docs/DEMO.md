@@ -3,6 +3,7 @@
 **Video: 2:30–3:00, at least 720p** (ETHGlobal allows 2–4 minutes, EF CROPS at most 3). The spec's rough part lengths add up to 4 minutes, so the video needs the shorter timings below. In person, you can use the longer versions.
 
 ## Before recording
+- [ ] Run `node contracts/scripts/check-t8.js` with every address/hash argument in [RUNBOOK_T8.md](RUNBOOK_T8.md), require exit 0, and keep its public rows. Also check the second Safe{Wallet} L hash. Explorer evidence and the H6 wallet flow still need their separate checks.
 - [ ] Explorer open on the real publisher, with counts showing (needs `VITE_ARKIV_PUBLISHER`, `VITE_MAINNET_RPC_URL`)
 - [ ] One record chosen and already verified once: ✓ appears, and both Etherscan links open
 - [ ] HexFence Pay open, wallet on Sepolia, demo Safe loaded, status shows the Guard is active
