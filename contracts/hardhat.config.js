@@ -1,4 +1,6 @@
 require("@nomicfoundation/hardhat-ethers");
+// Secrets live in the repo-root .env (git-ignored); see ../.env.example for the names.
+require("dotenv").config({ path: require("path").join(__dirname, "..", ".env") });
 
 // Testnet only. Never put a key that holds real funds here.
 const { SEPOLIA_RPC_URL, DEPLOYER_PRIVATE_KEY } = process.env;
