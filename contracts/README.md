@@ -1,13 +1,13 @@
 # HexFenceGuard — reference implementation (AI-generated, tested)
 
-**What this is:** a reference Safe transaction guard for HexFence, written by Claude on Fri 6 Nov 2026 (after kickoff) and tested against the **real Safe 1.4.1 contracts** (npm `@safe-global/safe-contracts@1.4.1-build.0`) in Hardhat's in-process EVM. **13 tests pass.**
+**What this is:** a reference Safe transaction guard for HexFence, written by Claude on Fri 6 Nov 2026 (after kickoff) and tested against the **real Safe 1.4.1 contracts** (npm `@safe-global/safe-contracts@1.4.1-build.0`) in Hardhat's in-process EVM. **14 tests pass** (13 from the reference + the ready-made demo pair).
 
 **What Baqir must do (ETHGlobal rules):** read every line, adapt it, commit it in the team repo **with a clear message** (e.g. "Guard: start from Claude reference, reviewed by Baqir"), and list it in `docs/AI_USAGE.md`. Don't present it as hand-written.
 
 ## Run
 ```
 npm install --legacy-peer-deps      # safe-contracts declares an old ethers peer; this is expected
-npx hardhat test                    # 13 passing
+npx hardhat test                    # 14 passing
 ```
 If your network blocks the solc download, Hardhat can't fetch 0.8.26. Use a normal connection or a local solc.
 
