@@ -17,6 +17,11 @@ export function fingerprint(address: string): Fingerprint {
   return `0x${fp.toString(16).padStart(8, "0")}`;
 }
 
+/** Both addresses have the same fingerprint (true for an address and itself, and for the demo pair P/L). */
+export function sameFingerprint(a: string, b: string): boolean {
+  return fingerprint(a) === fingerprint(b);
+}
+
 /** Same fingerprint, different address: the shape of an address-poisoning lookalike. */
 export function isLookalike(candidate: string, of: string): boolean {
   return !sameAddress(candidate, of) && fingerprint(candidate) === fingerprint(of);

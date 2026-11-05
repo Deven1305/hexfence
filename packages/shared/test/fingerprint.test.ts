@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fingerprint, isLookalike } from "../src/fingerprint.js";
+import { fingerprint, isLookalike, sameFingerprint } from "../src/fingerprint.js";
 
 // The shared test vectors from spec §2; the Guard's Hardhat test checks the same ones on-chain.
 const USDT = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
@@ -30,6 +30,14 @@ describe("fingerprint", () => {
   it("rejects non-addresses", () => {
     expect(() => fingerprint("0x1234")).toThrow();
     expect(() => fingerprint("hello")).toThrow();
+  });
+});
+
+describe("sameFingerprint", () => {
+  it("is true for the demo pair and for an address and itself", () => {
+    expect(sameFingerprint(P_DEMO, L_DEMO)).toBe(true);
+    expect(sameFingerprint(P_DEMO, P_DEMO)).toBe(true);
+    expect(sameFingerprint(USDT, USDC)).toBe(false);
   });
 });
 
