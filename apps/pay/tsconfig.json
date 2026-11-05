@@ -1,0 +1,5 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": { "noEmit": true, "types": ["vite/client"], "declaration": false },
+  "include": ["src", "test", "vite.config.ts"]
+}

@@ -81,11 +81,22 @@ the same rules (one agent, no subagents, your paths only, commit + push after ev
 
 *Claude Code note:* if the hard limit is hit before the 5% stop, keep the session open. Claude Code (v2.1.234+) shows "limit resets HH:MM" and continues the task on its own after the reset. Every task is committed, so a sudden stop loses at most one step.
 
+## Git exception (Dhruv's ruling, 06 Nov)
+Lane B never commits to, merges into, or pushes `main`, and never enables auto-merge. This replaces step 4 of the Git rules in `docs/PARALLEL_PLAN.md`. Finished work goes up as a PR from a frozen snapshot branch: `git push origin lane-b:refs/heads/feat/pay-tN`, then `gh pr create --base main --head feat/pay-tN`. T10 to T12 PRs are drafts until T8 is done.
+
+## H6: manual Sepolia test of HexFence Pay (human, needs S3: Guard deployed, demo Safe with guard + approved payee P)
+1. Root `.env`: set `VITE_GUARD_ADDRESS`, `VITE_SEPOLIA_RPC_URL` (copy from `.env.example`).
+2. `pnpm --filter @hexfence/pay dev`, open the printed URL in a browser with a wallet that owns the demo Safe (1-of-1), on Sepolia.
+3. Connect, paste the demo Safe address, Load Safe. Expect: "HexFence Guard ... is active", P listed as payee.
+4. Pay L (`0x4E185a3FC4B530244aB9ed0dE38167b403344120`, 0.0001 ETH): expect RED with "Your protected Safe will refuse this payment.". Type `344120`, Continue. The wallet prompts twice (sign, then send; the send may show a "will fail" warning, click through). Expect a tx hash that reverts on Sepolia Etherscan with `LookalikeOfApprovedPayee(L, P)`. Record the hash.
+5. Pay B (any fresh address): AMBER, succeeds. Pay P: GREEN, succeeds. Record both hashes.
+6. If the wallet refuses to send the reverting transaction, note which wallet; demo step 1 then needs another wallet or Safe{Wallet}.
+
 ## Paused
 (not paused)
 
 ## Next step
-T6a
+T6 PR is open and its row waits on H6 (see above). Continue with T10 on `lane-b`: `apps/pay/src/evidence.ts` (bulk `fetchAllEvidence` -> Map keyed on `lookalike`), wire into `main.ts` `onCheck` (`verdictFor(decoded, payees, listed)`), `VITE_EXPLORER_URL` in `.env.example`, tests.
 
 ## Session log
 
