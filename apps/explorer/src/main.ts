@@ -7,6 +7,7 @@ import "./style.css";
 
 const app = document.querySelector<HTMLElement>("#app")!;
 const publisherEnv = (import.meta.env.VITE_ARKIV_PUBLISHER as string | undefined)?.trim() ?? "";
+const rpcUrl = (import.meta.env.VITE_MAINNET_RPC_URL as string | undefined)?.trim() || undefined;
 
 const counts = el("section", "counts", "Loading counts…");
 const status = el("p", "status");
@@ -56,7 +57,7 @@ if (!isAddress(publisherEnv, { strict: false })) {
     try {
       const page = await fetchEvidencePage(client, publisher, nextKey);
       if (gen !== generation) return;
-      results.append(...page.records.map(recordCard));
+      results.append(...page.records.map((e) => recordCard(e, rpcUrl)));
       nextKey = page.nextKey;
       more.hidden = !nextKey;
       const shown = results.childElementCount;
@@ -102,7 +103,7 @@ if (!isAddress(publisherEnv, { strict: false })) {
     findEvidenceByAddress(client, publisher, address)
       .then((records) => {
         if (gen !== generation) return;
-        results.append(...records.map(recordCard));
+        results.append(...records.map((e) => recordCard(e, rpcUrl)));
         status.textContent =
           records.length === 0
             ? "No records from this publisher mention this address. That does not show the address is harmless."

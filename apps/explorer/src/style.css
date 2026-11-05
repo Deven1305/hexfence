@@ -29,3 +29,7 @@ button[hidden] { display: none; }
 .key { flex: 0 0 100px; color: var(--muted); }
 .addr { font-family: ui-monospace, Consolas, monospace; overflow-wrap: anywhere; color: inherit; }
 mark { background: var(--mark); color: inherit; }
+.verify { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 10px; font-size: 0.85rem; }
+.verify button { padding: 5px 10px; }
+.verdict.good { color: #16a34a; font-weight: 600; }
+.verdict.bad { color: #d97706; }
