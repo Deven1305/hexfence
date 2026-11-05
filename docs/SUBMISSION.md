@@ -17,6 +17,7 @@ Anything in `‹DOUBLE_ANGLE_BRACKETS›` does not exist yet. Fill it from the s
 | ‹EXPLORER_URL›, ‹PAY_URL› | hosting (`.github/workflows/pages.yml`, see PROGRESS H11) |
 | ‹REPO_URL› | the public repo |
 | ‹VIDEO_URL› | the uploaded video |
+| ‹GUARD_REVIEWER› | the team member who actually reviewed the Guard; `docs/AI_USAGE.md` still needs this name |
 
 ## 1. Project name and tagline
 
@@ -48,7 +49,7 @@ Limits (stated in the README): module transactions bypass guards; MultiSend is r
 
 ## 4. How it's made
 
-- **Guard:** Solidity, Hardhat, tested against the real Safe 1.4.1 contracts, including the removal of the Guard through a real Safe transaction and the rejection of a second payee with the same fingerprint. The reference Guard and its tests are AI-generated and reviewed by the team (`docs/AI_USAGE.md`).
+- **Guard:** Solidity, Hardhat, tested against the real Safe 1.4.1 contracts, including the removal of the Guard through a real Safe transaction and the rejection of a second payee with the same fingerprint. The reference Guard and its tests are AI-generated; an AI agent checked them against the spec and ‹GUARD_REVIEWER› reviewed them (`docs/AI_USAGE.md`).
 - **Shared logic:** TypeScript package with the fingerprint, the Safe payment decoder, the verdict logic and the evidence schema (zod). A parity test checks the TypeScript fingerprint rule against the real Guard on 411 transactions.
 - **Detector:** TypeScript and viem, reading Ethereum mainnet USDT/USDC `Transfer` logs through a public RPC. Read-only.
 - **Arkiv:** `@arkiv-network/sdk` on the Rabdi testnet. Records are bulk-read and written idempotently. One publisher wallet signs.
@@ -85,7 +86,7 @@ Enter this track only if the submission form offers it and the Nox route was act
 
 > HexFence Pay routes its Sepolia RPC reads (Safe data, payees, balances) through Anon-RPC's Nox route (Sphinx mixnet) by default. A route counts as active only after a real Sepolia `eth_chainId` read has gone through it and returned 11155111. The page names the active route and never calls the direct path anonymous. If start-up fails, the user sees a labelled, non-anonymous direct fallback; once Nox is active, later read failures surface as errors and do not silently switch to direct. We state what is not covered: the single start-up read of the routing contract and the Arkiv bulk reads are direct, and the wallet signs and sends itself. Hosted Nox and Guard or payee reads through Nox are untested.
 
-Do not claim a latency figure unless you measured one for the video. The README records only that one local run started in about 9 seconds, which is one measurement and not a benchmark.
+Do not claim a latency figure unless you measured one for the video. The README records about 9 seconds in one browser check and more than 20 seconds (not timed) in another; neither is a benchmark.
 
 ## 6. Demo video
 
