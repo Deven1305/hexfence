@@ -1,7 +1,9 @@
 import { decodeSafeCall, verdictFor, type Verdict } from "@hexfence/shared";
+import { arkivReadClient, fetchAllEvidence } from "@hexfence/arkiv";
 import { getAddress, getContract, type Address, type EIP1193Provider, type Hex } from "viem";
 import type Safe from "@safe-global/protocol-kit";
 import { ConfigError, loadConfig, SEPOLIA_CHAIN_ID, SEPOLIA_EXPLORER, type Config } from "./config";
+import { listedStatusText, loadListed, type ListedState } from "./evidence";
 import { frictionSatisfied, frictionSuffix, requiresFriction } from "./friction";
 import { planFromSimulation, simulateExec } from "./execute";
 import { buildPaymentCall, erc20Abi, InputError, parseAddress, parseAmount, type Asset } from "./payment";
@@ -34,6 +36,8 @@ interface State {
   provider?: EIP1193Provider;
   safe?: Safe;
   info?: SafeInfo;
+  /** Arkiv evidence, read once in bulk the first time a Safe is loaded. */
+  listed?: Promise<ListedState>;
 }
 
 let state: State;
@@ -130,6 +134,10 @@ async function onLoadSafe(raw: string, out: HTMLElement): Promise<void> {
     const info = await loadSafeInfo(safe, state.reads, state.config.guard);
     state.safe = safe;
     state.info = info;
+    const { publisher, arkivAccessKey } = state.config;
+    state.listed ??= loadListed(publisher !== undefined, () =>
+      fetchAllEvidence(arkivReadClient({ accessKey: arkivAccessKey }), publisher as Address),
+    );
     render();
   } catch (e) {
     out.replaceChildren(el("div", { class: "error" }, errText(e)));
@@ -157,6 +165,12 @@ function renderSafeInfo(out: HTMLElement, info: SafeInfo): void {
     out.append(el("div", { class: "error" }, `HexFence Guard is not active on this Safe. ${why} Nothing on-chain will refuse a lookalike payment.`));
   }
   out.append(el("p", { class: "small" }, `Approved payees (read once from the Guard): ${info.payees.length === 0 ? "none" : ""}`));
+  const evidenceLine = el("p", { class: "small" }, "Public evidence: loading…");
+  out.append(evidenceLine);
+  void state.listed?.then((l) => {
+    evidenceLine.textContent = listedStatusText(l);
+    if (l.status === "unavailable") evidenceLine.className = "error";
+  });
   const ul = el("ul");
   for (const p of info.payees) ul.append(el("li", { class: "mono" }, p));
   out.append(ul);
@@ -210,7 +224,8 @@ async function onCheck(f: { asset: string; token: string; to: string; amount: st
     const amount = parseAmount(f.amount, asset.kind === "eth" ? 18 : asset.decimals);
     const call = buildPaymentCall(asset, recipient, amount);
     const decoded = decodeSafeCall(call, { safe: info.address, guard: state.config.guard });
-    const verdict = verdictFor(decoded, info.payees);
+    const listed = await state.listed;
+    const verdict = verdictFor(decoded, info.payees, listed?.status === "ok" ? listed.map : undefined);
     renderVerdict(out, verdict, recipient, call);
   } catch (e) {
     out.replaceChildren(el("div", { class: "error" }, errText(e)));
@@ -223,6 +238,10 @@ function renderVerdict(out: HTMLElement, verdict: Verdict, recipient: Address, c
   const box = el("div", { class: `verdict ${verdict.level}` });
   box.append(el("strong", {}, verdict.level === "GREY" ? "CANNOT VERIFY" : verdict.level));
   text.sentences.forEach((sentence, i) => box.append(el("p", {}, i === 0 && verdict.level === "RED" ? el("strong", {}, sentence) : sentence)));
+  if (verdict.level === "RED" && verdict.reason === "listed") {
+    const url = state.config.explorerUrl;
+    if (url) box.append(el("p", { class: "small" }, link(url, "Open the explorer")));
+  }
   out.replaceChildren(box);
 
   const friction = requiresFriction(verdict);

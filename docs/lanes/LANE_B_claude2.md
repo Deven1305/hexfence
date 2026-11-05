@@ -103,10 +103,11 @@ Lane B never commits to, merges into, or pushes `main`, and never enables auto-m
 (not paused)
 
 ## Next step
-T6 PR is open and its row waits on H6 (see above). Continue with T10 on `lane-b`: `apps/pay/src/evidence.ts` (bulk `fetchAllEvidence` -> Map keyed on `lookalike`), wire into `main.ts` `onCheck` (`verdictFor(decoded, payees, listed)`), `VITE_EXPLORER_URL` in `.env.example`, tests.
+T6 PR is open (waits on H6 above). T10 code is done on lane-b (draft PR `feat/pay-t10`). Continue with T11: `apps/pay/src/rpc.ts` `createReadClient(rpcUrl, fetchFn)` already takes a `fetchFn`; read the `@anon-rpc/browser-harness` docs, try Nox, then tor-js, then Nym (addresses in the plan), label the active route + fallback in the UI. Then T12.
 
 ## Session log
 
 | Time (IST) | Task | Result | Commit |
 |---|---|---|---|
 | 06 Nov ~03:00 | T6a+T6b | Pay shell + verdict UI. 20 Pay tests, tsc, vite build, contracts 14, shared 33, arkiv 4, detector 11 all green. Browser pane: shell and config-error states only (no wallet). Live test = H6. Note: `pnpm -r test` fails on this laptop only because a stray vite.config.ts in the Windows home folder is picked up by vitest in shared/arkiv/detector; run with `--config <empty file>` to verify. | bd20404 |
+| 06 Nov ~03:20 | T10 | `evidence.ts` (map keyed on lookalike only, one bulk read, labelled unavailable state), wired into Pay, `VITE_EXPLORER_URL` in `.env.example`. 25 Pay tests green, tsc + vite build clean. Live Arkiv read not exercised (no publisher yet). | (T10 commit) |
