@@ -1,0 +1,104 @@
+name: Build and deploy Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/explorer/**'
+      - 'apps/pay/**'
+      - 'packages/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'package.json'
+      - 'tsconfig*.json'
+      - '.github/workflows/pages.yml'
+  pull_request:
+    paths:
+      - 'apps/explorer/**'
+      - 'apps/pay/**'
+      - 'packages/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'package.json'
+      - 'tsconfig*.json'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      # Every VITE_* value is public in the browser bundle. Use only public or
+      # origin-restricted keys. Never add DEPLOYER_PRIVATE_KEY / ARKIV_PRIVATE_KEY.
+      VITE_ARKIV_PUBLISHER: ${{ vars.VITE_ARKIV_PUBLISHER }}
+      VITE_GUARD_ADDRESS: ${{ vars.VITE_GUARD_ADDRESS }}
+      VITE_SEPOLIA_RPC_URL: ${{ vars.VITE_SEPOLIA_RPC_URL }}
+      VITE_MAINNET_RPC_URL: ${{ vars.VITE_MAINNET_RPC_URL }}
+      VITE_ARKIV_ACCESS_KEY: ${{ vars.VITE_ARKIV_ACCESS_KEY }}
+      VITE_EXPLORER_URL: ${{ vars.VITE_EXPLORER_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install workspace dependencies
+        run: corepack pnpm@10.34.9 install --frozen-lockfile
+      - name: Require public production configuration
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: |
+          for name in VITE_ARKIV_PUBLISHER VITE_GUARD_ADDRESS VITE_SEPOLIA_RPC_URL; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Set repository variable $name before deploying Pages."
+              exit 1
+            fi
+          done
+      - name: Build shared packages
+        run: corepack pnpm@10.34.9 --filter @hexfence/shared --filter @hexfence/arkiv build
+      - name: Build explorer and Pay with relative asset URLs
+        # Relative bases handle /hexfence/explorer/ and /hexfence/pay/, root
+        # hosting and custom domains without changing application source.
+        run: |
+          corepack pnpm@10.34.9 --filter @hexfence/explorer build --base ./
+          corepack pnpm@10.34.9 --filter @hexfence/pay build --base ./
+      - name: Assemble Pages artifact
+        shell: bash
+        run: |
+          mkdir -p _site/explorer _site/pay
+          cp -R apps/explorer/dist/. _site/explorer/
+          cp -R apps/pay/dist/. _site/pay/
+          touch _site/.nojekyll
+          cat > _site/index.html <<'HTML'
+          <!doctype html>
+          <html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+          <title>HexFence</title><h1>HexFence</h1>
+          <p><a href="./explorer/">Evidence explorer</a></p>
+          <p><a href="./pay/">HexFence Pay (Sepolia)</a></p></html>
+          HTML
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  deploy:
+    # PRs build only. Manual runs on other branches cannot publish.
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@v5
+      - name: Deploy Pages artifact
+        id: deployment
+        uses: actions/deploy-pages@v4
