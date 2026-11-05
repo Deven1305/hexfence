@@ -12,9 +12,10 @@ AI agents wrote most of this repo's code and documentation. Humans chose the ide
 | A: core + data | Claude Code | Deven | T0, T1 review, T2 `packages/shared`, T4 `packages/arkiv`, T3 `apps/detector`, T13 sample and precision tooling, Guard-to-client parity test |
 | B: HexFence Pay | Claude Code (Sonnet) | Dhruv | T6 `apps/pay` (and T10, T11, T12 as they land) |
 | C: explorer + docs | Claude Code (Opus) | Dhruv | T5 `apps/explorer`, T9 Verify on Ethereum, T7 these docs, `docs/DEMO.md` ([PR #3](https://github.com/Deven1305/hexfence/pull/3), [PR #4](https://github.com/Deven1305/hexfence/pull/4)) |
-| Codex follow-up | Codex | Dhruv (`dhruv4740`) | Pay browser tests, demo setup, Nox-only reads and Pages workflow ([PRs #7–#10](#codex-follow-up-prs)) |
+| Codex follow-up | Codex | Dhruv (`dhruv4740`) | Pay browser tests, demo setup, Nox-only reads, Pages workflow, T8 checker and runbook, doc corrections ([PRs #7–#13](#codex-follow-up-prs)) |
 
-Lane C's initial explorer/docs work is recorded in merged PR #3; T9 is in PR #4.
+Dhruv's Claude Code session (Opus) also acted as organiser: it wrote the Lane B plan, checked each session's results, reviewed the PRs, resolved their merge conflicts and merged them. Lane C was planned for Codex and was done by Claude Code instead, because that account had usage left. The per-task history, with commit hashes, is in the logs in [docs/lanes/](lanes/).
+
 Codex subsequently produced the follow-up PRs below. These credits are drawn from
 `git log` and `gh pr view`; the Git author account is `dhruv4740`. A commit's
 presence does not establish a live deployment or completion of a human test.
@@ -27,11 +28,15 @@ presence does not establish a live deployment or completion of a human test.
 | [#8](https://github.com/Deven1305/hexfence/pull/8) | Rerunnable demo Safe/Guard setup and removal drill; ownership guidance and redacted provider diagnostics | `d7840b1`, `5abee81` |
 | [#9](https://github.com/Deven1305/hexfence/pull/9) | Nox-only route configuration, with a recorded browser Sepolia `VERSION()` read | `e3d3e72` |
 | [#10](https://github.com/Deven1305/hexfence/pull/10) | Pages workflow building explorer/Pay for subpaths from public repository variables | `3d6ef8b` |
+| [#11](https://github.com/Deven1305/hexfence/pull/11) | Etherscan verify setup, read-only T8 receipt checker and operator runbook | `9b75cb0`, `92c5538`, `84a6d81` |
+| [#12](https://github.com/Deven1305/hexfence/pull/12) | This table's first draft | `208906c` |
+| [#13](https://github.com/Deven1305/hexfence/pull/13) | Nox start-up and privacy-limit wording for the README and demo script | `097f294` |
 
 PR #7's result is a local scripted-wallet test. PR #9 records a Sepolia contract
 read, not a hosted Guard/payee test. PR #10 records a successful build/artifact
 upload with deployment skipped. These do not establish the H6/H7 human wallet
-flow, a Sepolia demo deployment or live Pages hosting.
+flow, a Sepolia demo deployment or live Pages hosting. PR #11's verify and checker
+have only run against local chains and scripted HTTP responses, not on Sepolia.
 
 ## How the agents worked
 Rules are in [AGENTS.md](../AGENTS.md) and [docs/PARALLEL_PLAN.md](PARALLEL_PLAN.md): one agent per lane, each editing only its own paths, meeting through the frozen signatures in [docs/INTERFACES.md](INTERFACES.md), with tests before each commit.
