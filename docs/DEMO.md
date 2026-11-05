@@ -3,6 +3,8 @@
 **Video: 2:30–3:00, at least 720p** (ETHGlobal allows 2–4 minutes, EF CROPS at most 3). The spec's rough part lengths add up to 4 minutes, so the video needs the shorter timings below. In person, you can use the longer versions.
 
 ## Before recording
+- [ ] Check Pay's **Read route** status. During start-up, Safe and payee reads wait. Wait for **Reads go through Nox (Sphinx mixnet)**, or choose **Skip: read directly (not anonymous)** and show the labelled direct route. A wallet can connect while start-up is pending; loading a Safe waits for the route decision.
+- [ ] If start-up fails, show the labelled direct fallback and say it is not anonymous. If an already active Nox route fails, reads show an error rather than silently switching to direct; reload to retry, or explicitly skip on the next start-up.
 - [ ] Run `node contracts/scripts/check-t8.js` with every address/hash argument in [RUNBOOK_T8.md](RUNBOOK_T8.md), require exit 0, and keep its public rows. Also check the second Safe{Wallet} L hash. Explorer evidence and the H6 wallet flow still need their separate checks.
 - [ ] Explorer open on the real publisher, with counts showing (needs `VITE_ARKIV_PUBLISHER`, `VITE_MAINNET_RPC_URL`)
 - [ ] One record chosen and already verified once: ✓ appears, and both Etherscan links open
@@ -15,6 +17,13 @@
   - L `0x4E185a3FC4B530244aB9ed0dE38167b403344120`
 - [ ] Removal drill hashes open (`setGuard(0)`, then re-enable)
 - [ ] Do one full rehearsal. Each L payment costs Sepolia gas, even when it reverts
+
+**Route validation limits:** one local run started in about **9 seconds** (one
+local measurement, not a hosted benchmark). **Hosted Nox and Guard or payee reads
+through Nox are untested.** The one bootstrap read is direct, Arkiv bulk reads are
+direct, and signing and sending still go through the wallet. A successful local
+Sepolia `VERSION()` read ([PR #9](https://github.com/Deven1305/hexfence/pull/9))
+does not establish those untested flows. State the route actually shown on screen.
 
 ## Part 1: real evidence (about 35 seconds)
 Label on screen: **Ethereum mainnet evidence · status: suspected**
@@ -46,6 +55,7 @@ Then state the limits: *"Modules bypass guards, MultiSend is refused, and a 4+4 
 ## If something fails during the live demo
 | Failure | What to do |
 |---|---|
+| Read-route start-up is still pending | Wait for the Nox status, or click **Skip: read directly (not anonymous)**. Safe/payee reads wait until that decision. Call direct reads non-anonymous |
 | Wallet refuses to send the L payment | Show the decoded refusal in Pay, then the L reverted hash already recorded in the README |
 | Arkiv is slow or rate limited | Set `VITE_ARKIV_ACCESS_KEY`. Failing that, use the recorded video |
 | Verify shows "could not verify" because of the RPC | Use another `VITE_MAINNET_RPC_URL` and try again. Don't describe it as a failed record |

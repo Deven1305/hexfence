@@ -156,6 +156,8 @@ P=<publisher wallet> pnpm exec tsx -e 'import("./src/index.ts").then(async ({ ar
 - **C:** The Guard is non-upgradeable and has no owner. It keeps refusing lookalikes even if our detector, explorer, client and Arkiv records all disappear. The detector is open source: anyone can run it and publish under their own wallet.
 - **O:** MIT licence. Everything builds and runs from the repo, and RPC endpoints are configurable.
 - **P:** The client checks recipients locally, without sending payment-specific threat lookups to a security provider. It reads the Safe's payees in bulk. There are no trackers.
+  - **RPC reads:** Pay tries Nox (Sphinx mixnet) for its Sepolia RPC reads and shows the active route. During start-up, Safe and payee reads wait: wait for the route status, or choose **Skip: read directly (not anonymous)**. A failed start-up uses a labelled direct fallback, which is not anonymous. Once Nox is active, later read failures surface as errors and do not silently switch to direct.
+  - **Not covered by Nox:** the one bootstrap read of the routing contract and the Arkiv bulk reads are direct, and signing and sending still go through the wallet.
   - **Still visible:** your wallet, Safe's transaction service (when you use the Safe UI) and the public chain all see the payment.
 - **S (lead property):**
   - the account enforces the rule;
@@ -167,6 +169,7 @@ P=<publisher wallet> pnpm exec tsx -e 'import("./src/index.ts").then(async ({ ar
   - the limits are stated.
 
 ## Limits
+- Nox covers the configured Sepolia RPC read route only (see CROPS, P). Hosted Nox and Guard or payee reads through Nox are untested. One local run started in about 9 seconds; that is one local measurement, not a benchmark.
 - Module transactions bypass transaction guards.
 - MultiSend is refused (it's a delegatecall).
 - Only ETH, `transfer` and `transferFrom` are inspected; other calls are allowed and clients show "cannot verify".
