@@ -1,0 +1,4 @@
+# contracts/ is deliberately NOT here: it is a standalone npm + Hardhat project (see AGENTS.md).
+packages:
+  - "packages/*"
+  - "apps/*"
