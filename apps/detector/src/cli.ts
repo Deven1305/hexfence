@@ -7,6 +7,8 @@
 //     Draws a random sample of records into a CSV for hand-labelling on Etherscan (T13 / H9).
 //   pnpm --filter @hexfence/detector precision [--sheet labels/h9-sample.csv]
 //     Precision = yes / (yes + no) from the filled-in sheet.
+//   pnpm --filter @hexfence/detector h9-evidence [--sheet labels/h9-sample.csv] [--evidence labels/h9-evidence.md] [--rpc https://ethereum-rpc.publicnode.com]
+//     Writes public mainnet facts for each sample row (never the CSV, never a label) so H9 labelling is quick.
 // detect and publish read the repo-root .env (or the environment).
 import { parseArgs } from "node:util";
 import { arkivReadClient, publishEvidence } from "@hexfence/arkiv";
@@ -15,6 +17,7 @@ import { privateKeyToAccount } from "viem/accounts";
 import { PoisoningDetector } from "./detect.js";
 import { fetchTransferLogs, mainnetClient } from "./fetch.js";
 import { mergeEvidence, readEvidence } from "./jsonl.js";
+import { buildSheet, writeSheet } from "./h9Evidence.js";
 import { readPrecision, sampleRecords, writeLabelSheet } from "./labels.js";
 
 const { positionals, values } = parseArgs({
@@ -28,6 +31,8 @@ const { positionals, values } = parseArgs({
     n: { type: "string", default: "30" },
     seed: { type: "string", default: "4919" },
     sheet: { type: "string", default: "labels/h9-sample.csv" },
+    evidence: { type: "string", default: "labels/h9-evidence.md" },
+    rpc: { type: "string", default: "https://ethereum-rpc.publicnode.com" },
   },
 });
 
@@ -37,7 +42,8 @@ async function main(): Promise<void> {
   if (command === "publish") return runPublish();
   if (command === "labels") return runLabels();
   if (command === "precision") return runPrecision();
-  throw new Error(`unknown command "${command ?? ""}"; use: detect | publish | labels | precision`);
+  if (command === "h9-evidence") return runH9Evidence();
+  throw new Error(`unknown command "${command ?? ""}"; use: detect | publish | labels | precision | h9-evidence`);
 }
 
 async function runDetect(): Promise<void> {
@@ -72,6 +78,15 @@ async function runDetect(): Promise<void> {
   console.log(
     `${found.length} suspected poisonings in this window (${JSON.stringify(byVariant)}); ${added} new; ${total} in ${values.out}`,
   );
+}
+
+async function runH9Evidence(): Promise<void> {
+  const client = mainnetClient(values.rpc);
+  const chainId = await client.getChainId();
+  if (chainId !== 1) throw new Error(`${values.rpc} is chain ${chainId}, not Ethereum mainnet (1)`);
+  const { markdown, rows } = await buildSheet(client, values.sheet, values.rpc);
+  writeSheet(values.evidence, markdown);
+  console.log(`wrote ${rows} rows to ${values.evidence} (the CSV was only read)`);
 }
 
 async function runPublish(): Promise<void> {
