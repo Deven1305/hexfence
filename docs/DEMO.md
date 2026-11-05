@@ -18,12 +18,11 @@
 - [ ] Removal drill hashes open (`setGuard(0)`, then re-enable)
 - [ ] Do one full rehearsal. Each L payment costs Sepolia gas, even when it reverts
 
-**Route validation limits:** one local run started in about **9 seconds** (one
-local measurement, not a hosted benchmark). **Hosted Nox and Guard or payee reads
-through Nox are untested.** The one bootstrap read is direct, Arkiv bulk reads are
-direct, and signing and sending still go through the wallet. A successful local
-Sepolia `VERSION()` read ([PR #9](https://github.com/Deven1305/hexfence/pull/9))
-does not establish those untested flows. State the route actually shown on screen.
+**Route validation limits:** Nox start-up took about **9 seconds** in one browser
+check and more than 20 seconds (not timed) in another; neither is a hosted
+benchmark. **Hosted Nox and Guard or payee reads through Nox are untested.** The
+one bootstrap read is direct, Arkiv bulk reads are direct, and signing and
+sending still go through the wallet. State the route actually shown on screen.
 
 ## Part 1: real evidence (about 35 seconds)
 Label on screen: **Ethereum mainnet evidence · status: suspected**
@@ -42,7 +41,7 @@ Say: ***"This is a synthetic test pair, not a real attack."***
 3. **Pay B**, a new supplier → AMBER → **succeeds**. *"Not an allowlist: new suppliers still work."*
 4. **Pay P** → GREEN → **succeeds**.
 5. **Client off:** close HexFence Pay and pay L again **from Safe{Wallet}, not from Pay** → **still reverts**. *"Enforcement doesn't need our software."*
-   - Safe{Wallet} warns that the transaction will fail. **Choose to execute anyway and set a manual gas limit in the wallet** (200,000 is well above the measured cost of about 68,000), so the revert is actually mined and you get a hash.
+   - Safe{Wallet} warns that the transaction will fail. **Choose to execute anyway and set a manual gas limit in the wallet** (`RUNBOOK_T8.md` uses 200000), so the revert is actually mined and you get a hash.
 6. Show the removal drill hashes: `setGuard(0)`, then re-enabled. *"Removal is tested through real Safe transactions."*
 
 ## Part 3: why it's new (about 30 seconds)
@@ -53,7 +52,7 @@ Then state the limits: *"Modules bypass guards, MultiSend is refused, and a 4+4 
 **Never say:** "the first recipient guard for Safe", "verified" or "evidence" about the synthetic L, or "scammer" or "malicious" about any address.
 
 ## Narration script for the video (2:30–3:00)
-Spoken text only, about 400 words at an unhurried pace (about 2.5 words a second, so about 2:40; rehearse it with a timer). Wording follows spec §3.4: the verdict is "resembles your approved payee", the evidence is "suspected", and the synthetic pair is never called verified or evidence. Square brackets are on-screen cues, not spoken.
+Spoken text only, about 370 spoken words, which is about 2:30 at 2.5 words a second before pauses and clicks, so expect 2:40 to 2:55; rehearse it with a timer. Wording follows spec §3.4: the verdict is "resembles your approved payee", the evidence is "suspected", and the synthetic pair is never called verified or evidence. Square brackets are on-screen cues, not spoken.
 
 **Hashes and counts:** the transaction hashes shown in Part 2, step 7, and the record count in Part 1 come from whatever the Sepolia run and the Arkiv publish actually produced. Replace each ‹…› with the real value before recording, and read out only what is on screen. Do not read a hash aloud.
 
