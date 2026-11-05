@@ -1,0 +1,23 @@
+{
+  "name": "@hexfence/detector",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "description": "Finds suspected address-poisoning attacks in Ethereum mainnet USDT/USDC Transfer logs and writes evidence.jsonl.",
+  "type": "module",
+  "scripts": {
+    "detect": "tsx --env-file-if-exists=../../.env src/cli.ts detect",
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@hexfence/shared": "workspace:*",
+    "viem": "2.57.16"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3",
+    "vitest": "4.1.12"
+  }
+}
