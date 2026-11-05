@@ -92,9 +92,12 @@ the same rules (one agent, no subagents, your paths only, commit + push after ev
 (not paused)
 
 ## Next step
-T5
+After H5/S4: set `VITE_ARKIV_PUBLISHER`, run `pnpm --filter @hexfence/explorer dev`, confirm real records and counts, click Verify on one, then mark T5 ✔. Fill the README and `arkiv/reach.md` values as humans and Lane A produce them. Add the Anon-RPC sentence to the README CROPS section only when T11 is ✔; add T13 precision when H9 is done.
 
 ## Session log
 
 | Time (IST) | Task | Result | Commit |
 |---|---|---|---|
+| 06 Nov 02:31 | T5 | ⏸ explorer built, 5 tests, live Rabdi read works with an empty test publisher; real records wait on S4/H5. Agent: Claude Code (Opus) on Dhruv's account, standing in for Codex one time. Git: PRs, not direct merges to main (the user's global rule) | 52bb472 |
+| 06 Nov 02:31 | T7 | ✔ README, four Arkiv files, AI_USAGE; only human-produced values left open | 03804f5 |
+| 06 Nov 02:31 | Demo | ✔ docs/DEMO.md; timings shortened so the video fits 3:00 | 393ad20 |
