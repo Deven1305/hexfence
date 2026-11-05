@@ -4,18 +4,18 @@
 > Status: ☐ todo · ▶ in progress · ✔ done · ⏸ waiting on humans
 
 ## Now
-- **Current task:** T1
+- **Current task:** T2
 - **Agent working:** Claude Code
 - **Last updated:** 05 Nov 20:02 IST
-- **Tests:** contracts 13 passing · packages (none yet)
-- **Next step for whoever comes next:** T1 (Guard review + Sepolia deploy steps)
+- **Tests:** contracts 14 passing · packages (none yet)
+- **Next step for whoever comes next:** T2 (`packages/shared`). T1 is ⏸ on H1+H2 (live deploy only).
 
 ## Tasks (strict order)
 
 | ID | Tier | Task | Done when | Status | Commit | Agent | Notes |
 |---|---|---|---|---|---|---|---|
 | T0 | P0 | Repo set-up. The layout from AGENTS.md, MIT LICENSE, `.gitignore`, `.env.example` (names only), the pnpm workspace, `contracts/` copied from 11_HexFence_Guard_reference, spec PDF + MD in `docs/planning/` | `cd contracts && npm i --legacy-peer-deps && npx hardhat test` → 13 passing; `pnpm i` works | ✔ | 545ac36 | Claude Code | MIT LICENSE was already on GitHub (kept). Root `package.json`, `pnpm-workspace.yaml`, `tsconfig.base.json`, `.env.example`, `.gitattributes` (LF). Package dirs are created by their own tasks. Tested on Node 20.20 (Node 22 not installed on the driver laptop; see Decisions log). |
-| T1 | P0 | Guard. Review the reference, keep its behaviour, document the Sepolia deploy in the README draft | 13 passing; deploy works once H1 is done | ☐ | | | Needs H1–H3 |
+| T1 | P0 | Guard. Review the reference, keep its behaviour, document the Sepolia deploy in the README draft | 13 passing; deploy works once H1 is done | ⏸ | ba07540 | Claude Code | Reviewed: logic matches §3.1, unchanged. Added: Hardhat loads root `.env`; `deploy.js` refuses non-Sepolia chains and checks `supportsInterface(0xe6d7a83a)`; a test for the ready-made §3.5 pair → **14 passing**. README draft has the deploy + Safe{Wallet} steps. ⏸ only for the live deploy (H1, H2); H3 is needed by T8. |
 | T2 | P0 | `packages/shared`: `fingerprint()`, the Safe payment decoder (SafeTx typed data; `execTransaction` `0x6a761202`; `transfer` / `transferFrom`), the PoisoningEvidence zod schema | vitest green, including USDT→`0xdac11ec7`, USDC→`0xa0b8eb48`, zero→`0x00000000`, both addresses of the ready pair→`0x4e184120` | ☐ | | | |
 | T3 | P0 | `apps/detector`: mainnet USDT/USDC Transfer logs (latest 7,200 blocks, 100-block windows), zero-value + dust rules → `evidence.jsonl` | Unit tests on fixture logs pass; a real run (needs H4) finds ≥5 pairs | ☐ | | | |
 | T4 | P0 | Arkiv writer: `hexfence.poisoning.v1`, 30-day expiry, idempotent by `evidenceId`, publisher wallet; one README query | A re-run creates 0 duplicates; the query returns the records (needs H5) | ☐ | | | |
@@ -31,8 +31,8 @@
 | T14 | P2 | Chrome extension (Plan A). Only if every task above is ✔ | | ☐ | | | |
 
 ## Waiting on humans (tick the box when done; then the agent continues)
-- [ ] **H1:** a testnet-only deployer key + `SEPOLIA_RPC_URL` in `.env` (never commit them)
-- [ ] **H2:** deploy the guard: `cd contracts && npx hardhat run scripts/deploy.js --network sepolia` → paste the address below
+- [ ] **H1:** `cp .env.example .env` in the repo root. Fill `SEPOLIA_RPC_URL` (e.g. an Alchemy/Infura Sepolia URL) and `DEPLOYER_PRIVATE_KEY` (a **new, testnet-only** key: `node -e "console.log(require('ethers').Wallet.createRandom().privateKey)"` from `contracts/`). Send ~0.05 Sepolia ETH to it from a faucet. Never commit `.env`.
+- [ ] **H2:** `cd contracts && npx hardhat run scripts/deploy.js --network sepolia`. It prints `HexFenceGuard deployed at: 0x…` and `Deploy tx: 0x…`; paste both into the table below and into `.env` as `VITE_GUARD_ADDRESS`.
 - [ ] **H3:** in Safe{Wallet} on Sepolia, create a 1-of-1 demo Safe and fund it with test ETH. In Transaction Builder, one call per transaction: `setGuard(guard)`, then `approvePayee(P)`. Then the removal drill: `setGuard(0x0…0)` → re-enable. Paste the hashes below.
 - [ ] **H4:** `MAINNET_RPC_URL` in `.env`
 - [ ] **H5:** an Arkiv access key (hub.arkiv.network) + faucet tGLM for the publisher wallet; the `ARKIV_*` variables in `.env`
@@ -64,3 +64,4 @@
 | Time (IST) | Agent | Task | Result | Commit |
 |---|---|---|---|---|
 | 05 Nov 20:02 | Claude Code | T0 | ✔ contracts 13 passing; `pnpm i` works | 545ac36 |
+| 05 Nov 20:20 | Claude Code | T1 | ⏸ review done, 14 passing; waiting on H1+H2 for the deploy | ba07540 |
