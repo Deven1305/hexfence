@@ -92,4 +92,4 @@ T3: create `apps/detector` (viem mainnet `getLogs`, USDT/USDC Transfer, latest 7
 | Time (IST) | Task | Result | Commit |
 |---|---|---|---|
 | 06 Nov 01:49 | T2 | ✔ `@hexfence/shared` per INTERFACES, 30 tests; pushed (S1) | 90f8b05 |
-| 06 Nov 01:59 | T4a | ✔ `@hexfence/arkiv` read side + `arkiv/schema.md`; live Rabdi read OK (S2) | c673a4a |
+| 06 Nov 01:59 | T4a | ✔ `@hexfence/arkiv` read side + `arkiv/schema.md`; live Rabdi read OK (S2) | 691f634 |
