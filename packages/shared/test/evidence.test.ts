@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { evidenceId, matchLengths, PoisoningEvidence } from "../src/evidence.js";
+import { evidenceId, matchLengths, PoisoningEvidenceSchema } from "../src/evidence.js";
 
 // Synthetic values for the schema test only; they are not a real record.
 const P = "0x4E185e251Ac7fB83E9DE10723EAda46cadE74120";
@@ -25,28 +25,35 @@ const valid = () => ({
   status: "suspected",
 });
 
-describe("PoisoningEvidence", () => {
+describe("PoisoningEvidenceSchema", () => {
   it("accepts a well-formed record and checksums addresses", () => {
-    const r = PoisoningEvidence.parse({ ...valid(), victim: VICTIM.toLowerCase() });
+    const r = PoisoningEvidenceSchema.parse({ ...valid(), victim: VICTIM.toLowerCase() });
     expect(r.victim).toBe(VICTIM);
     expect(r.prefixLen).toBe(5); // 4E185 shared
     expect(r.suffixLen).toBe(4); // 4120
   });
 
   it("only ever allows status 'suspected'", () => {
-    expect(PoisoningEvidence.safeParse({ ...valid(), status: "malicious" }).success).toBe(false);
+    expect(PoisoningEvidenceSchema.safeParse({ ...valid(), status: "malicious" }).success).toBe(false);
   });
 
   it("rejects records that are not a real resemblance or are out of order", () => {
     const usdtLookalike = { ...valid(), lookalike: USDT, evidenceId: evidenceId(1, USDT, P, "0.1.0") };
-    expect(PoisoningEvidence.safeParse(usdtLookalike).success).toBe(false);
-    expect(PoisoningEvidence.safeParse({ ...valid(), referenceBlock: 102 }).success).toBe(false);
-    expect(PoisoningEvidence.safeParse({ ...valid(), variant: "spoof" }).success).toBe(false);
+    expect(PoisoningEvidenceSchema.safeParse(usdtLookalike).success).toBe(false);
+    expect(PoisoningEvidenceSchema.safeParse({ ...valid(), referenceBlock: 102 }).success).toBe(false);
+    expect(PoisoningEvidenceSchema.safeParse({ ...valid(), variant: "spoof" }).success).toBe(false);
+  });
+
+  it("accepts only mainnet USDT/USDC and chainId 1", () => {
+    expect(PoisoningEvidenceSchema.safeParse({ ...valid(), token: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48" }).success).toBe(true);
+    expect(PoisoningEvidenceSchema.safeParse({ ...valid(), token: VICTIM }).success).toBe(false);
+    const sepolia = { ...valid(), chainId: 11155111, evidenceId: evidenceId(11155111, L, P, "0.1.0") };
+    expect(PoisoningEvidenceSchema.safeParse(sepolia).success).toBe(false);
   });
 
   it("rejects a forged evidenceId and unknown fields (no made-up confidence)", () => {
-    expect(PoisoningEvidence.safeParse({ ...valid(), evidenceId: tx(9) }).success).toBe(false);
-    expect(PoisoningEvidence.safeParse({ ...valid(), confidence: 0.9 }).success).toBe(false);
+    expect(PoisoningEvidenceSchema.safeParse({ ...valid(), evidenceId: tx(9) }).success).toBe(false);
+    expect(PoisoningEvidenceSchema.safeParse({ ...valid(), confidence: 0.9 }).success).toBe(false);
   });
 });
 
