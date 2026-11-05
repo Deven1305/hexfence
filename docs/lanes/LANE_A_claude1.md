@@ -28,6 +28,7 @@
 ## Notes for other lanes (A writes facts here, B and C read them)
 - `@hexfence/arkiv` read side is on main (S2): `arkivReadClient({ accessKey })`, `fetchAllEvidence(client, publisher)`, `findEvidenceByAddress(client, publisher, address)`. Browser-safe (no Node imports).
 - Arkiv README query: (to fill in at T4b)
+- Detector numbers for the README (T3): 24 h run 06 Nov, blocks 26343865–26351064: 1,330,446 USDT/USDC Transfer logs → 43,227 suspected pairs (31,801 zero-value, 11,426 dust); 40/40 random records confirmed against receipts. Precision: pending H9.
 - Publisher wallet: (to fill in)
 
 ## Usage-limit rule (stop at 5% left, resume after the reset)
@@ -86,7 +87,7 @@ the same rules (one agent, no subagents, your paths only, commit + push after ev
 
 ## Next step
 - **T4b ⏸ H5:** once H5 is ticked: `pnpm --filter @hexfence/detector publish:arkiv --limit 25` → run it again (must print `0 created`) → `ARKIV_LIVE=1 ARKIV_PUBLISHER=<addr> pnpm --filter @hexfence/arkiv test` → fill "Publisher wallet" + "Arkiv README query" below → decide the publish scope (43k/day).
-- **T13 (now):** draw 30 random records from `apps/detector/out/evidence.jsonl` into a labelling sheet for H9; precision table once labelled.
+- **T13 ⏸ H9:** the sheet is `apps/detector/labels/h9-sample.csv`; once it's labelled, run `pnpm --filter @hexfence/detector precision` and put the numbers below for Lane C.
 - **T1 ⏸ H1+H2:** record the Guard address, keep contracts green.
 
 ## Session log
@@ -97,3 +98,4 @@ the same rules (one agent, no subagents, your paths only, commit + push after ev
 | 06 Nov 01:59 | T4a | ✔ `@hexfence/arkiv` read side + `arkiv/schema.md`; live Rabdi read OK (S2) | 691f634 |
 | 06 Nov 02:16 | T3 | ✔ detector; real 24h run 43,227 pairs, 40/40 receipts confirmed; Guard parity test added to T2 | aaa233c |
 | 06 Nov 02:24 | T4b | ⏸ code done (writer, batch publisher, CLI); live dry run stops only at the tGLM balance; waiting on H5 | d56bee3 |
+| 06 Nov 02:23 | T13 | ⏸ ≥20 pairs done (43,227); 30-record label sheet + precision command ready; waiting on H9 | 4c631f1 |
