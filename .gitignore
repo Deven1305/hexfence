@@ -1,0 +1,19 @@
+# Dependencies and build output
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Secrets: testnet keys only, and never in git (names are in .env.example)
+.env
+.env.*
+!.env.example
+.pair.local.json
+
+# Detector output (published to Arkiv; regenerate with the detector)
+apps/detector/out/
+
+# Editors / OS
+.DS_Store
+.vscode/
+.idea/
