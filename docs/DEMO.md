@@ -5,6 +5,7 @@
 ## Before recording
 - [ ] Check Pay's **Read route** status. During start-up, Safe and payee reads wait. Wait for **Reads go through Nox (Sphinx mixnet)**, or choose **Skip: read directly (not anonymous)** and show the labelled direct route. A wallet can connect while start-up is pending; loading a Safe waits for the route decision.
 - [ ] If start-up fails, show the labelled direct fallback and say it is not anonymous. If an already active Nox route fails, reads show an error rather than silently switching to direct; reload to retry, or explicitly skip on the next start-up.
+- [ ] Run `node contracts/scripts/check-t8.js` with every address/hash argument in [RUNBOOK_T8.md](RUNBOOK_T8.md), require exit 0, and keep its public rows. Also check the second Safe{Wallet} L hash. Explorer evidence and the H6 wallet flow still need their separate checks.
 - [ ] Explorer open on the real publisher, with counts showing (needs `VITE_ARKIV_PUBLISHER`, `VITE_MAINNET_RPC_URL`)
 - [ ] One record chosen and already verified once: ✓ appears, and both Etherscan links open
 - [ ] HexFence Pay open, wallet on Sepolia, demo Safe loaded, status shows the Guard is active
