@@ -71,6 +71,32 @@ describe("verdict strings (spec 3.4)", () => {
   });
 });
 
+describe("Hindi (T12, spec 3.4 verbatim)", () => {
+  const SPEC_RED = `संभावित एड्रेस पॉइज़निंग: यह प्राप्तकर्ता आपके स्वीकृत प्राप्तकर्ता ${P} जैसा दिखता है (पहले 4 और आख़िरी 4 अक्षर समान), लेकिन यह अलग पता है। आपका सुरक्षित Safe यह भुगतान नहीं करेगा।`;
+  const SPEC_AMBER = "नया प्राप्तकर्ता: यह आपके स्वीकृत प्राप्तकर्ताओं में नहीं है। HexFence इस भुगतान को नहीं रोकेगा। पूरा पता प्राप्तकर्ता से मिलाकर देखें।";
+  it("RED resembles and AMBER match the spec text exactly", () => {
+    expect(verdictText(verdictFor(eth(L), [P]), { guardActive: true, lang: "hi" }).sentences.join(" ")).toBe(SPEC_RED);
+    expect(verdictText(verdictFor(eth(B), [P]), { guardActive: true, lang: "hi" }).sentences.join(" ")).toBe(SPEC_AMBER);
+  });
+  it("Guard not active: the refusal claim is dropped, English notice used", () => {
+    const t = verdictText(verdictFor(eth(L), [P]), { guardActive: false, lang: "hi" });
+    expect(t.guardNotice).toBe(true);
+    expect(t.sentences.join(" ")).not.toContain("नहीं करेगा");
+    expect(t.sentences[1]).toBe(GUARD_INACTIVE_SENTENCE);
+  });
+  it("every other verdict stays English even when Hindi is selected", () => {
+    const listed = verdictFor(eth(B), [P], new Map([[B.toLowerCase(), ["0xab" as Hex]]]));
+    const others: Verdict[] = [verdictFor(eth(P), [P]), listed, { level: "GREY", reason: "delegatecall" }, { level: "GREY", reason: "unsupported" }];
+    for (const v of others) {
+      const ctx = { guardActive: true, publisher: "0xPUB" };
+      expect(verdictText(v, { ...ctx, lang: "hi" })).toEqual(verdictText(v, ctx));
+    }
+  });
+  it("default language is English", () => {
+    expect(verdictText(verdictFor(eth(B), [P]), { guardActive: true }).sentences[0]).toBe("New recipient: not one of your approved payees.");
+  });
+});
+
 describe("friction", () => {
   it("only RED needs it", () => {
     expect(requiresFriction(verdictFor(eth(L), [P]))).toBe(true);

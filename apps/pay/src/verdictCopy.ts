@@ -12,12 +12,46 @@ export interface CopyContext {
   /** `safe.getGuard()` equals VITE_GUARD_ADDRESS. The "will refuse" claim is shown only when true. */
   guardActive: boolean;
   publisher?: string;
+  /** Display language. Hindi exists only for RED resembles and AMBER (spec 3.4, P1); every other verdict stays English. */
+  lang?: Lang;
 }
+
+export type Lang = "en" | "hi";
 
 export const GUARD_INACTIVE_SENTENCE =
   "HexFence Guard is not active on this Safe, so nothing on-chain will stop this payment.";
 
+/**
+ * Spec 3.4 Hindi, verbatim, split at its sentence boundaries. NOT yet checked by a native speaker (T12 stays blocked on that).
+ * When the Guard is not active the last RED sentence ("your Safe will not make this payment") would be false, so the
+ * English Guard-inactive sentence is used instead; the spec has no Hindi for it.
+ */
+export function hindiText(v: Verdict, ctx: CopyContext): VerdictText | undefined {
+  if (v.level === "RED" && v.reason === "resembles") {
+    return {
+      level: "RED",
+      sentences: [
+        `संभावित एड्रेस पॉइज़निंग: यह प्राप्तकर्ता आपके स्वीकृत प्राप्तकर्ता ${v.payee} जैसा दिखता है (पहले 4 और आख़िरी 4 अक्षर समान), लेकिन यह अलग पता है।`,
+        ctx.guardActive ? "आपका सुरक्षित Safe यह भुगतान नहीं करेगा।" : GUARD_INACTIVE_SENTENCE,
+      ],
+      guardNotice: !ctx.guardActive,
+    };
+  }
+  if (v.level === "AMBER") {
+    return {
+      level: "AMBER",
+      sentences: ["नया प्राप्तकर्ता: यह आपके स्वीकृत प्राप्तकर्ताओं में नहीं है।", "HexFence इस भुगतान को नहीं रोकेगा।", "पूरा पता प्राप्तकर्ता से मिलाकर देखें।"],
+      guardNotice: false,
+    };
+  }
+  return undefined;
+}
+
 export function verdictText(v: Verdict, ctx: CopyContext): VerdictText {
+  if (ctx.lang === "hi") {
+    const hi = hindiText(v, ctx);
+    if (hi) return hi;
+  }
   const t = (sentences: string[], guardNotice = false): VerdictText => ({ level: v.level, sentences, guardNotice });
   switch (v.level) {
     case "RED":

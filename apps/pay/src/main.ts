@@ -11,7 +11,7 @@ import { buildPaymentCall, erc20Abi, InputError, parseAddress, parseAmount, type
 import { describeRevert } from "./revert";
 import { compositeProvider, createReadClient, type ReadClient } from "./rpc";
 import { loadSafeInfo, openSafe, type SafeInfo } from "./safe";
-import { verdictText } from "./verdictCopy";
+import { GUARD_INACTIVE_SENTENCE, hindiText, verdictText, type Lang } from "./verdictCopy";
 import { connect, discoverWallets, isUserRejection, switchToSepolia, walletChainId, type WalletOption } from "./wallet";
 
 const app = document.getElementById("app") as HTMLElement;
@@ -44,6 +44,8 @@ interface State {
   outcome?: AnonOutcome;
   trying?: string;
   skip: AbortController;
+  lang: Lang;
+  shown?: { verdict: Verdict; box: HTMLElement };
 }
 
 let state: State;
@@ -56,7 +58,7 @@ function boot(): void {
     app.replaceChildren(el("h1", {}, "HexFence Pay"), el("div", { class: "error" }, e instanceof ConfigError ? e.message : String(e)));
     return;
   }
-  state = { config, reads: createReadClient(config.sepoliaRpcUrl), route: Promise.resolve(), skip: new AbortController() };
+  state = { config, reads: createReadClient(config.sepoliaRpcUrl), route: Promise.resolve(), skip: new AbortController(), lang: "en" };
   state.route = startRoute();
   render();
 }
@@ -65,6 +67,7 @@ function render(): void {
   app.replaceChildren(
     el("h1", {}, "HexFence Pay"),
     el("p", { class: "sub" }, "Checks a payment against your approved payees before you sign. Sepolia test network."),
+    langBar(),
     routeSection(),
     walletSection(),
     safeSection(),
@@ -283,16 +286,42 @@ async function onCheck(f: { asset: string; token: string; to: string; amount: st
   }
 }
 
-function renderVerdict(out: HTMLElement, verdict: Verdict, recipient: Address, call: Call): void {
+// ---------- language (T12) ----------
+function langBar(): HTMLElement {
+  const bar = el("p", { class: "small" });
+  for (const [lang, label] of [["en", "English"], ["hi", "हिन्दी"]] as const) {
+    const b = el("button", { type: "button", "aria-pressed": String(state.lang === lang) }, label);
+    b.onclick = () => {
+      state.lang = lang;
+      bar.replaceWith(langBar());
+      if (state.shown) fillVerdictBox(state.shown.box, state.shown.verdict);
+    };
+    bar.append(b);
+  }
+  bar.append(" Hindi covers two verdicts (resembles an approved payee, new recipient); the others stay in English.");
+  return bar;
+}
+
+function fillVerdictBox(box: HTMLElement, verdict: Verdict): void {
   const info = state.info as SafeInfo;
-  const text = verdictText(verdict, { guardActive: info.guard.active, publisher: state.config.publisher });
-  const box = el("div", { class: `verdict ${verdict.level}` });
-  box.append(el("strong", {}, verdict.level === "GREY" ? "CANNOT VERIFY" : verdict.level));
-  text.sentences.forEach((sentence, i) => box.append(el("p", {}, i === 0 && verdict.level === "RED" ? el("strong", {}, sentence) : sentence)));
+  const text = verdictText(verdict, { guardActive: info.guard.active, publisher: state.config.publisher, lang: state.lang });
+  const hindi = state.lang === "hi" && hindiText(verdict, { guardActive: info.guard.active }) !== undefined;
+  box.replaceChildren(el("strong", {}, verdict.level === "GREY" ? "CANNOT VERIFY" : verdict.level));
+  text.sentences.forEach((sentence, i) => {
+    const p = el("p", {}, i === 0 && verdict.level === "RED" ? el("strong", {}, sentence) : sentence);
+    if (hindi && !(sentence === GUARD_INACTIVE_SENTENCE)) p.lang = "hi";
+    box.append(p);
+  });
   if (verdict.level === "RED" && verdict.reason === "listed") {
     const url = state.config.explorerUrl;
     if (url) box.append(el("p", { class: "small" }, link(url, "Open the explorer")));
   }
+}
+
+function renderVerdict(out: HTMLElement, verdict: Verdict, recipient: Address, call: Call): void {
+  const box = el("div", { class: `verdict ${verdict.level}` });
+  fillVerdictBox(box, verdict);
+  state.shown = { verdict, box };
   out.replaceChildren(box);
 
   const friction = requiresFriction(verdict);
