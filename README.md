@@ -59,7 +59,36 @@ npx hardhat test                 # 14 passing
    cd contracts
    npx hardhat run scripts/deploy.js --network sepolia
    ```
-3. In **Safe{Wallet}** on Sepolia, use an **isolated 1-of-1 demo Safe** holding test ETH only. Check the Safe's `VERSION()` (1.4.1 is what the tests use). Then in **Apps → Transaction Builder**, send **one call per transaction**. A batch uses a MultiSend delegatecall, and the Guard refuses delegatecalls.
+3. To automate the isolated demo setup instead, run from `contracts/`:
+   ```bash
+   node scripts/setup-demo.js
+   ```
+   It reads `SEPOLIA_RPC_URL` and `DEPLOYER_PRIVATE_KEY` from the root `.env`, refuses
+   every chain ID except 11155111, deploys the unchanged Guard and creates a 1-of-1
+   Safe **1.4.1** through Safe's canonical Sepolia factory. It tops the Safe up to
+   0.002 test ETH, executes `setGuard` and `approvePayee(P)`, then removes the Guard
+   with `setGuard(0)` and re-enables it. Each is a separate real Safe transaction.
+   The owner EOA sends Safe's prevalidated owner signature (`v=1`); no transaction
+   service or browser wallet is involved. Output contains only public addresses,
+   transaction hashes and `VERSION()`, as Markdown rows for the PROGRESS table.
+
+   To reuse a deployment, put `VITE_GUARD_ADDRESS` and `DEMO_SAFE_ADDRESS` in the
+   root `.env` before rerunning. Supplied contracts are checked, deployments are
+   skipped, existing payee approval is retained and funding only tops up a deficit.
+   A deterministic owner-based salt also reuses the Safe without a supplied address.
+   Without `VITE_GUARD_ADDRESS`, a new Guard is deployed; reuse the printed address
+   on subsequent runs. A Safe with a different active Guard is refused. The removal
+   drill intentionally runs again and costs gas on each run. Keep the printed hashes.
+   Do not run the separate deploy command first unless reusing its Guard address.
+
+   Local regression test (chain ID 11155111, real Safe release contracts, no `.env`):
+   ```bash
+   npx hardhat test --config scripts/setup-demo.hardhat.js scripts/setup-demo.test.js
+   ```
+   API references: [Safe signatures](https://docs.safe.global/advanced/smart-account-signatures),
+   [canonical deployments](https://github.com/safe-global/safe-deployments).
+
+4. For the **human Safe{Wallet} UI drill**, use an **isolated 1-of-1 demo Safe** holding test ETH only. Check the Safe's `VERSION()` (1.4.1 is what the tests use). Then in **Apps → Transaction Builder**, send **one call per transaction**. A batch uses a MultiSend delegatecall, and the Guard refuses delegatecalls. The script does not replace this human UI check.
    1. To the Safe: `setGuard(<guard address>)`. It reverts with `GS300` if the interface check fails.
    2. To the Guard: `approvePayee(<P>)`.
    3. **Removal drill:** to the Safe, `setGuard(0x0000000000000000000000000000000000000000)`, which must succeed. Then re-enable with step 1.
