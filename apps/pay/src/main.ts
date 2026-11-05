@@ -166,6 +166,7 @@ function safeSection(): HTMLElement {
   }
   const input = el("input", { id: "safe-address", placeholder: "Safe address (0x…)", spellcheck: "false" });
   const load = el("button", {}, "Load Safe");
+  if (state.info) input.value = state.info.address;
   const out = el("div");
   load.onclick = () => void onLoadSafe(input.value, out);
   s.append(el("label", { for: "safe-address" }, "Safe address on Sepolia"), input, load, out);
@@ -216,13 +217,13 @@ function renderSafeInfo(out: HTMLElement, info: SafeInfo): void {
           : `A different guard is set on this Safe (${info.guard.current}).`;
     out.append(el("div", { class: "error" }, `HexFence Guard is not active on this Safe. ${why} Nothing on-chain will refuse a lookalike payment.`));
   }
-  out.append(el("p", { class: "small" }, `Approved payees (read once from the Guard): ${info.payees.length === 0 ? "none" : ""}`));
   const evidenceLine = el("p", { class: "small" }, "Public evidence: loading…");
   out.append(evidenceLine);
   void state.listed?.then((l) => {
     evidenceLine.textContent = listedStatusText(l);
     if (l.status === "unavailable") evidenceLine.className = "error";
   });
+  out.append(el("p", { class: "small" }, `Approved payees (read once from the Guard): ${info.payees.length === 0 ? "none" : ""}`));
   const ul = el("ul");
   for (const p of info.payees) ul.append(el("li", { class: "mono" }, p));
   out.append(ul);

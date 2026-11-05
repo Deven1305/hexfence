@@ -110,7 +110,7 @@ Lane B never commits to, merges into, or pushes `main`, and never enables auto-m
 (not paused)
 
 ## Next step
-T6 PR is open (waits on H6 above). T6, T10, T11, T12 code is done on lane-b (T12 ⏸ on the native-speaker check, steps in H-T12 above). Nothing left for Lane B except human steps (H6 live Sepolia test, H-T12) and merging PRs once T8 is done.
+T6 PR is open (waits on H6 above). T6, T10, T11, T12 code is done on lane-b (T12 ⏸ on the native-speaker check, steps in H-T12 above). Nothing left for Lane B except human steps (H6 live Sepolia test, H7, H10, H-T12) and merging PRs once T8 is done.
 
 ## T11: Nox-only follow-up (06 Nov 2026)
 
@@ -163,3 +163,5 @@ and [browser harness](https://github.com/ethereum/anon-rpc/blob/main/impl/README
 | 06 Nov ~03:20 | T10 | `evidence.ts` (map keyed on lookalike only, one bulk read, labelled unavailable state), wired into Pay, `VITE_EXPLORER_URL` in `.env.example`. 25 Pay tests green, tsc + vite build clean. Live Arkiv read not exercised (no publisher yet). | 8ee2058 |
 | 06 Nov ~03:50 | T11 | `anon.ts` + route box in Pay. Nox live in the browser pane (real Sepolia chain-id read through the mixnet). 32 Pay tests, tsc, vite build, contracts 14, shared 33, arkiv 4, detector 14 green. tor-js/Nym not run live. | 7ac83e6 |
 | 06 Nov ~04:00 | T12 | Hindi for RED resembles + AMBER (spec text verbatim), toggle with English one tap away, other verdicts stay English. 36 Pay tests, tsc, build green; toggle checked in the browser pane (verdict display needs a wallet, not exercised). | a41d5f9 |
+| 06 Nov ~05:00 | T11 | Merged `feat/pay-nox-only` (Nox-only route) into lane-b at 0a1676e; T11 PROGRESS row now describes Nox with a labelled direct fallback. | 0a1676e |
+| 06 Nov ~05:10 | T6 | Pay layout: public-evidence line now sits above the "Approved payees" heading, so the heading is directly above the list; the Safe address field keeps the loaded address after a Safe loads. Ids, labels and button text used by `apps/pay/e2e/pay.spec.ts` unchanged. | (T6 layout commit) |
