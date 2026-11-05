@@ -4,17 +4,17 @@
 > Status: ☐ todo · ▶ in progress · ✔ done · ⏸ waiting on humans
 
 ## Now
-- **Current task:** T0
-- **Agent working:** (none)
-- **Last updated:** (time IST)
-- **Tests:** contracts (not run yet) · packages (not run yet)
-- **Next step for whoever comes next:** start T0
+- **Current task:** T1
+- **Agent working:** Claude Code
+- **Last updated:** 05 Nov 20:02 IST
+- **Tests:** contracts 13 passing · packages (none yet)
+- **Next step for whoever comes next:** T1 (Guard review + Sepolia deploy steps)
 
 ## Tasks (strict order)
 
 | ID | Tier | Task | Done when | Status | Commit | Agent | Notes |
 |---|---|---|---|---|---|---|---|
-| T0 | P0 | Repo set-up. The layout from AGENTS.md, MIT LICENSE, `.gitignore`, `.env.example` (names only), the pnpm workspace, `contracts/` copied from 11_HexFence_Guard_reference, spec PDF + MD in `docs/planning/` | `cd contracts && npm i --legacy-peer-deps && npx hardhat test` → 13 passing; `pnpm i` works | ☐ | | | |
+| T0 | P0 | Repo set-up. The layout from AGENTS.md, MIT LICENSE, `.gitignore`, `.env.example` (names only), the pnpm workspace, `contracts/` copied from 11_HexFence_Guard_reference, spec PDF + MD in `docs/planning/` | `cd contracts && npm i --legacy-peer-deps && npx hardhat test` → 13 passing; `pnpm i` works | ✔ | 545ac36 | Claude Code | MIT LICENSE was already on GitHub (kept). Root `package.json`, `pnpm-workspace.yaml`, `tsconfig.base.json`, `.env.example`, `.gitattributes` (LF). Package dirs are created by their own tasks. Tested on Node 20.20 (Node 22 not installed on the driver laptop; see Decisions log). |
 | T1 | P0 | Guard. Review the reference, keep its behaviour, document the Sepolia deploy in the README draft | 13 passing; deploy works once H1 is done | ☐ | | | Needs H1–H3 |
 | T2 | P0 | `packages/shared`: `fingerprint()`, the Safe payment decoder (SafeTx typed data; `execTransaction` `0x6a761202`; `transfer` / `transferFrom`), the PoisoningEvidence zod schema | vitest green, including USDT→`0xdac11ec7`, USDC→`0xa0b8eb48`, zero→`0x00000000`, both addresses of the ready pair→`0x4e184120` | ☐ | | | |
 | T3 | P0 | `apps/detector`: mainnet USDT/USDC Transfer logs (latest 7,200 blocks, 100-block windows), zero-value + dust rules → `evidence.jsonl` | Unit tests on fixture logs pass; a real run (needs H4) finds ≥5 pairs | ☐ | | | |
@@ -56,8 +56,11 @@
 
 ## Decisions log
 - 06 Nov: the P0 client is **HexFence Pay** (Plan B). Extension interception wasn't verified by the 01:00 checkpoint, so the extension moved to T14 (P2). If the team has already verified interception, swap T6 and T14 here.
+- 05 Nov (Claude Code): **Arkiv SDK 1.0.1 differs from spec §3.2; following the docs.** (a) There is no `createdBy(addr)`; filter with `eq("$creator", addr(publisher))` in `where`. (b) A page holds **≤100** rows (not 200) and there is no `hasNextPage()`; page by key with `orderBy(asc("$key"))` + `gt("$key", key(last))`. (c) The SDK asks for Node ≥22.10.
+- 05 Nov (Claude Code): the driver laptop has Node 20.20, not 22. Workspace `engines` is `>=20`; `.nvmrc` says 22. If the Arkiv SDK fails on Node 20, install Node 22 before running the detector.
 
 ## Session log (append one line per task or stop)
 
 | Time (IST) | Agent | Task | Result | Commit |
 |---|---|---|---|---|
+| 05 Nov 20:02 | Claude Code | T0 | ✔ contracts 13 passing; `pnpm i` works | 545ac36 |
