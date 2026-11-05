@@ -4,11 +4,11 @@
 > Status: ☐ todo · ▶ in progress · ✔ done · ⏸ waiting on humans
 
 ## Now
-- **Current task:** T13 prep (Lane A); T4b ⏸ H5, T1 ⏸ H1+H2
+- **Current task:** Lane A waiting: T4b ⏸ H5, T1 ⏸ H1+H2, T13 ⏸ H9
 - **Agent working:** Claude Code
-- **Last updated:** 06 Nov 02:16 IST
-- **Tests:** contracts 14 · `@hexfence/shared` 33 (incl. 411-case Guard parity) · `@hexfence/arkiv` 4 (+2 live) · `@hexfence/detector` 11 (+1 live)
-- **Next step for whoever comes next:** humans: **H5** first (it unblocks the gate's real evidence, T5 and T10), then H1–H3. Lane A: T13 labelling sheet, then T4b live as soon as H5 is ticked.
+- **Last updated:** 06 Nov 02:23 IST
+- **Tests:** contracts 14 · `@hexfence/shared` 33 (incl. 411-case Guard parity) · `@hexfence/arkiv` 4 (+2 live) · `@hexfence/detector` 14 (+1 live)
+- **Next step for whoever comes next:** humans: **H5** first (unblocks the gate's real evidence, T5, T10), then H1–H3, H9. Lane A resumes the moment a box is ticked.
 
 ## Tasks (strict order)
 
@@ -27,7 +27,7 @@
 | T10 | P1 | HexFence Pay: the "listed in public evidence" signal (exact match, bulk Arkiv read) | Test: a listed address → RED listed; the synthetic L → only RED resembles | ☐ | | | |
 | T11 | P1 | Anon-RPC for the client's RPC reads (`@anon-rpc/browser-harness`), with a labelled fallback | The demo shows reads going through Anon-RPC | ☐ | | | |
 | T12 | P1 | Hindi strings in the verdict | A native speaker has checked them | ☐ | | | |
-| T13 | P1 | ≥20 pairs + precision on 30 hand-labelled samples | The numbers are in the README | ☐ | | | Needs H9 |
+| T13 | P1 | ≥20 pairs + precision on 30 hand-labelled samples | The numbers are in the README | ⏸ | 4c631f1 | Claude Code | **≥20 pairs: done** (43,227 in the 24 h run, T3). **Precision:** `labels/h9-sample.csv` holds 30 records drawn at random (seed 4919) with Etherscan links; `pnpm --filter @hexfence/detector precision` scores it (yes / (yes + no)). **⏸ on H9** (hand labels). It's P1, so it doesn't block the gate. |
 | T14 | P2 | Chrome extension (Plan A). Only if every task above is ✔ | | ☐ | | | |
 
 ## Waiting on humans (tick the box when done; then the agent continues)
@@ -43,7 +43,11 @@
 - [ ] **H6:** test HexFence Pay with a wallet on Sepolia
 - [ ] **H7:** run the demo payments (L, B, P) and paste the tx hashes
 - [ ] **H8:** record the video (2:30–3:00, ≥720p)
-- [ ] **H9:** hand-label 30 detector outputs on Etherscan
+- [ ] **H9 (T13):** open `apps/detector/labels/h9-sample.csv` (30 random real records). For each row, open `attack_tx` and `reference_tx` on Etherscan and write `yes`, `no` or `unsure` in the `label` column:
+  - **yes** = address poisoning: the victim really paid `impersonated` earlier (reference tx), and the attack tx is a zero-value or dust transfer between the victim and `lookalike` (same first 4 + last 4 characters), typically sent by a contract that does the same to many addresses.
+  - **no** = something legitimate (e.g. `lookalike` is clearly a known counterparty of the victim, or the transfer is part of normal activity).
+  - **unsure** = can't tell. Add a short note in `notes`.
+  Then commit the CSV and run `pnpm --filter @hexfence/detector precision`; Lane A puts the result in the T13 row.
 - [ ] **H10 (T12):** a native Hindi speaker checks the two Hindi verdict lines in HexFence Pay and writes "checked by <name>" in the T12 row.
 - [ ] **H11 (submission):** host the two static apps and paste the URLs in the table below: `pnpm --filter <explorer|pay> build`, then upload each `dist/` to static hosting (e.g. Vercel or GitHub Pages; set the `VITE_*` values in the host's env). Spec §8 needs both live links.
 - [ ] **H12 (submission):** commits from **all four** accounts (spec §8). Baqir: commit the Sepolia addresses/hashes (H2, H3, H7). Akshat: a README/CROPS review commit. Also copy every GPT/Claude plan, prompt and report you used into `docs/planning/`.
