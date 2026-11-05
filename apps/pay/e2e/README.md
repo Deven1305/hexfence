@@ -36,6 +36,8 @@ receipt. Its UI decodes `LookalikeOfApprovedPayee(L, P)`.
 Pay has no arbitrary-calldata input. For the unsupported case only, the test build
 adds an event ingress into the actual decoder/verdict/renderer in `main.ts`; it does
 not replace their implementations. This hook is absent from ordinary builds.
+Build and preview use the ignored `e2e/.build/` directory, leaving `apps/pay/dist/`
+untouched. Only this isolated test bundle contains the test ingress and local RPC URL.
 
 Screenshot: `e2e/results/reverted-L.png` (generated, ignored). It shows the direct
 read label, Safe 1.4.1 with an active Guard, the RED resemblance warning, `344120`,

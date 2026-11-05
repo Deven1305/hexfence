@@ -103,7 +103,8 @@ process.env.VITE_MAINNET_RPC_URL = '';
 await writeFile(path.join(here, '.fixture.json'), JSON.stringify({ safe: await safe.getAddress(), unguarded: await unguarded.getAddress(), guard: await guard.getAddress(), P, L, B }));
 let web;
 try {
-  await build({ root: path.resolve(here, '..'), plugins: [{
+  const testBuild = { outDir: path.join(here, '.build'), emptyOutDir: true };
+  await build({ root: path.resolve(here, '..'), build: testBuild, plugins: [{
     name: 'test-only-unsupported-call-ingress',
     transform(code, id) {
       if (!id.replaceAll('\\', '/').endsWith('/apps/pay/src/main.ts')) return;
@@ -115,7 +116,7 @@ try {
       });`;
     },
   }] });
-  web = await preview({ root: path.resolve(here, '..'), preview: { host: '127.0.0.1', port: 14173, strictPort: true } });
+  web = await preview({ root: path.resolve(here, '..'), build: testBuild, preview: { host: '127.0.0.1', port: 14173, strictPort: true } });
   const cli = fileURLToPath(new URL('./cli.js', import.meta.resolve('@playwright/test')));
   const child = spawn(process.execPath, [cli, 'test', '--config', path.join(here, 'playwright.config.ts')], { stdio: 'inherit' });
   process.exitCode = await new Promise(resolve => child.on('exit', code => resolve(code ?? 1)));
