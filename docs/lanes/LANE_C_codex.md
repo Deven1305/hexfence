@@ -101,3 +101,4 @@ After H5/S4: set `VITE_ARKIV_PUBLISHER`, run `pnpm --filter @hexfence/explorer d
 | 05 Nov 21:01 | T5 | ⏸ explorer built, 5 tests, live Rabdi read works with an empty test publisher; real records wait on S4/H5. Agent: Claude Code (Opus) on Dhruv's account, standing in for Codex one time. Git: PRs, not direct merges to main (the user's global rule) | 52bb472 |
 | 05 Nov 21:01 | T7 | ✔ README, four Arkiv files, AI_USAGE; only human-produced values left open | 03804f5 |
 | 05 Nov 21:01 | Demo | ✔ docs/DEMO.md; timings shortened so the video fits 3:00 | 393ad20 |
+| 05 Nov 21:01 | T9 | ✔ Verify on Ethereum: 24 tests on real saved receipts; live ✓ and could-not-verify checked in the browser | e3db3e0 |
