@@ -1,5 +1,6 @@
 import type { PoisoningEvidence } from "@hexfence/shared";
 import { EVIDENCE_LABEL, etherscanAddress, etherscanTx, splitAddress, tokenName, variantText } from "./format.js";
+import { mainnetReader, verificationText, verifyOnEthereum } from "./verify.js";
 
 type Child = Node | string;
 
@@ -33,7 +34,30 @@ function addressRow(label: string, address: string, match?: { prefixLen: number;
   return el("div", "row", el("span", "key", label), anchor);
 }
 
-export function recordCard(e: PoisoningEvidence): HTMLElement {
+/** "Verify on Ethereum": the receipts are fetched only when the user asks. */
+function verifyControl(e: PoisoningEvidence, rpcUrl: string | undefined): HTMLElement {
+  const button = el("button", "ghost", "Verify on Ethereum") as HTMLButtonElement;
+  button.type = "button";
+  const result = el("span", "verdict");
+  button.addEventListener("click", () => {
+    if (!rpcUrl) {
+      result.className = "verdict bad";
+      result.textContent = "could not verify: VITE_MAINNET_RPC_URL is not set";
+      return;
+    }
+    button.disabled = true;
+    result.className = "verdict";
+    result.textContent = "Fetching receipts…";
+    void verifyOnEthereum(mainnetReader(rpcUrl), e).then((v) => {
+      button.disabled = false;
+      result.className = v.ok ? "verdict good" : "verdict bad";
+      result.textContent = verificationText(v);
+    });
+  });
+  return el("div", "verify", button, result);
+}
+
+export function recordCard(e: PoisoningEvidence, rpcUrl: string | undefined): HTMLElement {
   const match = { prefixLen: e.prefixLen, suffixLen: e.suffixLen };
   return el(
     "article",
@@ -55,5 +79,6 @@ export function recordCard(e: PoisoningEvidence): HTMLElement {
       el("span", "key", "Reference tx"),
       el("span", undefined, link(etherscanTx(e.referenceTx), `${e.referenceTx.slice(0, 18)}…`), ` block ${e.referenceBlock}`),
     ),
+    verifyControl(e, rpcUrl),
   );
 }
