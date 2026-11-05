@@ -99,14 +99,69 @@ Lane B never commits to, merges into, or pushes `main`, and never enables auto-m
 5. Pay B (any fresh address): AMBER, succeeds. Pay P: GREEN, succeeds. Record both hashes.
 6. If the wallet refuses to send the reverting transaction, note which wallet; demo step 1 then needs another wallet or Safe{Wallet}.
 
+## H-T12: Hindi native-speaker check (human, blocks T12 ✔)
+1. Open `docs/planning/10_FINAL_What_To_Build_HexFence.md` section 3.4 ("Hindi (P1)") and `apps/pay/src/verdictCopy.ts` function `hindiText`. The strings there are the spec text, copied verbatim.
+2. Give a native Hindi reader the two verdicts (RED resembles, AMBER) and ask: is it natural, does it say the same as the English, is "सुरक्षित Safe" clear (the spec's wording for "your protected Safe"), is "एड्रेस पॉइज़निंग" understood?
+3. Edit only the strings in `hindiText` if they want changes; `apps/pay/test/pay.test.ts` block "Hindi (T12...)" holds the same text, update both.
+4. Run `corepack pnpm --filter @hexfence/pay exec vitest run`, then set the T12 row to ✔ with the reader's name and the date.
+5. Known gap: with the Guard not active, the second RED sentence is English (spec has no Hindi for it). Ask the reader for a Hindi line if wanted.
+
 ## Paused
 (not paused)
 
 ## Next step
-T6 PR is open and its row waits on H6 (see above). Continue with T10 on `lane-b`: `apps/pay/src/evidence.ts` (bulk `fetchAllEvidence` -> Map keyed on `lookalike`), wire into `main.ts` `onCheck` (`verdictFor(decoded, payees, listed)`), `VITE_EXPLORER_URL` in `.env.example`, tests.
+T6 PR is open (waits on H6 above). T6, T10, T11, T12 code is done on lane-b (T12 ⏸ on the native-speaker check, steps in H-T12 above). Nothing left for Lane B except human steps (H6 live Sepolia test, H7, H10, H-T12) and merging PRs once T8 is done.
+
+## T11: Nox-only follow-up (06 Nov 2026)
+
+The one-time Codex exception is on `feat/pay-nox-only`, based on `origin/feat/pay-t11`.
+Removed the tor-js/Nym routes, their mainnet bootstrap settings, Tor gateway config
+and `VITE_TOR_GATEWAYS`. Nox, the skip button, visible status and explicitly labelled
+direct fallback remain. The passthrough specifier remains excluded. Once Nox is
+active, later read failures are errors and never silently switch to direct.
+
+**Live browser contract read: passed.** Headless Chromium loaded the actual
+`src/anon.ts` and `src/rpc.ts` through Vite. `connectAnon` used the real worker and
+Sepolia RPC `https://ethereum-sepolia-rpc.publicnode.com`, with no worker substitute.
+Nox became active and the following read through `outcome.fetchFn` returned
+`"1.4.1"` with no error:
+
+```ts
+const { connectAnon } = await import('/src/anon.ts');
+const { createReadClient } = await import('/src/rpc.ts');
+const rpc = 'https://ethereum-sepolia-rpc.publicnode.com';
+const outcome = await connectAnon({ sepoliaRpcUrl: rpc, timeoutMs: 60000 });
+if (!outcome.active || !outcome.fetchFn) throw new Error('Nox unavailable');
+try {
+  console.log(await createReadClient(rpc, outcome.fetchFn).readContract({
+    address: '0x41675C099F32341bf84BFc5382aF534df5C7461a',
+    abi: [{ type: 'function', name: 'VERSION', inputs: [],
+      outputs: [{ type: 'string' }], stateMutability: 'view' }],
+    functionName: 'VERSION',
+  }));
+} finally { outcome.close(); }
+```
+
+This is Safe's canonical 1.4.1 singleton on Sepolia, not a local contract. The
+one specifier bootstrap read remains direct. No direct contract-read substitute
+was allowed, no transaction was sent, and no Guard/payee read or live Arkiv read
+was exercised. This establishes the requested contract read through Nox; it is
+not an anonymity audit or a claim about future route availability. If a later
+live check fails, report it and return T11 to ⏸.
+
+Validation: `corepack pnpm@10.34.9 -r test` passed (83 tests, 3 integration tests
+skipped); `corepack pnpm@10.34.9 -r build` passed with existing bundle warnings;
+`npx hardhat test` passed all 14. No existing product bug found. Official docs read:
+[Anon-RPC integration](https://github.com/ethereum/anon-rpc/blob/main/docs/integrate-wallet.md)
+and [browser harness](https://github.com/ethereum/anon-rpc/blob/main/impl/README.md).
 
 ## Session log
 
 | Time (IST) | Task | Result | Commit |
 |---|---|---|---|
 | 06 Nov ~03:00 | T6a+T6b | Pay shell + verdict UI. 20 Pay tests, tsc, vite build, contracts 14, shared 33, arkiv 4, detector 11 all green. Browser pane: shell and config-error states only (no wallet). Live test = H6. Note: `pnpm -r test` fails on this laptop only because a stray vite.config.ts in the Windows home folder is picked up by vitest in shared/arkiv/detector; run with `--config <empty file>` to verify. | bd20404 |
+| 06 Nov ~03:20 | T10 | `evidence.ts` (map keyed on lookalike only, one bulk read, labelled unavailable state), wired into Pay, `VITE_EXPLORER_URL` in `.env.example`. 25 Pay tests green, tsc + vite build clean. Live Arkiv read not exercised (no publisher yet). | 8ee2058 |
+| 06 Nov ~03:50 | T11 | `anon.ts` + route box in Pay. Nox live in the browser pane (real Sepolia chain-id read through the mixnet). 32 Pay tests, tsc, vite build, contracts 14, shared 33, arkiv 4, detector 14 green. tor-js/Nym not run live. | 7ac83e6 |
+| 06 Nov ~04:00 | T12 | Hindi for RED resembles + AMBER (spec text verbatim), toggle with English one tap away, other verdicts stay English. 36 Pay tests, tsc, build green; toggle checked in the browser pane (verdict display needs a wallet, not exercised). | a41d5f9 |
+| 06 Nov ~05:00 | T11 | Merged `feat/pay-nox-only` (Nox-only route) into lane-b at 0a1676e; T11 PROGRESS row now describes Nox with a labelled direct fallback. | 0a1676e |
+| 06 Nov ~05:10 | T6 | Pay layout: public-evidence line now sits above the "Approved payees" heading, so the heading is directly above the list; the Safe address field keeps the loaded address after a Safe loads. Ids, labels and button text used by `apps/pay/e2e/pay.spec.ts` unchanged. | cbbfc46 |

@@ -9,6 +9,8 @@ export interface Config {
   /** Arkiv publisher (T10). Optional: without it the "listed" signal is off and the UI says so. */
   publisher?: Address;
   explorerUrl?: string;
+  /** Optional Arkiv access key (the public endpoint is rate limited without one). */
+  arkivAccessKey?: string;
 }
 
 export class ConfigError extends Error {}
@@ -34,5 +36,6 @@ export function loadConfig(env: Record<string, string | undefined>): Config {
     sepoliaRpcUrl: rpc as string,
     publisher: pubRaw ? getAddress(pubRaw) : undefined,
     explorerUrl: env.VITE_EXPLORER_URL?.trim() || undefined,
+    arkivAccessKey: env.VITE_ARKIV_ACCESS_KEY?.trim() || undefined,
   };
 }
