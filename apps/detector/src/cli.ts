@@ -2,7 +2,7 @@
 //   pnpm --filter @hexfence/detector detect [--blocks 7200] [--window 100] [--out out/evidence.jsonl]
 // Reads MAINNET_RPC_URL from the repo-root .env (or the environment). Read-only: it never sends a transaction.
 import { parseArgs } from "node:util";
-import { detect } from "./detect.js";
+import { PoisoningDetector } from "./detect.js";
 import { fetchTransferLogs, mainnetClient } from "./fetch.js";
 import { mergeEvidence } from "./jsonl.js";
 
@@ -29,18 +29,22 @@ async function main(): Promise<void> {
   if (chainId !== 1) throw new Error(`MAINNET_RPC_URL is chain ${chainId}, not Ethereum mainnet (1)`);
 
   const t0 = Date.now();
+  const detector = new PoisoningDetector();
   let windows = 0;
-  const { logs, fromBlock, toBlock } = await fetchTransferLogs(client, {
+  const { count, fromBlock, toBlock } = await fetchTransferLogs(client, {
     blocks,
     window,
-    onWindow: (from, to, n) => {
-      windows++;
-      if (windows % 10 === 0) console.error(`  blocks ${from}-${to}: ${n} logs (${windows} windows, ${((Date.now() - t0) / 1000).toFixed(0)}s)`);
+    onWindow: (logs, from, to) => {
+      detector.add(logs);
+      if (++windows % 10 === 0) {
+        const secs = ((Date.now() - t0) / 1000).toFixed(0);
+        console.error(`  blocks ${from}-${to}: ${logs.length} logs; ${detector.results().length} found so far (${secs}s)`);
+      }
     },
   });
-  console.error(`fetched ${logs.length} USDT/USDC Transfer logs, blocks ${fromBlock}-${toBlock}`);
+  console.error(`scanned ${count} USDT/USDC Transfer logs, blocks ${fromBlock}-${toBlock}`);
 
-  const found = detect(logs);
+  const found = detector.results();
   const { added, total } = mergeEvidence(values.out, found);
   const byVariant = found.reduce<Record<string, number>>((m, e) => ((m[e.variant] = (m[e.variant] ?? 0) + 1), m), {});
   console.log(

@@ -39,65 +39,87 @@ interface Reference {
  * - an attack is a zero-value `victim -> lookalike` or a dust `lookalike -> victim` transfer;
  * - it matches when an earlier reference of the same victim, within WINDOW_BLOCKS, went to a
  *   different address with the same fingerprint as the lookalike.
- * Returns one record per (lookalike, impersonated): the earliest attack found. Every record is
- * validated by PoisoningEvidenceSchema.
+ * One record per (lookalike, impersonated): the earliest attack found. Every record is validated
+ * by PoisoningEvidenceSchema.
+ *
+ * Streaming: feed consecutive block ranges with `add()` (in block order), so a 24-hour scan never
+ * holds all ~1.5M logs at once. Only references (>= 1 token payments) are kept.
  */
-export function detect(logs: readonly TransferLog[], detectorVersion = DETECTOR_VERSION): PoisoningEvidence[] {
-  const ordered = [...logs].sort((a, b) => a.blockNumber - b.blockNumber || a.logIndex - b.logIndex);
+export class PoisoningDetector {
   // refs[victim][fingerprint] = the victim's real payments to addresses with that fingerprint.
-  const refs = new Map<string, Map<Hex, Reference[]>>();
-  const found = new Map<Hex, PoisoningEvidence>();
+  private readonly refs = new Map<string, Map<Hex, Reference[]>>();
+  private readonly found = new Map<Hex, PoisoningEvidence>();
+  private lastBlock = -1;
 
-  for (const log of ordered) {
-    const zeroValue = log.value === 0n;
-    const dust = log.value > 0n && log.value < ONE_TOKEN;
+  constructor(private readonly detectorVersion = DETECTOR_VERSION) {}
 
-    // Check the attack shapes before recording references, so a transfer never matches itself.
-    if (zeroValue) match(log, getAddress(log.from), getAddress(log.to), "zero-value");
-    else if (dust) match(log, getAddress(log.to), getAddress(log.from), "dust");
-    else remember(log);
+  /** Add the logs of the next block range. Ranges must not go backwards. */
+  add(logs: readonly TransferLog[]): void {
+    const ordered = [...logs].sort((a, b) => a.blockNumber - b.blockNumber || a.logIndex - b.logIndex);
+    const first = ordered[0];
+    if (first && first.blockNumber < this.lastBlock) throw new Error("PoisoningDetector.add: logs must be added in block order");
+    for (const log of ordered) {
+      // Check the attack shapes before recording references, so a transfer never matches itself.
+      if (log.value === 0n) this.match(log, getAddress(log.from), getAddress(log.to), "zero-value");
+      else if (log.value < ONE_TOKEN) this.match(log, getAddress(log.to), getAddress(log.from), "dust");
+      else this.remember(log);
+      this.lastBlock = log.blockNumber;
+    }
   }
-  return [...found.values()];
 
-  function remember(log: TransferLog): void {
+  /** Everything found so far, in attack order. */
+  results(): PoisoningEvidence[] {
+    return [...this.found.values()];
+  }
+
+  private remember(log: TransferLog): void {
     const victim = log.from.toLowerCase();
     const fp = fingerprint(log.to);
-    let byFp = refs.get(victim);
-    if (!byFp) refs.set(victim, (byFp = new Map()));
+    let byFp = this.refs.get(victim);
+    if (!byFp) this.refs.set(victim, (byFp = new Map()));
     const list = byFp.get(fp) ?? [];
     list.push({ recipient: getAddress(log.to), blockNumber: log.blockNumber, logIndex: log.logIndex, txHash: log.txHash });
     byFp.set(fp, list);
   }
 
-  function match(log: TransferLog, victim: Address, lookalike: Address, variant: "zero-value" | "dust"): void {
+  private match(log: TransferLog, victim: Address, lookalike: Address, variant: "zero-value" | "dust"): void {
     if (victim.toLowerCase() === lookalike.toLowerCase()) return;
-    const candidates = refs.get(victim.toLowerCase())?.get(fingerprint(lookalike));
+    const candidates = this.refs.get(victim.toLowerCase())?.get(fingerprint(lookalike));
     if (!candidates) return;
     // The most recent earlier reference to a DIFFERENT address, still inside the window.
     for (let i = candidates.length - 1; i >= 0; i--) {
       const ref = candidates[i]!;
       if (log.blockNumber - ref.blockNumber > WINDOW_BLOCKS) break; // older ones are further out
       if (ref.recipient.toLowerCase() === lookalike.toLowerCase()) continue;
-      const id = evidenceId(1, lookalike, ref.recipient, detectorVersion);
-      if (found.has(id)) return; // keep the earliest attack for this pair
-      const record = PoisoningEvidenceSchema.parse({
-        evidenceId: id,
-        chainId: 1,
-        lookalike,
-        impersonated: ref.recipient,
-        victim,
-        variant,
-        token: log.token,
-        attackTx: log.txHash,
-        attackBlock: log.blockNumber,
-        referenceTx: ref.txHash,
-        referenceBlock: ref.blockNumber,
-        ...matchLengths(lookalike, ref.recipient),
-        detectorVersion,
-        status: "suspected",
-      });
-      found.set(id, record);
+      const id = evidenceId(1, lookalike, ref.recipient, this.detectorVersion);
+      if (this.found.has(id)) return; // keep the earliest attack for this pair
+      this.found.set(
+        id,
+        PoisoningEvidenceSchema.parse({
+          evidenceId: id,
+          chainId: 1,
+          lookalike,
+          impersonated: ref.recipient,
+          victim,
+          variant,
+          token: log.token,
+          attackTx: log.txHash,
+          attackBlock: log.blockNumber,
+          referenceTx: ref.txHash,
+          referenceBlock: ref.blockNumber,
+          ...matchLengths(lookalike, ref.recipient),
+          detectorVersion: this.detectorVersion,
+          status: "suspected",
+        }),
+      );
       return;
     }
   }
+}
+
+/** All at once, for tests and small inputs: any order in, same rules as PoisoningDetector. */
+export function detect(logs: readonly TransferLog[], detectorVersion = DETECTOR_VERSION): PoisoningEvidence[] {
+  const d = new PoisoningDetector(detectorVersion);
+  d.add(logs);
+  return d.results();
 }

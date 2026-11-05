@@ -1,7 +1,7 @@
 import { evidenceId, MAINNET_USDC, MAINNET_USDT } from "@hexfence/shared";
 import { getAddress, type Address, type Hex } from "viem";
 import { describe, expect, it } from "vitest";
-import { detect, DETECTOR_VERSION, type TransferLog } from "../src/detect.js";
+import { detect, DETECTOR_VERSION, PoisoningDetector, type TransferLog } from "../src/detect.js";
 
 // Fixture logs with synthetic addresses (not real users). R and X share a fingerprint, so X is a lookalike of R.
 const V = getAddress("0x1111111111111111111111111111111111111111"); // victim
@@ -75,6 +75,15 @@ describe("detect", () => {
     const out = detect([log(V, R, 5_000_000n, 100), first, log(V, X, 0n, 102), log(X, V, 5n, 103)]);
     expect(out).toHaveLength(1);
     expect(out[0]?.attackTx).toBe(first.txHash);
+  });
+
+  it("gives the same result when logs arrive window by window (streaming)", () => {
+    const all = [log(V, R, 5_000_000n, 100), log(N, V, 1n, 150), log(V, X, 0n, 250), log(X, V, 3n, 260)];
+    const d = new PoisoningDetector();
+    d.add(all.slice(0, 2)); // blocks 100-199
+    d.add(all.slice(2)); // blocks 200-299
+    expect(d.results()).toEqual(detect(all));
+    expect(() => d.add([log(V, X, 0n, 150)])).toThrow(); // windows must not go backwards
   });
 
   it("skips a reference to the lookalike itself and uses the real payee's", () => {

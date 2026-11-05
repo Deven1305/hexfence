@@ -15,22 +15,28 @@ export interface FetchOptions {
   blocks: number;
   /** eth_getLogs window (spec: 100). Halved automatically when the RPC refuses a window. */
   window: number;
-  /** Progress callback, e.g. for a log line per window. */
-  onWindow?: (from: bigint, to: bigint, logs: number) => void;
+  /** Called with each window's logs, in block order (feed them to a PoisoningDetector). */
+  onWindow: (logs: TransferLog[], from: bigint, to: bigint) => void;
 }
 
-/** USDT + USDC Transfer logs of the latest `blocks` blocks, in one eth_getLogs per window. */
-export async function fetchTransferLogs(client: PublicClient, opts: FetchOptions): Promise<{ logs: TransferLog[]; fromBlock: bigint; toBlock: bigint }> {
+/**
+ * USDT + USDC Transfer logs of the latest `blocks` blocks, one eth_getLogs per window, streamed to
+ * `onWindow` in block order. Returns the scanned range and how many logs it had.
+ */
+export async function fetchTransferLogs(
+  client: PublicClient,
+  opts: FetchOptions,
+): Promise<{ count: number; fromBlock: bigint; toBlock: bigint }> {
   const toBlock = await client.getBlockNumber();
   const fromBlock = toBlock - BigInt(opts.blocks) + 1n;
-  const logs: TransferLog[] = [];
+  let count = 0;
   for (let start = fromBlock; start <= toBlock; start += BigInt(opts.window)) {
     const end = minBig(start + BigInt(opts.window) - 1n, toBlock);
     const got = await getLogsSplitting(client, start, end);
-    logs.push(...got);
-    opts.onWindow?.(start, end, got.length);
+    count += got.length;
+    opts.onWindow(got, start, end);
   }
-  return { logs, fromBlock, toBlock };
+  return { count, fromBlock, toBlock };
 }
 
 /** One window; if the RPC rejects it (response too big, too many results), split it in two. */
