@@ -1,6 +1,6 @@
 # T8 operator runbook (PowerShell, repo root)
 
-Use a checkout containing PR #8 and this PR; keep it under `C:/hexfence-work/`.
+Use a checkout of `main`; keep it under `C:/hexfence-work/`.
 **Not run on Sepolia in this work:** deploy, live Etherscan verification, demo
 setup/removal, these payment/checker steps. Local contract tests passed. The
 publish/rerun, hosted flows and human reviews below have not been run by Codex.
@@ -48,7 +48,9 @@ publish/rerun, hosted flows and human reviews below have not been run by Codex.
    explorer and confirm real records labelled **suspected**.
 
 4. **H6 → H7.** Set `VITE_SEPOLIA_RPC_URL`; in another terminal run
-   `corepack pnpm@10.34.9 --filter @hexfence/pay dev`. Use the owner wallet on
+   `corepack pnpm@10.34.9 --filter @hexfence/pay dev`. Pay starts on Nox, which can
+   take a minute or more. Guard and payee reads through Nox are untested: if they error,
+   reload and press **Skip: read directly (not anonymous)**. Use the owner wallet on
    Sepolia, load the printed Safe and confirm active Guard. Pay 0.0001 ETH to
    L (`0x4E185a3FC4B530244aB9ed0dE38167b403344120`): RED, type **344120**, send,
    obtain a mined `LookalikeOfApprovedPayee` revert. Pay a fresh B (AMBER, success),
@@ -69,10 +71,10 @@ publish/rerun, hosted flows and human reviews below have not been run by Codex.
 
 6. **After T8:** a human fills all 30 `apps/detector/labels/h9-sample.csv` labels
    (H9); then run `corepack pnpm@10.34.9 --filter @hexfence/detector precision`.
-   For PR #10, set repository variables `VITE_ARKIV_PUBLISHER`, `VITE_GUARD_ADDRESS`,
+   Set repository variables `VITE_ARKIV_PUBLISHER`, `VITE_GUARD_ADDRESS`,
    `VITE_SEPOLIA_RPC_URL`; optional `VITE_MAINNET_RPC_URL`, `VITE_ARKIV_ACCESS_KEY`,
    `VITE_EXPLORER_URL`. Values enter **public JavaScript**; keys must be public or
    origin-restricted. Set **Settings → Pages → Source: GitHub Actions**, then build
-   on main; record both URLs. **H10:** once T12 is present, a native Hindi reader
+   on main; record both URLs. **H10:** a native Hindi reader
    checks the two verdicts against spec §3.4 and records their name. Never claim
    H9/H10, hosted evidence or wallet execution complete without those human checks.
