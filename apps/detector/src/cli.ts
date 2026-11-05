@@ -3,7 +3,11 @@
 //     Reads MAINNET_RPC_URL. Read-only: it never sends a mainnet transaction.
 //   pnpm --filter @hexfence/detector publish:arkiv [--out out/evidence.jsonl] [--limit N] [--batch 25]
 //     Writes the records to Arkiv (Rabdi testnet) as the publisher ARKIV_PRIVATE_KEY. Idempotent.
-// Both read the repo-root .env (or the environment).
+//   pnpm --filter @hexfence/detector labels [--n 30] [--seed 4919] [--sheet labels/h9-sample.csv]
+//     Draws a random sample of records into a CSV for hand-labelling on Etherscan (T13 / H9).
+//   pnpm --filter @hexfence/detector precision [--sheet labels/h9-sample.csv]
+//     Precision = yes / (yes + no) from the filled-in sheet.
+// detect and publish read the repo-root .env (or the environment).
 import { parseArgs } from "node:util";
 import { arkivReadClient, publishEvidence } from "@hexfence/arkiv";
 import { formatEther, isHex } from "viem";
@@ -11,6 +15,7 @@ import { privateKeyToAccount } from "viem/accounts";
 import { PoisoningDetector } from "./detect.js";
 import { fetchTransferLogs, mainnetClient } from "./fetch.js";
 import { mergeEvidence, readEvidence } from "./jsonl.js";
+import { readPrecision, sampleRecords, writeLabelSheet } from "./labels.js";
 
 const { positionals, values } = parseArgs({
   allowPositionals: true,
@@ -20,6 +25,9 @@ const { positionals, values } = parseArgs({
     out: { type: "string", default: "out/evidence.jsonl" },
     limit: { type: "string" },
     batch: { type: "string", default: "25" },
+    n: { type: "string", default: "30" },
+    seed: { type: "string", default: "4919" },
+    sheet: { type: "string", default: "labels/h9-sample.csv" },
   },
 });
 
@@ -27,7 +35,9 @@ async function main(): Promise<void> {
   const command = positionals[0];
   if (command === "detect") return runDetect();
   if (command === "publish") return runPublish();
-  throw new Error(`unknown command "${command ?? ""}"; use: detect | publish`);
+  if (command === "labels") return runLabels();
+  if (command === "precision") return runPrecision();
+  throw new Error(`unknown command "${command ?? ""}"; use: detect | publish | labels | precision`);
 }
 
 async function runDetect(): Promise<void> {
@@ -99,6 +109,19 @@ async function runPublish(): Promise<void> {
     `publisher ${report.publisher}: ${report.created} created, ${report.alreadyThere} already on Arkiv, ${report.txHashes.length} transactions`,
   );
   if (report.txHashes.length > 0) console.log(`first tx: https://rabdi.explorer.arkiv.network/tx/${report.txHashes[0]}`);
+}
+
+function runLabels(): void {
+  const all = readEvidence(values.out);
+  const sample = sampleRecords(all, positiveInt(values.n, "--n"), positiveInt(values.seed, "--seed"));
+  writeLabelSheet(values.sheet, sample);
+  console.log(`${sample.length} of ${all.length} records -> ${values.sheet}. Fill the "label" column with yes / no / unsure.`);
+}
+
+function runPrecision(): void {
+  const p = readPrecision(values.sheet);
+  const pct = p.precision === null ? "n/a" : `${(100 * p.precision).toFixed(1)}%`;
+  console.log(`yes ${p.yes} · no ${p.no} · unsure ${p.unsure} · unlabelled ${p.unlabelled} -> precision ${pct}`);
 }
 
 function positiveInt(s: string, name: string): number {
