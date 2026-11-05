@@ -103,11 +103,12 @@ Lane B never commits to, merges into, or pushes `main`, and never enables auto-m
 (not paused)
 
 ## Next step
-T6 PR is open (waits on H6 above). T10 code is done on lane-b (draft PR `feat/pay-t10`). Continue with T11: `apps/pay/src/rpc.ts` `createReadClient(rpcUrl, fetchFn)` already takes a `fetchFn`; read the `@anon-rpc/browser-harness` docs, try Nox, then tor-js, then Nym (addresses in the plan), label the active route + fallback in the UI. Then T12.
+T6 PR is open (waits on H6 above). T10 (draft PR `feat/pay-t10`) and T11 (draft PR `feat/pay-t11`) are done on lane-b. Continue with T12: Hindi for RED resembles and AMBER only (strings in spec section 3.4), language toggle, English one tap away; then write the native-speaker check steps here and leave the row ⏸. Optional later: run tor-js and Nym live by temporarily changing `ROUTES` order in `apps/pay/src/anon.ts`.
 
 ## Session log
 
 | Time (IST) | Task | Result | Commit |
 |---|---|---|---|
 | 06 Nov ~03:00 | T6a+T6b | Pay shell + verdict UI. 20 Pay tests, tsc, vite build, contracts 14, shared 33, arkiv 4, detector 11 all green. Browser pane: shell and config-error states only (no wallet). Live test = H6. Note: `pnpm -r test` fails on this laptop only because a stray vite.config.ts in the Windows home folder is picked up by vitest in shared/arkiv/detector; run with `--config <empty file>` to verify. | bd20404 |
-| 06 Nov ~03:20 | T10 | `evidence.ts` (map keyed on lookalike only, one bulk read, labelled unavailable state), wired into Pay, `VITE_EXPLORER_URL` in `.env.example`. 25 Pay tests green, tsc + vite build clean. Live Arkiv read not exercised (no publisher yet). | (T10 commit) |
+| 06 Nov ~03:20 | T10 | `evidence.ts` (map keyed on lookalike only, one bulk read, labelled unavailable state), wired into Pay, `VITE_EXPLORER_URL` in `.env.example`. 25 Pay tests green, tsc + vite build clean. Live Arkiv read not exercised (no publisher yet). | 8ee2058 |
+| 06 Nov ~03:50 | T11 | `anon.ts` + route box in Pay. Nox live in the browser pane (real Sepolia chain-id read through the mixnet). 32 Pay tests, tsc, vite build, contracts 14, shared 33, arkiv 4, detector 14 green. tor-js/Nym not run live. | (T11 commit) |

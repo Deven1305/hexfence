@@ -1,4 +1,5 @@
 import { decodeSafeCall, verdictFor, type Verdict } from "@hexfence/shared";
+import { connectAnon, routeStatusText, type AnonOutcome } from "./anon";
 import { arkivReadClient, fetchAllEvidence } from "@hexfence/arkiv";
 import { getAddress, getContract, type Address, type EIP1193Provider, type Hex } from "viem";
 import type Safe from "@safe-global/protocol-kit";
@@ -38,6 +39,11 @@ interface State {
   info?: SafeInfo;
   /** Arkiv evidence, read once in bulk the first time a Safe is loaded. */
   listed?: Promise<ListedState>;
+  /** Settles when the anonymous-read route is decided (active or direct). Reads wait for it. */
+  route: Promise<void>;
+  outcome?: AnonOutcome;
+  trying?: string;
+  skip: AbortController;
 }
 
 let state: State;
@@ -50,7 +56,8 @@ function boot(): void {
     app.replaceChildren(el("h1", {}, "HexFence Pay"), el("div", { class: "error" }, e instanceof ConfigError ? e.message : String(e)));
     return;
   }
-  state = { config, reads: createReadClient(config.sepoliaRpcUrl) };
+  state = { config, reads: createReadClient(config.sepoliaRpcUrl), route: Promise.resolve(), skip: new AbortController() };
+  state.route = startRoute();
   render();
 }
 
@@ -58,10 +65,52 @@ function render(): void {
   app.replaceChildren(
     el("h1", {}, "HexFence Pay"),
     el("p", { class: "sub" }, "Checks a payment against your approved payees before you sign. Sepolia test network."),
+    routeSection(),
     walletSection(),
     safeSection(),
     paymentSection(),
   );
+}
+
+// ---------- anonymous reads (T11) ----------
+let routeEl: HTMLElement | undefined;
+
+async function startRoute(): Promise<void> {
+  const c = state.config;
+  const outcome = await connectAnon({
+    sepoliaRpcUrl: c.sepoliaRpcUrl,
+    mainnetRpcUrl: c.mainnetRpcUrl,
+    env: { torGateways: c.torGateways },
+    signal: state.skip.signal,
+    onTry: (r) => {
+      state.trying = r.label;
+      fillRoute();
+    },
+  });
+  state.trying = undefined;
+  state.outcome = outcome;
+  if (outcome.fetchFn) state.reads = createReadClient(c.sepoliaRpcUrl, outcome.fetchFn);
+  fillRoute();
+}
+
+function routeSection(): HTMLElement {
+  routeEl = el("section");
+  fillRoute();
+  return routeEl;
+}
+
+function fillRoute(): void {
+  const s = routeEl;
+  if (!s) return;
+  s.replaceChildren(el("h2", {}, "Read route"));
+  if (!state.outcome) {
+    s.append(el("p", { class: "small" }, `Connecting to anonymous read routes (${state.trying ?? "starting"})… Safe and payee reads wait for this.`));
+    const b = el("button", {}, "Skip: read directly (not anonymous)");
+    b.onclick = () => state.skip.abort();
+    s.append(b);
+    return;
+  }
+  for (const line of routeStatusText(state.outcome)) s.append(el("p", { class: "small" }, line));
 }
 
 // ---------- 1. wallet ----------
@@ -128,6 +177,8 @@ async function onLoadSafe(raw: string, out: HTMLElement): Promise<void> {
   try {
     if (!state.provider || !state.account) throw new InputError("Connect a wallet first.");
     const address = parseAddress(raw, "Safe address");
+    await state.route;
+    if (state.wallet) state.provider = compositeProvider(state.wallet.provider, state.reads);
     const code = await state.reads.getCode({ address });
     if (!code || code === "0x") throw new InputError("There is no contract at that address on Sepolia.");
     const safe = await openSafe(state.provider, state.account, address);

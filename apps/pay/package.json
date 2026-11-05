@@ -11,6 +11,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@anon-rpc/browser-harness": "0.4.0",
     "@hexfence/arkiv": "workspace:*",
     "@hexfence/shared": "workspace:*",
     "@safe-global/protocol-kit": "8.0.11",
