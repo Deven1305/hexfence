@@ -4,11 +4,11 @@
 > Status: ☐ todo · ▶ in progress · ✔ done · ⏸ waiting on humans
 
 ## Now
-- **Current task:** T4a (Lane A)
+- **Current task:** T3 (Lane A)
 - **Agent working:** Claude Code
-- **Last updated:** 06 Nov 01:49 IST
-- **Tests:** contracts 14 passing · `@hexfence/shared` 30 passing
-- **Next step for whoever comes next:** Lane A: T4a (`packages/arkiv` read side). S1 (`@hexfence/shared`) is on main. T1 is ⏸ on H1+H2 (live deploy only).
+- **Last updated:** 06 Nov 01:59 IST
+- **Tests:** contracts 14 passing · `@hexfence/shared` 30 · `@hexfence/arkiv` 4 (+2 live)
+- **Next step for whoever comes next:** Lane A: T3 (`apps/detector`). S1 + S2 are on main. T1 is ⏸ on H1+H2 (live deploy only).
 
 ## Tasks (strict order)
 
@@ -18,7 +18,7 @@
 | T1 | P0 | Guard. Review the reference, keep its behaviour, document the Sepolia deploy in the README draft | 13 passing; deploy works once H1 is done | ⏸ | ba07540 | Claude Code | Reviewed: logic matches §3.1, unchanged. Added: Hardhat loads root `.env`; `deploy.js` refuses non-Sepolia chains and checks `supportsInterface(0xe6d7a83a)`; a test for the ready-made §3.5 pair → **14 passing**. README draft has the deploy + Safe{Wallet} steps. ⏸ only for the live deploy (H1, H2); H3 is needed by T8. |
 | T2 | P0 | `packages/shared`: `fingerprint()`, the Safe payment decoder (SafeTx typed data; `execTransaction` `0x6a761202`; `transfer` / `transferFrom`), the PoisoningEvidence zod schema | vitest green, including USDT→`0xdac11ec7`, USDC→`0xa0b8eb48`, zero→`0x00000000`, both addresses of the ready pair→`0x4e184120` | ✔ | 90f8b05 | Claude Code | Implements `docs/INTERFACES.md` exactly: `fingerprint`, `sameFingerprint`, `SafeCall`, `safeCallFromTypedData`, `safeCallFromExecTransaction`, `decodeSafeCall`, `verdictFor`, `hexFenceGuardAbi`, `PoisoningEvidence` + `PoisoningEvidenceSchema`, `evidenceId`, `MAINNET_USDT/USDC`. **30 vitest** (vectors, the Guard's decode cases, every verdict branch, 200 random junk calldata blobs, ABI vs compiled artifact). Import from `@hexfence/shared` (`workspace:*`); it exports TS source, so Vite and tsx consume it directly. |
 | T3 | P0 | `apps/detector`: mainnet USDT/USDC Transfer logs (latest 7,200 blocks, 100-block windows), zero-value + dust rules → `evidence.jsonl` | Unit tests on fixture logs pass; a real run (needs H4) finds ≥5 pairs | ☐ | | | |
-| T4 | P0 | Arkiv writer: `hexfence.poisoning.v1`, 30-day expiry, idempotent by `evidenceId`, publisher wallet; one README query | A re-run creates 0 duplicates; the query returns the records (needs H5) | ☐ | | | |
+| T4 | P0 | Arkiv writer: `hexfence.poisoning.v1`, 30-day expiry, idempotent by `evidenceId`, publisher wallet; one README query | A re-run creates 0 duplicates; the query returns the records (needs H5) | ▶ | c673a4a | Claude Code | **T4a ✔ (read side, S2):** `@hexfence/arkiv` exports `PoisoningSchema`, `arkivReadClient`, `fetchAllEvidence`, `findEvidenceByAddress` (createdBy + key paging, ≤100 rows/page, every row re-validated). 4 unit tests + 2 live Rabdi tests (`ARKIV_LIVE=1`, empty publisher OK). `arkiv/schema.md` written. **T4b** (writer) follows T3. |
 | T5 | P0 | `apps/explorer`: a static Vite app reading Arkiv (search, Etherscan links, counts, label "Ethereum mainnet evidence · status: suspected") | Builds; shows real records | ☐ | | | |
 | T6 | P0 | `apps/pay` (HexFence Pay): connect a wallet, load the Safe (Protocol Kit), build an ETH/ERC-20 payment, read `guard.payees(safe)` once, verdicts RED/AMBER/GREEN/GREY with the exact spec strings, 6-character friction, sign + execute | Unit tests for the verdict logic pass; manual Sepolia test (H6) | ☐ | | | |
 | T7 | P0 | Docs draft: README (run steps, architecture, **CROPS**, limits), `arkiv/*.md` (5 files), `docs/AI_USAGE.md` (from the session log) | Real content; placeholders only for tx hashes | ☐ | | | |
@@ -56,7 +56,7 @@
 
 ## Decisions log
 - 06 Nov: the P0 client is **HexFence Pay** (Plan B). Extension interception wasn't verified by the 01:00 checkpoint, so the extension moved to T14 (P2). If the team has already verified interception, swap T6 and T14 here.
-- 06 Nov (Claude Code): **Arkiv SDK 1.0.1 differs from spec §3.2; following the docs.** (a) There is no `createdBy(addr)`; filter with `eq("$creator", addr(publisher))` in `where`. (b) A page holds **≤100** rows (not 200) and there is no `hasNextPage()`; page by key with `orderBy(asc("$key"))` + `gt("$key", key(last))`. (c) The SDK asks for Node ≥22.10.
+- 06 Nov (Claude Code): **Arkiv SDK 1.0.1 differs from spec §3.2; following the docs.** (a) ~~There is no `createdBy(addr)`~~ **Correction (T4a):** `createdBy(addr)` does exist in 1.0.1 (shorthand for `eq("$creator", …)`) and is used. (b) A page holds **≤100** rows (not 200) and there is no `hasNextPage()`; page by key with `orderBy(asc("$key"))` + `gt("$key", key(last))`. (c) The SDK asks for Node ≥22.10.
 - 06 Nov (Claude Code): the driver laptop has Node 20.20, not 22. Workspace `engines` is `>=20`; `.nvmrc` says 22. If the Arkiv SDK fails on Node 20, install Node 22 before running the detector.
 
 ## Session log (append one line per task or stop)

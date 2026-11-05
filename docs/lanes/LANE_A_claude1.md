@@ -26,7 +26,8 @@
 6. **T13:** ≥20 pairs, and a precision table from the H9 labels. Put the numbers in this file for Lane C.
 
 ## Notes for other lanes (A writes facts here, B and C read them)
-- Arkiv README query: (to fill in)
+- `@hexfence/arkiv` read side is on main (S2): `arkivReadClient({ accessKey })`, `fetchAllEvidence(client, publisher)`, `findEvidenceByAddress(client, publisher, address)`. Browser-safe (no Node imports).
+- Arkiv README query: (to fill in at T4b)
 - Publisher wallet: (to fill in)
 
 ## Usage-limit rule (stop at 5% left, resume after the reset)
@@ -84,10 +85,11 @@ the same rules (one agent, no subagents, your paths only, commit + push after ev
 (not paused)
 
 ## Next step
-T4a: create `packages/arkiv` (`@hexfence/arkiv`): `PoisoningSchema` via `defineSchema`, `arkivReadClient`, `fetchAllEvidence` (key-paged, ≤100 rows), `findEvidenceByAddress`; plus `arkiv/schema.md`. Test: `pnpm --filter @hexfence/arkiv test`.
+T3: create `apps/detector` (viem mainnet `getLogs`, USDT/USDC Transfer, latest 7,200 blocks in 100-block windows; reference ≥1e6, zero-value victim→lookalike, dust lookalike→victim; match with `fingerprint`) → `out/evidence.jsonl` validated by `PoisoningEvidenceSchema`. Fixture-log unit tests first; the real run needs H4 (`MAINNET_RPC_URL`). Test: `pnpm --filter detector test`.
 
 ## Session log
 
 | Time (IST) | Task | Result | Commit |
 |---|---|---|---|
 | 06 Nov 01:49 | T2 | ✔ `@hexfence/shared` per INTERFACES, 30 tests; pushed (S1) | 90f8b05 |
+| 06 Nov 01:59 | T4a | ✔ `@hexfence/arkiv` read side + `arkiv/schema.md`; live Rabdi read OK (S2) | c673a4a |
