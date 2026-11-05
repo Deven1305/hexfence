@@ -1,7 +1,7 @@
 // Local-chain tests only; generated wallets never leave this process.
 const { expect } = require('chai');
 const { ethers, network } = require('hardhat');
-const { setupDemo, SINGLETON, FACTORY, P, GUARD_SLOT, MIN_BALANCE } = require('./setup-demo');
+const { setupDemo, demoErrorMessage, SINGLETON, FACTORY, P, GUARD_SLOT, MIN_BALANCE } = require('./setup-demo');
 
 describe('setup-demo local chain', function () {
   let signer;
@@ -34,12 +34,22 @@ describe('setup-demo local chain', function () {
     const predicted = await setupDemo({ provider: provider(), signer, guardAddress: first.guardAddress, log() {} });
     expect(predicted.safeAddress).to.equal(first.safeAddress);
     expect(predicted.rows.map(r => r[0])).not.to.include('Safe creation tx');
-    for (const line of lines) expect(line).to.match(/^\| [^|]+ \| (0x[0-9a-fA-F]{40}|0x[0-9a-fA-F]{64}|1\.4\.1) \|$/);
+    expect(lines).to.include("The deployer key is this Safe's only owner. The Pay wallet must use that same testnet-only key.");
+    for (const line of lines.filter(line => line.startsWith('|'))) expect(line).to.match(/^\| [^|]+ \| (0x[0-9a-fA-F]{40}|0x[0-9a-fA-F]{64}|1\.4\.1) \|$/);
   });
   it('refuses a non-Sepolia RPC before spending', async function () {
     let error;
     try { await setupDemo({ provider: { getNetwork: async () => ({ chainId: 1n }) }, signer, log() {} }); } catch (e) { error = e; }
     expect(error.message).to.include('Only Sepolia');
+    expect(demoErrorMessage(error)).to.equal('Only Sepolia chain ID 11155111 is allowed');
+  });
+  it('hides provider errors even when their messages contain an RPC URL', async function () {
+    let error;
+    try {
+      await setupDemo({ provider: { getNetwork: async () => { throw new Error('request failed at https://rpc.invalid/private-path'); } }, signer, log() {} });
+    } catch (e) { error = e; }
+    expect(demoErrorMessage(error)).to.equal('Demo setup failed. Check the root .env, Sepolia funds and supplied contract addresses.');
+    expect(demoErrorMessage(error)).not.to.include('rpc.invalid');
   });
   it('refuses missing supplied Guard and wrong Safe owner', async function () {
     let error;

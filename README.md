@@ -68,7 +68,8 @@ npx hardhat test                 # 14 passing
    Safe **1.4.1** through Safe's canonical Sepolia factory. It tops the Safe up to
    0.002 test ETH, executes `setGuard` and `approvePayee(P)`, then removes the Guard
    with `setGuard(0)` and re-enables it. Each is a separate real Safe transaction.
-   The owner EOA sends Safe's prevalidated owner signature (`v=1`); no transaction
+   **The deployer key is the Safe's only owner. The Pay wallet must use that same
+   testnet-only key.** The owner EOA sends Safe's prevalidated owner signature (`v=1`); no transaction
    service or browser wallet is involved. Output contains only public addresses,
    transaction hashes and `VERSION()`, as Markdown rows for the PROGRESS table.
 
