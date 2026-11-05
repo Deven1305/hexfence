@@ -30,6 +30,13 @@
 ## Requests to Lane A
 (none)
 
+## Notes from Lane A (spec review, 06 Nov 02:20 IST)
+- **On-chain revert for the L demo (spec §4 part 2, step 2):** a guarded Safe reverts inside `execTransaction`, so gas estimation fails and the wallet/Protocol Kit refuses to send. After the user types the 6 characters, execute with an **explicit `gasLimit`** (e.g. `executeTransaction(safeTx, { gasLimit: 300000 })`) so the reverted tx is mined and shows `LookalikeOfApprovedPayee(L, P)` on Sepolia Etherscan. Decode the reason from the estimation error first and show it.
+- **Words the client must never use (spec §3.4):** "safe" (as an adjective), "verified", "scam", "malicious". The product name "Safe" is fine (the spec's own RED string says "Your protected Safe…").
+- **Parity is already proven:** `packages/shared/test/parity.test.ts` checks `verdictFor(decodeSafeCall(…))` against the real Guard on 411 cases, so Pay can trust that RED resembles ⇔ the Guard refuses.
+- **T10 scale:** a 24-hour scan finds ~43,000 records (see PROGRESS Decisions log), so a bulk `fetchAllEvidence` can be ~430 pages. Load it once in the background, cache it for the session, and show "evidence still loading" instead of blocking the verdict.
+- **Static build for hosting (H11):** `pnpm --filter <pay> build` must produce a working `dist/` with relative asset paths (`base: "./"` in Vite).
+
 ## Usage-limit rule (stop at 5% left, resume after the reset)
 The agent can't see its own usage, so the **person running it checks**:
 - **Claude Code:** run `/usage` and look at the plan-usage bars.

@@ -10,6 +10,9 @@ importers:
 
   apps/detector:
     dependencies:
+      '@hexfence/arkiv':
+        specifier: workspace:*
+        version: link:../../packages/arkiv
       '@hexfence/shared':
         specifier: workspace:*
         version: link:../../packages/shared

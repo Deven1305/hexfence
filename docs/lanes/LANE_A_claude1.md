@@ -20,7 +20,7 @@
    - **Done when:** the unit tests pass and a read against Rabdi works (empty is fine). **Push (S2).**
 3. **T3 `apps/detector`:** mainnet logs → rules → `evidence.jsonl`.
    - **Done when:** the fixture tests pass, and a real run (H4) finds ≥5 pairs.
-4. **T4b writer:** `writeEvidence` (idempotent) + `pnpm --filter detector publish`.
+4. **T4b writer:** `writeEvidence` (idempotent) + `pnpm --filter @hexfence/detector publish:arkiv`.
    - **Done when:** a re-run creates 0 duplicates, and the README query is noted in this file for Lane C (H5). **Push (S4).**
 5. **T1 finish:** once H1/H2 are done, record the guard address, and run `contracts` tests to stay green.
 6. **T13:** ≥20 pairs, and a precision table from the H9 labels. Put the numbers in this file for Lane C.
@@ -28,6 +28,7 @@
 ## Notes for other lanes (A writes facts here, B and C read them)
 - `@hexfence/arkiv` read side is on main (S2): `arkivReadClient({ accessKey })`, `fetchAllEvidence(client, publisher)`, `findEvidenceByAddress(client, publisher, address)`. Browser-safe (no Node imports).
 - Arkiv README query: (to fill in at T4b)
+- Detector numbers for the README (T3): 24 h run 06 Nov, blocks 26343865–26351064: 1,330,446 USDT/USDC Transfer logs → 43,227 suspected pairs (31,801 zero-value, 11,426 dust); 40/40 random records confirmed against receipts. Precision: pending H9.
 - Publisher wallet: (to fill in)
 
 ## Usage-limit rule (stop at 5% left, resume after the reset)
@@ -85,7 +86,9 @@ the same rules (one agent, no subagents, your paths only, commit + push after ev
 (not paused)
 
 ## Next step
-T3: create `apps/detector` (viem mainnet `getLogs`, USDT/USDC Transfer, latest 7,200 blocks in 100-block windows; reference ≥1e6, zero-value victim→lookalike, dust lookalike→victim; match with `fingerprint`) → `out/evidence.jsonl` validated by `PoisoningEvidenceSchema`. Fixture-log unit tests first; the real run needs H4 (`MAINNET_RPC_URL`). Test: `pnpm --filter detector test`.
+- **T4b ⏸ H5:** once H5 is ticked: `pnpm --filter @hexfence/detector publish:arkiv --limit 25` → run it again (must print `0 created`) → `ARKIV_LIVE=1 ARKIV_PUBLISHER=<addr> pnpm --filter @hexfence/arkiv test` → fill "Publisher wallet" + "Arkiv README query" below → decide the publish scope (43k/day).
+- **T13 ⏸ H9:** the sheet is `apps/detector/labels/h9-sample.csv`; once it's labelled, run `pnpm --filter @hexfence/detector precision` and put the numbers below for Lane C.
+- **T1 ⏸ H1+H2:** record the Guard address, keep contracts green.
 
 ## Session log
 
@@ -93,3 +96,6 @@ T3: create `apps/detector` (viem mainnet `getLogs`, USDT/USDC Transfer, latest 7
 |---|---|---|---|
 | 06 Nov 01:49 | T2 | ✔ `@hexfence/shared` per INTERFACES, 30 tests; pushed (S1) | 90f8b05 |
 | 06 Nov 01:59 | T4a | ✔ `@hexfence/arkiv` read side + `arkiv/schema.md`; live Rabdi read OK (S2) | 691f634 |
+| 06 Nov 02:16 | T3 | ✔ detector; real 24h run 43,227 pairs, 40/40 receipts confirmed; Guard parity test added to T2 | aaa233c |
+| 06 Nov 02:24 | T4b | ⏸ code done (writer, batch publisher, CLI); live dry run stops only at the tGLM balance; waiting on H5 | d56bee3 |
+| 06 Nov 02:23 | T13 | ⏸ ≥20 pairs done (43,227); 30-record label sheet + precision command ready; waiting on H9 | 4c631f1 |

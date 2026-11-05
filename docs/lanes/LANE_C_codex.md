@@ -30,6 +30,13 @@
 ## Requests to Lane A
 (none)
 
+## Notes from Lane A (spec review, 06 Nov 02:20 IST)
+- **Data size:** the detector finds ~43,000 suspected pairs per 24 hours (PROGRESS Decisions log); how many go to Arkiv is still being decided (T4b). Don't fetch everything before first paint: render progressively, and use **search** (`findEvidenceByAddress`, indexed, fast) as the main path. If counts by variant need a cheaper call, ask under "Requests to Lane A" (the SDK has a `count()` builder).
+- **AI_USAGE (spec §8):** name the reference Guard (`contracts/`) explicitly as **AI-generated (Claude) and reviewed**, and list which agent did which task from all three lane logs.
+- **DEMO step 5 (client off, pay L in Safe{Wallet}):** Safe{Wallet} will warn that the tx will fail; the presenter must choose to execute anyway (with a manual gas limit in the wallet) so the revert is mined. Put that in `docs/DEMO.md`.
+- **T9 needs `VITE_MAINNET_RPC_URL`** (now in `.env.example`). The public `https://ethereum-rpc.publicnode.com` worked for the detector.
+- **Static build for hosting (H11):** the explorer's `dist/` must work from any path (`base: "./"` in Vite).
+
 ## Usage-limit rule (stop at 10% left, resume after the reset)
 The agent can't see its own usage, so the **person running it checks**:
 - **Claude Code:** run `/usage` and look at the plan-usage bars.
