@@ -9,10 +9,6 @@ export interface Config {
   /** Arkiv publisher (T10). Optional: without it the "listed" signal is off and the UI says so. */
   publisher?: Address;
   explorerUrl?: string;
-  /** Optional (T11): bootstrap read for the tor-js and Nym routes, whose routing contract is on mainnet. */
-  mainnetRpcUrl?: string;
-  /** Optional (T11): comma-separated Tor gateways; the published demo gateway is used if absent. */
-  torGateways?: string;
   /** Optional Arkiv access key (the public endpoint is rate limited without one). */
   arkivAccessKey?: string;
 }
@@ -40,8 +36,6 @@ export function loadConfig(env: Record<string, string | undefined>): Config {
     sepoliaRpcUrl: rpc as string,
     publisher: pubRaw ? getAddress(pubRaw) : undefined,
     explorerUrl: env.VITE_EXPLORER_URL?.trim() || undefined,
-    mainnetRpcUrl: env.VITE_MAINNET_RPC_URL?.trim() || undefined,
-    torGateways: env.VITE_TOR_GATEWAYS?.trim() || undefined,
     arkivAccessKey: env.VITE_ARKIV_ACCESS_KEY?.trim() || undefined,
   };
 }

@@ -1,6 +1,6 @@
 import { AnonRpcWorker } from "@anon-rpc/browser-harness";
 import { createPublicClient, http } from "viem";
-import { mainnet, sepolia } from "viem/chains";
+import { sepolia } from "viem/chains";
 import { createReadClient } from "./rpc";
 import { SEPOLIA_CHAIN_ID } from "./config";
 
@@ -10,32 +10,15 @@ import { SEPOLIA_CHAIN_ID } from "./config";
  * Source of the addresses: ethereum/anon-rpc adopters.json5.
  */
 export interface Route {
-  id: "nox" | "tor-js" | "nym";
+  id: "nox";
   label: string;
   specifier: string;
   /** Chain the specifier contract lives on = the chain the one bootstrap read must use. */
-  bootstrapChainId: 1 | 11155111;
-  config?: (env: AnonEnv) => unknown;
+  bootstrapChainId: 11155111;
 }
-
-export interface AnonEnv {
-  /** Comma-separated Tor gateways (`host:port:key`). Falls back to the published demo gateway. */
-  torGateways?: string;
-}
-
-/** The demo gateway published in adopters.json5: "limited capacity, and it may disappear at any time". */
-export const DEMO_TOR_GATEWAY = "152.236.3.22:12298:uEiCH0VdbhryzJcMtCfB0vLA4sOvHdQ4hq5w7CopcwU59bQ";
 
 export const ROUTES: readonly Route[] = [
   { id: "nox", label: "Nox (Sphinx mixnet)", specifier: "0x35133267A8F7EC35046a83DCA0f4Ca8A6e1b7A9A", bootstrapChainId: SEPOLIA_CHAIN_ID },
-  {
-    id: "tor-js",
-    label: "tor-js (Tor in the browser)",
-    specifier: "0x700dA3193D35fA54Cd3fBf29B66f2a2A0385659e",
-    bootstrapChainId: 1,
-    config: (env) => ({ gateways: env.torGateways ? env.torGateways.split(",").map((s) => s.trim()).filter(Boolean) : [DEMO_TOR_GATEWAY] }),
-  },
-  { id: "nym", label: "Nym (mixnet)", specifier: "0x3aCD9742C68F6d993066Ae25533e09b9e1f60eD0", bootstrapChainId: 1 },
 ];
 
 export interface Attempt {
@@ -65,8 +48,6 @@ export type WorkerFactory = (init: ConstructorParameters<typeof AnonRpcWorker>[0
 
 export interface ConnectOptions {
   sepoliaRpcUrl: string;
-  mainnetRpcUrl?: string;
-  env?: AnonEnv;
   timeoutMs?: number;
   signal?: AbortSignal;
   routes?: readonly Route[];
@@ -94,10 +75,8 @@ function timeout<T>(p: Promise<T>, ms: number, what: string, signal?: AbortSigna
 }
 
 /** An EIP-1193-style provider for the single bootstrap read of the specifier contract (this read is NOT anonymized). */
-function bootstrapProvider(route: Route, opts: ConnectOptions): { request(a: { method: string; params?: unknown[] }): Promise<unknown> } | string {
-  const url = route.bootstrapChainId === SEPOLIA_CHAIN_ID ? opts.sepoliaRpcUrl : opts.mainnetRpcUrl;
-  if (!url) return "needs VITE_MAINNET_RPC_URL for its one bootstrap read (the specifier is on Ethereum mainnet)";
-  const client = createPublicClient({ chain: route.bootstrapChainId === SEPOLIA_CHAIN_ID ? sepolia : mainnet, transport: http(url) });
+function bootstrapProvider(opts: ConnectOptions): { request(a: { method: string; params?: unknown[] }): Promise<unknown> } {
+  const client = createPublicClient({ chain: sepolia, transport: http(opts.sepoliaRpcUrl) });
   return { request: ({ method, params }) => (client.request as (a: unknown) => Promise<unknown>)({ method, params }) };
 }
 
@@ -115,16 +94,11 @@ export async function connectAnon(opts: ConnectOptions): Promise<AnonOutcome> {
       continue;
     }
     opts.onTry?.(route);
-    const provider = bootstrapProvider(route, opts);
-    if (typeof provider === "string") {
-      attempts.push({ id: route.id, label: route.label, ok: false, reason: provider });
-      continue;
-    }
+    const provider = bootstrapProvider(opts);
     let worker: WorkerLike | undefined;
     try {
       worker = make({
         address: route.specifier,
-        config: route.config?.(opts.env ?? {}) as never,
         preExisting: { rpcProvider: provider as never },
       });
       await timeout(worker.ready, ms, `${route.label} start-up`, opts.signal);

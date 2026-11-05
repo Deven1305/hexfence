@@ -82,8 +82,6 @@ async function startRoute(): Promise<void> {
   const c = state.config;
   const outcome = await connectAnon({
     sepoliaRpcUrl: c.sepoliaRpcUrl,
-    mainnetRpcUrl: c.mainnetRpcUrl,
-    env: { torGateways: c.torGateways },
     signal: state.skip.signal,
     onTry: (r) => {
       state.trying = r.label;
