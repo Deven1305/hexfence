@@ -26,20 +26,28 @@ The **gate** (T8) is run together by the humans once A, B and C report ✔ on P0
 | Gate | T8 end to end | humans + all lanes | | |
 
 ## Git rules (every agent, every task)
-1. Everyone works on `main`.
-2. **Before starting a task and before every commit:** `git pull --rebase`.
-3. **After every task:** commit **and push**. Keep commits small, with the message `[A] T3: …`, `[B] T6: …` or `[C] T5: …`.
-4. **Edit only your own paths.** The few shared files have rules:
+1. **Branches.** Lane A works on **`main`**. Lane B works on **`lane-b`**, Lane C on **`lane-c`**. `main` is what the gate, the demo and the judges use.
+   - First time on the B or C laptop: `git fetch origin && git checkout lane-b` (or `lane-c`). The branch already tracks `origin/lane-b` / `origin/lane-c`.
+2. **Before starting a task and before every commit:** `git pull --rebase` on your own branch. Lanes B and C then also run `git merge --no-edit origin/main` to pick up Lane A's work (`@hexfence/shared`, `@hexfence/arkiv`). Never rebase commits that are already pushed, and never force-push.
+3. **After every task:** commit **and push your branch** (`git push`). Keep commits small, with the message `[A] T3: …`, `[B] T6: …` or `[C] T5: …`.
+4. **Lanes B and C merge into `main` when a task is ✔** (B: T6, T10, T11, T12; C: T5, T9, T7, demo). Lanes edit disjoint paths, so this is normally conflict-free:
+   ```
+   git checkout main && git pull --rebase
+   git merge --no-ff --no-edit lane-b        # or lane-c
+   git push && git checkout lane-b           # back to your branch
+   ```
+   Code from another lane always comes through `main` (step 2), never straight from another lane's branch.
+5. **Edit only your own paths.** The few shared files have rules:
    - `pnpm-lock.yaml`: if it conflicts, take the remote version (`git checkout --theirs pnpm-lock.yaml`), then run `pnpm install`, then commit.
    - `.env.example`: only *add* lines, and only in your lane's section.
    - `docs/PROGRESS.md`: change **only your own task rows**. Write your session log in **your lane file**, never in PROGRESS (two appends at the end of one file always conflict).
    - `AGENTS.md`, `docs/INTERFACES.md`, `docs/planning/`: **nobody edits them.** If an interface must change, write the proposal in your lane file and wait for A to apply it.
-5. Never commit `.env`, keys, `node_modules/`, `artifacts/` or `cache/`.
+6. Never commit `.env`, keys, `node_modules/`, `artifacts/` or `cache/`.
 
 ## Usage limits (all three lanes)
 Each lane file has a **Usage-limit rule**:
 1. The person checks usage (`/usage` in Claude Code, `/status` in Codex).
-2. At **~5% left** they paste STOP-SAFE. The agent commits, writes an exact "Next step" and "Paused until <reset time>", pushes, and stops.
+2. At **~5% left** (Claude Code, Lanes A and B) or **~10% left** (Codex, Lane C) they paste STOP-SAFE. Each lane file has a **Usage check schedule**: check after every pushed task and every 30 minutes on the clock. The agent commits, writes an exact "Next step" and "Paused until <reset time>", pushes, and stops.
 3. After the reset they paste RESUME.
 
 Every task is committed, so even a sudden hard stop loses at most one step.

@@ -34,7 +34,8 @@ You are Lane B (HexFence Pay) of a 3-agent parallel build. Read AGENTS.md, docs/
 docs/lanes/LANE_B_claude2.md (including its Usage-limit rule) and docs/planning/10_FINAL_What_To_Build_HexFence.md
 (section 3.4 has the exact verdict strings). Work as ONE agent: do not use the Agent/Task tool or spawn subagents.
 Edit only apps/pay/. Do your lane's tasks in order, starting from its "Next step". After each task: run tests, update
-your rows in docs/PROGRESS.md and your lane log, commit "[B] T<n>: ...", git pull --rebase, git push. If
+your rows in docs/PROGRESS.md and your lane log, commit "[B] T<n>: ...", git pull --rebase, git push. Work on the
+lane-b branch (git fetch origin && git checkout lane-b) and follow the Git rules in docs/PARALLEL_PLAN.md. If
 @hexfence/shared isn't on main yet, build the parts that don't need it and pull again later; never write your own
 copy of the shared code. Implement everything for real: no mock data in the finished app.
 ```
@@ -45,12 +46,14 @@ You are Lane C (explorer + docs) of a 3-agent parallel build. Read AGENTS.md, do
 docs/INTERFACES.md, docs/lanes/LANE_C_codex.md (including its Usage-limit rule) and
 docs/planning/10_FINAL_What_To_Build_HexFence.md. Work as one agent, one task at a time within your lane, and edit
 only Lane C's paths. Start from your lane's "Next step". After each task: build/tests, update your rows in
-docs/PROGRESS.md and your lane log, commit "[C] T<n>: ...", git pull --rebase, git push. If @hexfence/arkiv isn't on
+docs/PROGRESS.md and your lane log, commit "[C] T<n>: ...", git pull --rebase, git push. Work on the
+lane-c branch (git fetch origin && git checkout lane-c) and follow the Git rules in docs/PARALLEL_PLAN.md. If @hexfence/arkiv isn't on
 main yet, use a typed fixture for PoisoningEvidence and switch to the real helpers when they land; remove the fixture
 before T5 is ✔.
 ```
 
-## STOP-SAFE (paste when /usage or /status shows about 5% left)
+## STOP-SAFE (paste when `/usage` shows about 5% left for Claude Code, or `/status` shows about 10% left for Codex)
+Replace `<lane>` with A, B or C and `about 5%` with `about 10%` for Codex. Each lane file has a ready copy with its lane and threshold filled in, plus the check schedule.
 ```
 USAGE LOW: about 5% left. Do the Usage-limit stop routine in your lane file now: start nothing new; commit current work
 as "[<lane>] T<n> wip: paused for usage limit" (it must build; list failing tests in notes); set your task row to ▶
@@ -61,7 +64,7 @@ The limit resets at: <RESET TIME>
 
 ## RESUME (paste after the reset)
 ```
-Your usage limit has reset. Resume your lane: git pull --rebase; git status (finish or revert anything uncommitted);
+Your usage limit has reset. Resume your lane: git checkout <your branch: main for A, lane-b, lane-c>; git pull --rebase; git status (finish or revert anything uncommitted);
 run your lane's tests; read your lane file's log, Paused and Next step; clear Paused; continue the tasks in order with
 the same rules (one agent, no subagents, your paths only, commit + push after every task).
 ```

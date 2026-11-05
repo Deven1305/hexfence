@@ -4,7 +4,9 @@
 
 **Owns:** `apps/pay/` only.
 
-**Rules:** `AGENTS.md` + `docs/PARALLEL_PLAN.md`. One agent, no subagents, tasks in order. After each task: tests → update **your rows** in PROGRESS + the log below → commit `[B] T<n>: …` → `git pull --rebase` → `git push`. Never edit `packages/`, `contracts/` or `docs/INTERFACES.md`; if you need an interface change, write it under "Requests to Lane A".
+**Rules:** `AGENTS.md` + `docs/PARALLEL_PLAN.md`. One agent, no subagents, tasks in order. After each task: tests → update **your rows** in PROGRESS + the log below → commit `[B] T<n>: …` → `git pull --rebase` → `git merge --no-edit origin/main` → `git push`. Never edit `packages/`, `contracts/` or `docs/INTERFACES.md`; if you need an interface change, write it under "Requests to Lane A".
+
+**Branch:** work only on **`lane-b`** (`git checkout lane-b`). When a task is ✔, merge `lane-b` into `main` as in `docs/PARALLEL_PLAN.md` Git rules step 4, push `main`, then go back to `lane-b`.
 
 ## Tasks (in order)
 1. **T6a Pay shell (doesn't need S1):**
@@ -33,7 +35,32 @@ The agent can't see its own usage, so the **person running it checks**:
 - **Claude Code:** run `/usage` and look at the plan-usage bars.
 - **Codex:** run `/status` (5-hour and weekly limits), or open chatgpt.com/codex/settings/usage for the reset times. `/statusline` can keep the limits visible in the footer.
 
-Check after every task, or about every 30–45 minutes.
+Check after every task, or about every 30–45 minutes (see the schedule below).
+
+### Usage check schedule (Claude Code, Lane B: stop at **5% left**)
+| When | The person running Lane B does this |
+|---|---|
+| After every `[B] T<n>: …` push | run `/usage` |
+| Every 30 minutes on the clock (:00 and :30 IST), even mid-task | run `/usage` |
+| `/usage` shows **≤5% left** (≥95% used) in the session **or** weekly window | paste **STOP-SAFE** below, with the reset time `/usage` shows |
+| The reset time has passed | paste **RESUME** below |
+| Lane B paused for more than ~2 hours (A and B are on the gate path) | give another agent the TAKEOVER prompt in `docs/AGENT_PROMPTS.md` |
+
+**STOP-SAFE (paste as is; fill in the reset time):**
+```
+USAGE LOW: about 5% left. Do the Usage-limit stop routine in your lane file now: start nothing new; commit current work
+as "[B] T<n> wip: paused for usage limit" (it must build; list failing tests in notes); set your task row to ▶
+"PAUSED (usage limit) at <now IST>"; write "Paused: until <RESET TIME>" and an exact "Next step" (file, function,
+what's left, commands); git pull --rebase; git push (on lane-b); reply PAUSED-SAFE and stop.
+The limit resets at: <RESET TIME>
+```
+
+**RESUME (paste after the reset):**
+```
+Your usage limit has reset. Resume your lane: git checkout lane-b; git pull --rebase; git merge --no-edit origin/main; git status (finish or revert anything uncommitted);
+run your lane's tests; read your lane file's log, Paused and Next step; clear Paused; continue the tasks in order with
+the same rules (one agent, no subagents, your paths only, commit + push after every task).
+```
 
 **When about 5% is left** (≈95% used) in the session or weekly window, the person pastes the **STOP-SAFE** prompt. The agent also does this on its own if it ever sees a usage-limit warning. The agent then:
 1. Starts nothing new. If the current step needs more than ~5 minutes, it stops it at a point that builds: commit `[B] T<n> wip: paused for usage limit`, with failing tests listed in the notes.
@@ -41,12 +68,12 @@ Check after every task, or about every 30–45 minutes.
    - the task row shows ▶ with "PAUSED (usage limit) at HH:MM IST";
    - **Paused** = the reset time the person gives;
    - **Next step** = the exact file/function, what's left, and the commands to run.
-3. Runs `git pull --rebase`, then `git push`, replies `PAUSED-SAFE`, and does nothing else.
+3. Runs `git pull --rebase`, then `git push` (on `lane-b`), replies `PAUSED-SAFE`, and does nothing else.
 
 **While it's paused:** the other lanes keep going. If this lane is A or B (on the gate path) and the pause is longer than about 2 hours, an agent with quota left may take this lane over with the takeover prompt in `docs/PARALLEL_PLAN.md`.
 
 **After the reset,** the person pastes the **RESUME** prompt. The agent:
-1. runs `git pull --rebase` and `git status`;
+1. runs `git checkout lane-b`, `git pull --rebase`, `git merge --no-edit origin/main` and `git status`;
 2. finishes or reverts any uncommitted work;
 3. runs the lane's tests;
 4. clears **Paused**;

@@ -6,7 +6,7 @@
 ## Now
 - **Current task:** T4a (Lane A)
 - **Agent working:** Claude Code
-- **Last updated:** 06 Nov 02:10 IST
+- **Last updated:** 06 Nov 01:49 IST
 - **Tests:** contracts 14 passing · `@hexfence/shared` 30 passing
 - **Next step for whoever comes next:** Lane A: T4a (`packages/arkiv` read side). S1 (`@hexfence/shared`) is on main. T1 is ⏸ on H1+H2 (live deploy only).
 
@@ -56,12 +56,12 @@
 
 ## Decisions log
 - 06 Nov: the P0 client is **HexFence Pay** (Plan B). Extension interception wasn't verified by the 01:00 checkpoint, so the extension moved to T14 (P2). If the team has already verified interception, swap T6 and T14 here.
-- 05 Nov (Claude Code): **Arkiv SDK 1.0.1 differs from spec §3.2; following the docs.** (a) There is no `createdBy(addr)`; filter with `eq("$creator", addr(publisher))` in `where`. (b) A page holds **≤100** rows (not 200) and there is no `hasNextPage()`; page by key with `orderBy(asc("$key"))` + `gt("$key", key(last))`. (c) The SDK asks for Node ≥22.10.
-- 05 Nov (Claude Code): the driver laptop has Node 20.20, not 22. Workspace `engines` is `>=20`; `.nvmrc` says 22. If the Arkiv SDK fails on Node 20, install Node 22 before running the detector.
+- 06 Nov (Claude Code): **Arkiv SDK 1.0.1 differs from spec §3.2; following the docs.** (a) There is no `createdBy(addr)`; filter with `eq("$creator", addr(publisher))` in `where`. (b) A page holds **≤100** rows (not 200) and there is no `hasNextPage()`; page by key with `orderBy(asc("$key"))` + `gt("$key", key(last))`. (c) The SDK asks for Node ≥22.10.
+- 06 Nov (Claude Code): the driver laptop has Node 20.20, not 22. Workspace `engines` is `>=20`; `.nvmrc` says 22. If the Arkiv SDK fails on Node 20, install Node 22 before running the detector.
 
 ## Session log (append one line per task or stop)
 
 | Time (IST) | Agent | Task | Result | Commit |
 |---|---|---|---|---|
-| 05 Nov 20:02 | Claude Code | T0 | ✔ contracts 13 passing; `pnpm i` works | 545ac36 |
-| 05 Nov 20:20 | Claude Code | T1 | ⏸ review done, 14 passing; waiting on H1+H2 for the deploy | ba07540 |
+| 06 Nov 01:33 | Claude Code | T0 | ✔ contracts 13 passing; `pnpm i` works | 545ac36 |
+| 06 Nov 01:35 | Claude Code | T1 | ⏸ review done, 14 passing; waiting on H1+H2 for the deploy | ba07540 |

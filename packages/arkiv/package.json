@@ -1,0 +1,26 @@
+{
+  "name": "@hexfence/arkiv",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "description": "The hexfence.poisoning.v1 Arkiv schema, bulk readers (explorer, Pay) and the idempotent writer (detector).",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc -p tsconfig.test.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@arkiv-network/sdk": "1.0.1",
+    "@hexfence/shared": "workspace:*",
+    "viem": "2.57.16"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3",
+    "vitest": "4.1.12"
+  }
+}

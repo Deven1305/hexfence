@@ -7,7 +7,9 @@
 - `arkiv/friction.md`, `arkiv/reach.md`, `arkiv/why-arkiv.md`, `arkiv/how-you-use-arkiv.md`
 - `docs/AI_USAGE.md`, `docs/DEMO.md`
 
-**Rules:** `AGENTS.md` + `docs/PARALLEL_PLAN.md`. One agent, tasks in order, no parallel work. After each task: tests/build → update **your rows** in PROGRESS + the log below → commit `[C] T<n>: …` → `git pull --rebase` → `git push`. Never edit `packages/`, `apps/pay/`, `apps/detector/`, `contracts/` or `docs/INTERFACES.md`; ask under "Requests to Lane A".
+**Rules:** `AGENTS.md` + `docs/PARALLEL_PLAN.md`. One agent, tasks in order, no parallel work. After each task: tests/build → update **your rows** in PROGRESS + the log below → commit `[C] T<n>: …` → `git pull --rebase` → `git merge --no-edit origin/main` → `git push`. Never edit `packages/`, `apps/pay/`, `apps/detector/`, `contracts/` or `docs/INTERFACES.md`; ask under "Requests to Lane A".
+
+**Branch:** work only on **`lane-c`** (`git checkout lane-c`). When a task is ✔, merge `lane-c` into `main` as in `docs/PARALLEL_PLAN.md` Git rules step 4, push `main`, then go back to `lane-c`.
 
 ## Tasks (in order)
 1. **T5 explorer:** a Vite + TypeScript static app in `apps/explorer`.
@@ -28,31 +30,56 @@
 ## Requests to Lane A
 (none)
 
-## Usage-limit rule (stop at 5% left, resume after the reset)
+## Usage-limit rule (stop at 10% left, resume after the reset)
 The agent can't see its own usage, so the **person running it checks**:
 - **Claude Code:** run `/usage` and look at the plan-usage bars.
 - **Codex:** run `/status` (5-hour and weekly limits), or open chatgpt.com/codex/settings/usage for the reset times. `/statusline` can keep the limits visible in the footer.
 
-Check after every task, or about every 30–45 minutes.
+Check after every task, or about every 30–45 minutes (see the schedule below).
 
-**When about 5% is left** (≈95% used) in the session or weekly window, the person pastes the **STOP-SAFE** prompt. The agent also does this on its own if it ever sees a usage-limit warning. The agent then:
+### Usage check schedule (Codex, Lane C: stop at **10% left**)
+| When | The person running Lane C does this |
+|---|---|
+| After every `[C] T<n>: …` push | run `/status` |
+| Every 30 minutes on the clock (:00 and :30 IST), even mid-task | run `/status` |
+| `/status` shows **≤10% left** (≥90% used) in the session **or** weekly window | paste **STOP-SAFE** below, with the reset time `/status` shows |
+| The reset time has passed | paste **RESUME** below |
+| Lane C paused for more than ~2 hours (C is off the gate path: only if A and B are idle) | give another agent the TAKEOVER prompt in `docs/AGENT_PROMPTS.md` |
+
+**STOP-SAFE (paste as is; fill in the reset time):**
+```
+USAGE LOW: about 10% left. Do the Usage-limit stop routine in your lane file now: start nothing new; commit current work
+as "[C] T<n> wip: paused for usage limit" (it must build; list failing tests in notes); set your task row to ▶
+"PAUSED (usage limit) at <now IST>"; write "Paused: until <RESET TIME>" and an exact "Next step" (file, function,
+what's left, commands); git pull --rebase; git push (on lane-c); reply PAUSED-SAFE and stop.
+The limit resets at: <RESET TIME>
+```
+
+**RESUME (paste after the reset):**
+```
+Your usage limit has reset. Resume your lane: git checkout lane-c; git pull --rebase; git merge --no-edit origin/main; git status (finish or revert anything uncommitted);
+run your lane's tests; read your lane file's log, Paused and Next step; clear Paused; continue the tasks in order with
+the same rules (one agent, no subagents, your paths only, commit + push after every task).
+```
+
+**When about 10% is left** (≈90% used) in the session or weekly window, the person pastes the **STOP-SAFE** prompt. The agent also does this on its own if it ever sees a usage-limit warning. The agent then:
 1. Starts nothing new. If the current step needs more than ~5 minutes, it stops it at a point that builds: commit `[C] T<n> wip: paused for usage limit`, with failing tests listed in the notes.
 2. Updates this file:
    - the task row shows ▶ with "PAUSED (usage limit) at HH:MM IST";
    - **Paused** = the reset time the person gives;
    - **Next step** = the exact file/function, what's left, and the commands to run.
-3. Runs `git pull --rebase`, then `git push`, replies `PAUSED-SAFE`, and does nothing else.
+3. Runs `git pull --rebase`, then `git push` (on `lane-c`), replies `PAUSED-SAFE`, and does nothing else.
 
 **While it's paused:** the other lanes keep going. If this lane is A or B (on the gate path) and the pause is longer than about 2 hours, an agent with quota left may take this lane over with the takeover prompt in `docs/PARALLEL_PLAN.md`.
 
 **After the reset,** the person pastes the **RESUME** prompt. The agent:
-1. runs `git pull --rebase` and `git status`;
+1. runs `git checkout lane-c`, `git pull --rebase`, `git merge --no-edit origin/main` and `git status`;
 2. finishes or reverts any uncommitted work;
 3. runs the lane's tests;
 4. clears **Paused**;
 5. continues from **Next step**.
 
-*Claude Code note:* if the hard limit is hit before the 5% stop, keep the session open. Claude Code (v2.1.234+) shows "limit resets HH:MM" and continues the task on its own after the reset. Every task is committed, so a sudden stop loses at most one step.
+*Codex note:* Lane C stops at **10%** (not 5%), by the team's choice, to leave a bigger margin for the wip commit and push. Every task is committed, so a sudden stop loses at most one step.
 
 ## Paused
 (not paused)
