@@ -2,10 +2,10 @@
 
 **Spec:** `docs/planning/10_FINAL_What_To_Build_HexFence.md` (v4, LOCKED; the PDF has the same text). The scope is fixed: P0 → gate → P1. P2 happens only if every P1 task is ✔.
 
-**State:** `docs/PROGRESS.md` is the single source of truth. Read it first. Update it after **every** task and commit it together with that task.
+**State:** we now work in **parallel mode with 3 lanes**. Read `docs/PARALLEL_PLAN.md`, `docs/INTERFACES.md` and **your lane file** in `docs/lanes/` first. `docs/PROGRESS.md` still holds the task table, the H-boxes and the addresses. Update **only your own task rows** there, and write your session log in your lane file.
 
 ## How to work
-1. **One agent only.** No subagents, no Agent/Task tool, no parallel tasks. Do tasks strictly in the order of `docs/PROGRESS.md`.
+1. **One agent per lane.** No subagents, no Agent/Task tool, no parallel tasks inside your lane. Do your lane's tasks strictly in order. **Edit only the paths your lane owns** (see `docs/PARALLEL_PLAN.md`). Run `git pull --rebase` before every commit, and push after every task.
 2. **Per task:** implement → run that task's tests → fix → update PROGRESS (status, commit hash, notes, "Next step") → `git commit` with message `T<n>: <what>`. Never stop between tasks with uncommitted work.
 3. **Long tasks:** commit working sub-steps (`T<n> wip: <what>`) at least every ~30 minutes, so a sudden stop loses little.
 4. **Human-only steps** (keys, faucets, Safe{Wallet} UI, deploys, manual tests):

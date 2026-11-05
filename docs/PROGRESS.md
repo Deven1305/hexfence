@@ -1,6 +1,6 @@
 # HexFence: PROGRESS (the single source of truth for every agent and human)
 
-> Agents: read this first; update it after EVERY task and commit it with the task. Only one agent works at a time.
+> **PARALLEL MODE (3 lanes):** see `docs/PARALLEL_PLAN.md`. Lane A (Claude #1, this laptop): T2, T4a, T3, T4b, T1, T13. Lane B (Claude #2): T6, T10, T11, T12. Lane C (Codex): T5, T9, T7, demo. Each agent updates **only its own task rows** here, and writes its session log in `docs/lanes/LANE_*.md`. The H-boxes and addresses here are for the humans and Lane A.
 > Status: ☐ todo · ▶ in progress · ✔ done · ⏸ waiting on humans
 
 ## Now
