@@ -69,7 +69,7 @@ async function evidence() {
     StatTile("Victims mentioned", String(new Set(records.map(e => e.victim.toLowerCase())).size)));
   if (!latest) return part("evidence").replaceChildren(...notices, tiles);
   part("evidence").replaceChildren(...notices, tiles,
-    el("p", "demo-caption", `Latest record: block ${latest.attackBlock}, ${latest.variant}, ${latest.token === "0xdAC17F958D2ee523a2206206994597C13D831ec7" ? "USDT" : "USDC"}. The victim had paid the impersonated address; then a ${latest.variant} transfer planted the lookalike.`),
+    el("p", "demo-caption", `Latest record: block ${latest.attackBlock}, ${latest.variant}, ${latest.token === "0xdAC17F958D2ee523a2206206994597C13D831ec7" ? "USDT" : "USDC"}. The victim had paid the impersonated address; then a ${latest.variant} transfer put the lookalike in their history. Status: suspected.`),
     AddressXray(latest.impersonated, latest.lookalike, "Impersonated address"), AddressXray(latest.lookalike, latest.impersonated, "Lookalike · suspected"),
     el("p", "demo-links", link("Suspected attack transaction on Etherscan ↗", `https://etherscan.io/tx/${latest.attackTx}`), link("Earlier real payment ↗", `https://etherscan.io/tx/${latest.referenceTx}`)));
 }
