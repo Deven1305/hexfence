@@ -40,3 +40,5 @@ body, input, select, button { font-family: Inter, sans-serif; }
 .hf-table { min-width:38rem; }
 .hf-table td { overflow-wrap:normal; }
 .hf-table .card { white-space:normal; }
+
+.hf-detail-content { width:min(100%, calc(100vw - 4rem)); max-width:55rem; }

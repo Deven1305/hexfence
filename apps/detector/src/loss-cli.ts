@@ -118,7 +118,10 @@ async function main() {
     } }, records);
     console.log(JSON.stringify(report, null, 2));
     try {
-      const summary = JSON.parse(readFileSync(values.summary, "utf8")); summary.publication = report;
+      const summary = JSON.parse(readFileSync(values.summary, "utf8"));
+      summary.publicationHistory ??= [];
+      if (summary.publication && typeof summary.publication === "object") summary.publicationHistory.push(summary.publication);
+      summary.publication = report;
       save(values.summary, JSON.stringify(summary, null, 2) + "\n");
     } catch { console.log("Scan manifest not updated; retain the publication report above."); }
     return;

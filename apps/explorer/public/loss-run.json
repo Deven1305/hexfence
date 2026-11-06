@@ -21,7 +21,13 @@
   ],
   "completedAt": "2026-11-06T09:17:51.771Z",
   "status": "suspected",
-  "publication": "supported-call publication not attempted",
+  "publication": {
+    "publisher": "0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec",
+    "created": 0,
+    "alreadyThere": 1,
+    "stoppedForFunds": false,
+    "txHashes": []
+  },
   "rawPatterns": {
     "transactions": 239,
     "paymentCases": 258,
@@ -38,7 +44,7 @@
       }
     ]
   },
-  "callShapeCheckedAt": "2026-11-06T09:28:54.796Z",
+  "callShapeCheckedAt": "2026-11-06T09:34:12.960Z",
   "initialRetraction": {
     "reason": "Initial raw-pattern records withdrawn after discovering automated PoolManager flow",
     "publisher": "0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec",
@@ -51,5 +57,16 @@
       "0x2a693742c1cecaa41776bab3fb879c8748efd240675587e0510585a1483c420a"
     ],
     "at": "2026-11-06T09:25:02.955Z"
-  }
+  },
+  "publicationHistory": [
+    {
+      "publisher": "0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec",
+      "created": 1,
+      "alreadyThere": 0,
+      "stoppedForFunds": false,
+      "txHashes": [
+        "0x899bc5466cc62545cbfd69478a587605f412dbb0af51e63882e5e32fdbb3923e"
+      ]
+    }
+  ]
 }

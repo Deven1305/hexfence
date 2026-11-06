@@ -5,13 +5,18 @@ import type { ArkivReadClient } from "../src/read.js";
 const mock = vi.hoisted(() => ({ executeBatch: vi.fn() }));
 vi.mock("@arkiv-network/sdk", async original => ({ ...await original<typeof import("@arkiv-network/sdk")>(), createWalletClient: () => ({ executeBatch: mock.executeBatch }) }));
 const e = lossFixture();
-const opts = { privateKey: `0x${"01".repeat(32)}` as const };
+vi.mock("viem/accounts", () => ({ privateKeyToAccount: () => ({ address: "0x1111111111111111111111111111111111111111" }) }));
+const opts = { privateKey: "0x" as const }; // Invalid placeholder; account creation is mocked, no key is used.
 function reader(rows: unknown[] = [], balance = 10n ** 18n): ArkivReadClient {
   const query = { from: vi.fn().mockReturnThis(), createdBy: vi.fn().mockReturnThis(), orderBy: vi.fn().mockReturnThis(), limit: vi.fn().mockReturnThis(), where: vi.fn().mockReturnThis(), fetch: vi.fn().mockResolvedValue({ entities: rows }) };
   return { select: () => query, getBalance: vi.fn().mockResolvedValue(balance) } as unknown as ArkivReadClient;
 }
 beforeEach(() => { mock.executeBatch.mockReset(); mock.executeBatch.mockResolvedValue({ txHash: `0x${"aa".repeat(32)}` }); });
 describe("loss schema and publisher", () => {
+  it("refuses unclassified raw patterns before any write", async () => {
+    await expect(publishLosses(opts, [{ ...e, origin: "unclassified" }], reader())).rejects.toThrow("unclassified");
+    expect(mock.executeBatch).not.toHaveBeenCalled();
+  });
   it("roundtrips typed context and rejects conflicting indexed facts", () => {
     const row = lossValues(e); expect(lossFromRow(row)).toEqual(e);
     expect(() => lossFromRow({ ...row, amount: "1" })).toThrow("disagree");

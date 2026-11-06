@@ -60,8 +60,9 @@ export function DataTable(headers: string[], rows: (string | Node)[][], details:
       const button = document.createElement("button"); button.type = "button"; button.textContent = "X-Ray"; button.setAttribute("aria-expanded", "false");
       tr.insertCell().append(button);
       const expansion = body.insertRow(); expansion.hidden = true;
-      const cell = expansion.insertCell(); cell.colSpan = headers.length + 1; cell.append(detail);
-      button.onclick = () => { expansion.hidden = !expansion.hidden; button.setAttribute("aria-expanded", String(!expansion.hidden)); };
+      const cell = expansion.insertCell(); cell.colSpan = headers.length + 1;
+      const content = document.createElement("div"); content.className = "hf-detail-content"; content.append(detail); cell.append(content);
+      button.onclick = () => { expansion.hidden = !expansion.hidden; button.setAttribute("aria-expanded", String(!expansion.hidden)); if (!expansion.hidden) wrap.scrollLeft = 0; };
     }
   });
   wrap.append(table); return wrap;

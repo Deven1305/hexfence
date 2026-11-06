@@ -15,6 +15,7 @@ describe("loss receipt check", () => {
   it("refuses an incorrect amount, recipient, block or failed receipt", () => {
     for (const r of [receipt(12, e.victim, e.lookalike, 1_000_000n), receipt(12, e.victim, e.impersonated, 2_000_000n), { ...loss(), blockNumber: 13n }, { ...loss(), status: "reverted" as const }]) expect(checkLossReceipts(e, attack(), ref(), r).ok).toBe(false);
   });
+  it("checks the recorded planting log index", () => { expect(checkLossReceipts({ ...e, attackLogIndex: 1 }, attack(), ref(), loss()).ok).toBe(false); });
   it("refuses missing planting evidence even when the payment itself matches", () => {
     expect(checkLossReceipts(e, { ...attack(), logs: [] }, ref(), loss()).ok).toBe(false);
   });
