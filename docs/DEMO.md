@@ -6,10 +6,10 @@ Checked against the live pages on 6 Nov 2026 (about 18:00 IST, main 8c3c175). Ru
 
 ## Before recording (10 min)
 
-1. Open these tabs and let each one finish loading. The public Arkiv endpoint is rate-limited: load the explorer once, then don't reload it.
+1. Open these tabs and let each one finish loading. After a failed live Arkiv read, the site, guided demo and explorer use a dated `evidence-saved.json` copy when available and show its read time. Pay does not use the copy yet.
    - Landing: https://deven1305.github.io/hexfence/
-   - Guided demo (after PR #45 merges): https://deven1305.github.io/hexfence/demo.html. Every status on it is read live; a good backup if Pay or Arkiv is slow, and a good closing shot.
-   - Explorer: https://deven1305.github.io/hexfence/explorer/ (wait for "Showing 1126 of 1126 publisher records. All records loaded."; it reads 12 pages, so open it before recording)
+   - Guided demo: https://deven1305.github.io/hexfence/demo.html. It reads live first; evidence counts fall back to the dated saved copy when available after a failed live read, with an on-page notice. A good closing shot.
+   - Explorer: https://deven1305.github.io/hexfence/explorer/ (wait for the loaded-record count; if it says "from the saved copy", show the dated notice and describe it as a saved Arkiv read)
    - Pay preview: https://deven1305.github.io/hexfence/pay/?safe=0x3BCc3969713778F3Ed26AE1490529eeBAD43FbD5 (wait 25–40 s for "Nox reads active" and "Guard active")
    - L revert on Blockscout (decodes the reason): https://eth-sepolia.blockscout.com/tx/0xa43b0eeef7253281a741deca144e5ddf0c465da9cc6f48d54673a9aa9c0f6d8f
    - Direct-script L revert: https://sepolia.etherscan.io/tx/0xe77e6a7a8ba5b6f9742ec953826bc47c69ffffdced3a4d40b8fe3a220e1bb46f
@@ -26,7 +26,7 @@ Checked against the live pages on 6 Nov 2026 (about 18:00 IST, main 8c3c175). Ru
 | Time | Screen and action | Say (in your own words) |
 |---|---|---|
 | 0:00–0:15 🟢 | Landing hero and the X-Ray of P against L | "Address poisoning puts a lookalike in your history. These two addresses share the first 4 and last 4 characters. 31 of 40 differ. HexFence makes your Safe refuse the lookalike." |
-| 0:15–0:40 🟢 | Explorer, Evidence tab: "Showing 1126 of 1126", the "suspected" badge. Open one row's **X-Ray**, then **Verify on Ethereum** | "This is real Ethereum mainnet data, read from Arkiv in my browser. Our detector found 58,739 suspected pairs in one day of USDT and USDC transfers; we published a sample of 1,126 across two scans. Each one is suspected, and anyone can re-check both transactions on Ethereum." |
+| 0:15–0:40 🟢 | Explorer, Evidence tab: loaded-record count, the "suspected" badge and any saved-copy notice. Open one row's **X-Ray**, then **Verify on Ethereum** | "This is real Ethereum mainnet data from Arkiv. If the page shows the saved-copy notice, these records come from the dated Arkiv read shown there. Our detector found 58,739 suspected pairs in one day of USDT and USDC transfers; we published a sample of 1,126 across two scans. Each one is suspected, and anyone can re-check both transactions on Ethereum." |
 | 0:40–0:55 🟢 | **Losses** tab: the one suspected follow-up payment, 303.635007 USDT. Then **Campaigns**: records grouped by attack transaction | "Losses shows a suspected payment that followed a planting, as a lead with a downloadable pack, not a confirmed loss. Campaigns groups records by attack transaction: one transaction here mentions dozens of victims." |
 | 0:55–1:00 | Cut to Pay | (no narration) |
 | 1:00–1:35 🟢 | Pay preview: point at "Nox reads active" and "v1.4.1 · 1/2 · Guard active". Paste **L**, amount 0.0001, **Check payment** → RED "Possible address poisoning". Then **B** → AMBER "New recipient". Then **P** → GREEN "Approved payee" | "Pay reads the Safe's approved payees once, through the Nox mixnet, and compares in the browser. L is a synthetic Sepolia address we made; it resembles our approved payee, so it's red. A new supplier is amber and still allowed. The approved payee is green." |
@@ -68,9 +68,9 @@ Real output on 6 Nov: `{"level":"RED","reason":"resembles","recipient":"0x4E185a
 
 | Problem | Do this |
 |---|---|
-| Explorer stuck at "reading Arkiv…" | The public endpoint is rate-limited. Wait a minute and reload once. |
+| Explorer live read fails | It tries the dated `evidence-saved.json` copy and shows its read time. If no valid copy is available, retry or use the recorded query result; describe the source shown. |
 | Pay stuck on "Nox connecting · choose read route" | Wait up to 40 s, or click **Skip: read directly (not anonymous)** and say so. |
-| Pay stuck at "Checking…" | Reload the preview link; the evidence read goes to the same rate-limited Arkiv endpoint. |
+| Pay evidence read fails | Pay does not use the saved copy yet. It shows evidence unavailable and checks against approved payees only. |
 | The live L send doesn't revert | Stop. Use the 🟢 fallback receipts. |
 
 ## Hard judge questions
