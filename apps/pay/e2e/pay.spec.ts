@@ -31,6 +31,7 @@ test('built Pay: real Safe 1.4.1, Guard, P/B success, L mined revert and bulk re
   releaseBootstrap();
   await expect(page.getByText('Reads go directly from your browser to the RPC provider. They are not anonymous.')).toBeVisible();
   await page.getByRole('button', { name: /^Connect / }).click();
+  await expect(page.getByText(/^Connected: 0x/)).toBeVisible(); // Connecting re-renders the page; fill the Safe address only after it settles.
   await page.locator('#safe-address').fill(f.safe);
   await page.getByRole('button', { name: 'Load Safe', exact: true }).click();
   await expect(page.getByText(/v1.4.1/).first()).toBeVisible();
