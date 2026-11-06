@@ -1,3 +1,5 @@
 .fixture.json
 results/
 .build/
+.live-build/
+.explorer-live-build/

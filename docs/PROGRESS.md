@@ -6,8 +6,8 @@
 ## Now
 - **Current task:** T8 live gate on feat/t8-live; waiting for Sepolia ETH and Rabdi tGLM funding, preparing the scripted production-browser run.
 - **Agent working:** Codex (live pass authorised by Dhruv).
-- **Last updated:** 06 Nov 04:31 IST
-- **Tests (main at 5f01464):** contracts 14 + setup/checker/verify scripts 13 · `@hexfence/shared` 33 (incl. 411-case Guard parity) · `@hexfence/arkiv` 4 (+2 live) · `@hexfence/detector` 14 (+1 live) · `@hexfence/pay` 36 + 1 browser e2e · explorer 29. Nothing has run on Sepolia with a real wallet yet.
+- **Last updated:** 06 Nov 07:55 IST
+- **Tests (live branch, local only):** contracts 14; setup/checker/verify scripts 13; workspace 121 passed, 3 live integration tests skipped; recursive build passed; original local-chain Playwright E2E 1 passed. The new Sepolia runner is prepared but not run while unfunded.
 - **Next step for whoever comes next:** fund the two public addresses below; agents poll balances and resume deploy/setup/publish/pay automatically. Deven must enable Pages → GitHub Actions. H6 stays human-only as an actual wallet-flow check.
 
 ## Tasks (strict order)
@@ -36,16 +36,12 @@
 
 **Forward to Deven:** enable `Deven1305/hexfence → Settings → Pages → Build and deployment → Source: GitHub Actions`. The Pages API returned 404. No workaround will be attempted.
 **Order and exact commands: `docs/RUNBOOK_T8.md`.** It replaces the manual parts below where they differ: after H2, run `npx hardhat verify`; `contracts/scripts/setup-demo.js` does H3 (creates the Safe, `setGuard`, `approvePayee(P)`, removal drill), so Safe{Wallet} is only needed for the second L payment in H7. For H11, `.github/workflows/pages.yml` builds and deploys both apps once the repository variables and the Pages source are set; until then it fails on purpose at its configuration check.
-- [ ] **H1:** `cp .env.example .env` in the repo root. Fill `SEPOLIA_RPC_URL` (e.g. an Alchemy/Infura Sepolia URL) and `DEPLOYER_PRIVATE_KEY` (a **new, testnet-only** key: `node -e "console.log(require('ethers').Wallet.createRandom().privateKey)"` from `contracts/`). Send ~0.05 Sepolia ETH to it from a faucet. Never commit `.env`.
+- [ ] **H1:** new deployer key is already in the live worktree root .env (never display it). Funding remains: about 0.05 Sepolia ETH to `0xE89A9EF94dc4636394183d9bd1B4829043E35e98`. Use an existing wallet or a human-operated faucet; do not generate another key.
 - [ ] **H2:** `cd contracts && npx hardhat run scripts/deploy.js --network sepolia`. It prints `HexFenceGuard deployed at: 0x…` and `Deploy tx: 0x…`; paste both into the table below and into `.env` as `VITE_GUARD_ADDRESS`.
 - [ ] **H3:** in Safe{Wallet} on Sepolia, create a 1-of-1 demo Safe and fund it with test ETH. In Transaction Builder, one call per transaction: `setGuard(guard)`, then `approvePayee(P)`. Then the removal drill: `setGuard(0x0…0)` → re-enable. Paste the hashes below.
 - [ ] **H4:** `MAINNET_RPC_URL` in `.env`. *Not blocking:* T3 ran on the free public RPC `https://ethereum-rpc.publicnode.com`; put your own RPC here only if that one rate-limits you.
-- [ ] **H5 (blocks T4b, the gate's "real evidence on Arkiv", T5 and T10):**
-  1. Make a NEW testnet-only publisher key: `cd packages/arkiv && node -e "const a=require('viem/accounts');const k=a.generatePrivateKey();console.log('key',k);console.log('address',a.privateKeyToAccount(k).address)"`. Put the key in `.env` as `ARKIV_PRIVATE_KEY` (never commit it); keep the address.
-  2. Get an access key at https://hub.arkiv.network/access-keys → `.env` as `ARKIV_ACCESS_KEY`.
-  3. Fund the address at https://hub.arkiv.network/faucet (tGLM on Rabdi).
-  4. Tell Lane A "H5 done, publisher 0x…". Lane A then runs `pnpm --filter @hexfence/detector publish:arkiv --limit 25`, re-runs it (must say `0 created`), measures the cost per batch, and decides the publish scope.
-- [ ] **H6:** test HexFence Pay with a wallet on Sepolia
+- [ ] **H5 (real Arkiv evidence):** publisher key is already in the live worktree .env. A human must claim/transfer Rabdi tGLM to `0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec` via https://hub.arkiv.network/faucet using an existing wallet. Agents stopped at wallet-connect. Try publishing without ARKIV_ACCESS_KEY first; no access-key account/sign-in will be created by an agent.
+- [ ] **H6 (human wallet flow, not the scripted runner):** use a real wallet that owns the demo Safe; if none is available, a separate explicit owner-handover decision is needed. Agents never import a key into a page or extension. Open Pay, connect on Sepolia, load the public Safe address from the table, verify the active Guard and P. Pay L (RED): E74120 must be refused, 344120 accepted; sign/send and record the mined Guard revert. Pay B (AMBER) and P (GREEN), confirm success. Record wallet/version and hashes. No scripted-wallet result ticks this box.
 - [ ] **H7:** run the demo payments (L, B, P) and paste the tx hashes
 - [ ] **H8:** record the video (2:30–3:00, ≥720p)
 - [ ] **H9 (T13):** open `apps/detector/labels/h9-sample.csv` (30 random real records). For each row, open `attack_tx` and `reference_tx` on Etherscan and write `yes`, `no` or `unsure` in the `label` column:
@@ -90,3 +86,5 @@
 | 06 Nov 01:33 | Claude Code | T0 | ✔ contracts 13 passing; `pnpm i` works | 545ac36 |
 | 06 Nov 01:35 | Claude Code | T1 | ⏸ review done, 14 passing; waiting on H1+H2 for the deploy | ba07540 |
 | 06 Nov 04:31 | Claude Code | Merge pass | PRs #4, #6, #7, #10–#13 merged; all checks green on main; T8 waiting on humans | 5f01464 |
+
+| 06 Nov (live pass) | Codex | T8 runner preparation | Sourcify enabled without an Etherscan key; Node-only scripted signer and real-production-build Pay/explorer capture runner added. All local checks passed. Sepolia and Arkiv balances remain zero; no live transaction broadcast. | pending |
