@@ -61,9 +61,7 @@ jobs:
         with:
           node-version: '22'
       - name: Install workspace dependencies
-        run: |
-          corepack pnpm@10.34.9 install --frozen-lockfile
-          corepack pnpm@10.34.9 --dir pramaan install --frozen-lockfile
+        run: corepack pnpm@10.34.9 install --frozen-lockfile
       - name: Test contracts and workspace
         run: |
           npm --prefix contracts install --legacy-peer-deps

@@ -5,7 +5,7 @@
   "type": "module",
   "description": "VaultLab, MirrorYield and PermitMarket: three independent demo dApps (separate origins, manifests and ENS identities) on one Pramaan infrastructure.",
   "scripts": {
-    "build": "node scripts/build.mjs",
+    "build:demo": "node scripts/build.mjs",
     "serve": "node server/serve.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
