@@ -241,7 +241,7 @@ Pay waits for route selection before Safe/history/alert reads. Explicit **Skip: 
 - Pay as a Safe App (B8) has not been tested by a person inside Safe{Wallet}.
 - The ERC-7730 explain panel (B6) uses only descriptors you paste; an explained call still gets CANNOT VERIFY and the Guard does not check it.
 - `@hexfence/check` and `@hexfence/mcp` (C1) compare addresses offline; they do not read the Safe or the evidence set from the chain.
-- The public Arkiv endpoint is rate-limited. After a failed live read, the site, guided demo and explorer fall back to a dated saved copy (`evidence-saved.json`), when available, and show its Arkiv read time on the page. Pay does not use the saved copy yet; a failed evidence read is shown as unavailable.
+- The public Arkiv endpoint is rate-limited. After a failed live read, the site, guided demo and explorer fall back to a dated saved copy (`evidence-saved.json`), when available, and show its Arkiv read time on the page. Pay uses the same copy for its listed check and says so above the fold.
 - Safe warns that a broken guard can lock a Safe: the demo Safe is isolated, holds test funds only, and the removal drill is tested.
 
 ## Licence
