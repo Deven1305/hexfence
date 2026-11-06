@@ -90,7 +90,7 @@ if (!isAddress(publisherEnv, { strict: false })) {
   function updateSearch(replace = true, added: PoisoningEvidence[] = []): void {
     const records = search ? checkOwnAddress(downloaded, search)! : downloaded;
     tablePanel.replaceChildren(DataTable(["Block", "Pattern", "Token", "Lookalike", "Status"], records.map(e => {
-      const address = el("a", undefined, `${e.lookalike.slice(0, 6)}?${e.lookalike.slice(-4)}`) as HTMLAnchorElement;
+      const address = el("a", undefined, `${e.lookalike.slice(0, 6)}…${e.lookalike.slice(-4)}`) as HTMLAnchorElement;
       address.href = `https://etherscan.io/address/${e.lookalike}`; address.target = "_blank"; address.rel = "noreferrer";
       return [String(e.attackBlock), e.variant, e.token.toLowerCase().startsWith("0xdac1") ? "USDT" : "USDC", address, e.status];
     }), records.map(e => recordCard(e, rpcUrl))));

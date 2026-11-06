@@ -1,7 +1,7 @@
 import { ExpirationTime } from "@arkiv-network/sdk";
 import { addr, bytes, dec, defineSchema, key, str, type Column, type Schema } from "@arkiv-network/sdk/schema";
 import { asc, gt } from "@arkiv-network/sdk/query";
-import { SuspectedLossSchema, lossKey, type SuspectedLoss } from "@hexfence/shared";
+import { SuspectedLossSchema, lossKey, lossPayments, type SuspectedLoss } from "@hexfence/shared";
 import { hexToString, type Address, type Hex } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { arkivReadClient, type ArkivReadClient } from "./read.js";
@@ -54,13 +54,15 @@ export async function fetchAllLosses(client: ArkivReadClient, publisher: Address
   }
 }
 /** Idempotent by evidenceId+lossTx, with a funding allowance and no ambiguous-write retries. */
-export async function publishLosses(opts: WriterOptions & { maxRecords?: number }, records: readonly SuspectedLoss[], reader: ArkivReadClient = arkivReadClient({ accessKey: opts.accessKey })) {
+export async function publishLosses(opts: WriterOptions & { maxRecords?: number; onWrite?: (txHash: Hex, record: SuspectedLoss) => void }, records: readonly SuspectedLoss[], reader: ArkivReadClient = arkivReadClient({ accessKey: opts.accessKey })) {
   const publisher = privateKeyToAccount(opts.privateKey).address;
   const existing = await fetchAllLosses(reader, publisher);
   const have = new Set(existing.map(lossKey));
   const todo: SuspectedLoss[] = [];
   for (const value of records) {
-    const r = SuspectedLossSchema.parse(value); const id = lossKey(r);
+    const r = SuspectedLossSchema.parse(value);
+    if (lossPayments(r).some(p => p.origin === "unclassified")) throw new Error("Cannot publish an unclassified payment as a suspected loss");
+    const id = lossKey(r);
     if (!have.has(id)) { have.add(id); todo.push(r); }
   }
   const max = opts.maxRecords ?? records.length;
@@ -70,7 +72,7 @@ export async function publishLosses(opts: WriterOptions & { maxRecords?: number 
   for (const r of todo.slice(0, max)) {
     if (await reader.getBalance({ address: publisher }) < 8_000_000_000_000_000n) { stoppedForFunds = true; break; }
     const { txHash } = await wallet.executeBatch({ creates: [{ schema: LossSchema, values: lossValues(r), expiration: ExpirationTime.fromDays(90) }] });
-    txHashes.push(txHash); created++;
+    txHashes.push(txHash); created++; opts.onWrite?.(txHash, r);
   }
   return { publisher, created, alreadyThere: records.length - todo.length, stoppedForFunds, txHashes };
 }

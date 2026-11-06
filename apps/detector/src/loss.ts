@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { SuspectedLossSchema, rescuePackBody, lossKey, type SuspectedLoss, type PoisoningEvidence } from "@hexfence/shared";
+import { SuspectedLossSchema, rescuePackBody, lossKey, lossPayments, type LossPayment, type SuspectedLoss, type PoisoningEvidence } from "@hexfence/shared";
 import { PoisoningDetector, DETECTOR_VERSION, ONE_TOKEN, WINDOW_BLOCKS, type TransferLog } from "./detect.js";
 
 type Draft = Omit<SuspectedLoss, "packHash">;
@@ -44,18 +44,19 @@ export class LossDetector {
       const e = attack.evidence;
       const key = lossKey({ evidenceId: e.evidenceId, lossTx: log.txHash });
       const existing = this.losses.get(key);
-      if (existing) {
-        // The plan's entity key is evidenceId+lossTx. Never silently merge different assets/cases.
-        if (existing.token.toLowerCase() !== log.token.toLowerCase() || existing.victim.toLowerCase() !== log.from.toLowerCase()) throw new Error("A multi-token or multi-victim loss transaction needs separate manual review; no totals published");
-        existing.amount = (BigInt(existing.amount) + log.value).toString(); continue;
-      }
+      const previous = existing && lossPayments(existing).find(p => p.token.toLowerCase() === log.token.toLowerCase() && p.victim.toLowerCase() === log.from.toLowerCase());
+      if (previous) { previous.amount = (BigInt(previous.amount) + log.value).toString(); continue; }
       const counterKey = `${pair}:${log.token.toLowerCase()}`;
       const repeat = (this.counts.get(counterKey) ?? 0) + 1; this.counts.set(counterKey, repeat);
-      this.losses.set(key, { evidenceId: e.evidenceId, victim: e.victim, lookalike: e.lookalike, impersonated: e.impersonated,
-        token: log.token, amount: log.value.toString(), lossTx: log.txHash, lossBlock: log.blockNumber, lossLogIndex: log.logIndex,
+      const payment: LossPayment = { victim: e.victim, token: log.token, amount: log.value.toString(), lossLogIndex: log.logIndex,
         attackTx: e.attackTx, attackBlock: e.attackBlock, attackLogIndex: attack.log.logIndex, attackToken: e.token,
-        referenceTx: e.referenceTx, referenceBlock: e.referenceBlock, variant: e.variant, detectorVersion: e.detectorVersion,
-        repeat, hops: [], status: "suspected", scanFromBlock: this.first, scanToBlock: this.last });
+        referenceTx: e.referenceTx, referenceBlock: e.referenceBlock, variant: e.variant, repeat, origin: "unclassified" };
+      if (existing) {
+        if (existing.additionalPayments.length >= 99) throw new Error("A loss transaction exceeds the bounded payment context; review required");
+        existing.additionalPayments.push(payment);
+      } else this.losses.set(key, { ...payment, evidenceId: e.evidenceId, lookalike: e.lookalike, impersonated: e.impersonated,
+        lossTx: log.txHash, lossBlock: log.blockNumber, detectorVersion: e.detectorVersion, additionalPayments: [],
+        hops: [], status: "suspected", scanFromBlock: this.first, scanToBlock: this.last });
       this.watch(e.lookalike, key, 1);
     }
   }
@@ -64,7 +65,7 @@ export class LossDetector {
     let set = this.watched.get(lc); if (!set) { set = new Map(); this.watched.set(lc, set); }
     const previous = set.get(key); set.set(key, previous ? Math.min(previous, depth) as 1 | 2 : depth);
   }
-  results(from = this.first, to = this.last): Draft[] { return [...this.losses.values()].map(e => ({ ...e, hops: [...e.hops], scanFromBlock: from, scanToBlock: to })); }
+  results(from = this.first, to = this.last): Draft[] { return [...this.losses.values()].map(e => ({ ...e, hops: [...e.hops], additionalPayments: e.additionalPayments.map(p => ({ ...p })), scanFromBlock: from, scanToBlock: to })); }
   evidence(): PoisoningEvidence[] { return this.detector.results(); }
 }
 

@@ -53,3 +53,15 @@ it("seals normalized addresses before hashing the core", async () => {
   expect(sealed.token).toBe(MAINNET_USDT);
   expect(createHash("sha256").update(rescuePackBody(sealed)).digest("hex")).toBe(sealed.packHash);
 });
+
+it("keeps distinct token and victim payments inside one evidenceId+transaction entity", () => {
+  const other = "0x2222222222222222222222222222222222222222" as Address;
+  const d = new LossDetector();
+  d.add([reference, attack, log(12, other, p, ONE_TOKEN), log(13, other, l, 0n),
+    log(14, victim, l, ONE_TOKEN), log(14, victim, l, 2n * ONE_TOKEN, { token: MAINNET_USDC, logIndex: 1 }),
+    log(14, other, l, 3n * ONE_TOKEN, { logIndex: 2 })]);
+  expect(d.results()).toHaveLength(1);
+  const e = sealLoss(d.results()[0]!);
+  expect(e.additionalPayments).toHaveLength(2);
+  expect(e.additionalPayments.map(p => [p.victim, p.token, p.amount])).toEqual([[victim, MAINNET_USDC, "2000000"], [other, MAINNET_USDT, "3000000"]]);
+});
