@@ -94,7 +94,7 @@ cd contracts && npm install --legacy-peer-deps && npx hardhat test
 ## Known behaviour that looks like a bug
 
 - Pay's Nox route takes 25–40 s to start on the hosted site. **Skip: read directly (not anonymous)** loads the Safe in a few seconds.
-- The public Arkiv endpoint is rate-limited. After a failed live read, the site, guided demo and explorer fall back to a dated saved copy (`evidence-saved.json`), when available, and show its Arkiv read time on the page. Pay does not use the saved copy yet; a failed evidence read is shown as unavailable.
+- The public Arkiv endpoint is rate-limited. After a failed live read, the site, guided demo and explorer fall back to a dated saved copy (`evidence-saved.json`), when available, and show its Arkiv read time on the page. Pay uses the same copy for its listed check and says so above the fold.
 - Etherscan shows the Guard's verified source; Blockscout also decodes the `LookalikeOfApprovedPayee` revert reason on the L payment.
 
 ## B4 governance guard follow-up
