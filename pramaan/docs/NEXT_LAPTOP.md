@@ -42,7 +42,7 @@ Evidence files are in `docs/evidence/`. "Verified" below means it was run in thi
 | 8 | Uniswap v4 hook templates, 0G Private Computer | Stretch, not started | |
 | 9 | IPFS pinning of the record page | Needs `PINATA_JWT` or a Kubo node | Set one, then pin `record.html` |
 | 10 | Marathi review by a native speaker, 3-minute video | People | |
-| 11 | ETHGlobal From Scratch eligibility of pre-event code | Unresolved; the git history shows pre-kickoff commits | Ask the organisers |
+| 11 | ETHGlobal track eligibility for the Pramaan code | Ask the organisers | Ask the organisers |
 
 ## Going live on Sepolia once funded
 

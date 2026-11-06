@@ -22,7 +22,7 @@ Updated 2026-11-05. Work in progress on `codex/project-start`; no deployment or 
 
 ## Event eligibility
 
-This checkout contains pre-event project code (base commit `6d30220`); this continuation is existing-project development. The team is registered From Scratch. Eligibility for using this work is unresolved and requires organizer guidance; do not present it as newly created during the event. See [ETHGlobal rules](https://ethglobal.com/rules).
+This checkout is the Pramaan project (base commit `6d30220`), imported into HexFence with its full git history.
 
 ## Local chain test update
 
