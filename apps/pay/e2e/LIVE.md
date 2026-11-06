@@ -15,6 +15,19 @@ corepack pnpm@10.34.9 --filter @hexfence/pay test:live
 corepack pnpm@10.34.9 --filter @hexfence/pay test:live --direct-l
 ```
 
+For resumable deployment/setup with public hashes saved outside git, run from
+`contracts/`:
+
+```
+node scripts/live-gate.js deploy
+npx hardhat verify --network sepolia <printed-guard-address>
+node scripts/live-gate.js setup
+```
+
+The setup mode executes the original `setup-demo.js` CLI and retains its output.
+After both payment modes finish, `node scripts/live-gate.js check` invokes the
+original read-only checker twice, saving each exit code and its public output.
+
 The ordinary production source is built into an ignored E2E folder, with no test
 ingress. The runner tries Nox and real Guard/payee reads, retries once on failure,
 then reloads and explicitly chooses the labelled direct Skip route. It records

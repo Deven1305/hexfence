@@ -147,9 +147,16 @@ async function pay() {
       throw new LiveFailure('Unsupported scripted-wallet method');
     });
     await page.addInitScript(() => {
-      Object.defineProperty(window, 'ethereum', { value: {
+      const provider = {
         request: args => window.hexfenceScriptedWallet(args), on() {}, removeListener() {},
-      } });
+      };
+      Object.defineProperty(window, 'ethereum', { value: provider });
+      const info = Object.freeze({ uuid: crypto.randomUUID(), name: 'Scripted Sepolia wallet (Node signer)',
+        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96"/>', rdns: 'local.hexfence.scripted' });
+      const announce = () => {
+        window.dispatchEvent(new CustomEvent('eip6963:announceProvider', { detail: Object.freeze({ info, provider }) }));
+      };
+      window.addEventListener('eip6963:requestProvider', announce); announce();
     });
     const connectAndLoad = async () => {
       await page.getByRole('button', { name: /^Connect / }).click();

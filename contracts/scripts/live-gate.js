@@ -61,15 +61,22 @@ async function main() {
       setPublic('VITE_GUARD_ADDRESS', state.guard);
       console.log('HexFenceGuard:', state.guard);
     } else {
-      const { setupDemo } = require('./setup-demo');
-      await setupDemo({ provider, signer: wallet, guardAddress: env.VITE_GUARD_ADDRESS, safeAddress: env.DEMO_SAFE_ADDRESS, log: line => {
+      // Execute the original CLI entry point, preserving its diagnostics and actual output.
+      const result = spawnSync(process.execPath, [path.join(__dirname, 'setup-demo.js')], {
+        cwd: path.join(root, 'contracts'), encoding: 'utf8', env: { ...process.env },
+      });
+      const text = (result.stdout ?? '') + (result.stderr ?? '');
+      if ([env.DEPLOYER_PRIVATE_KEY, env.ARKIV_PRIVATE_KEY].filter(Boolean).some(key => text.includes(key))) throw new Error('Refusing to record private material');
+      fs.writeFileSync(path.join(output, 'setup-demo.txt'), text);
+      for (const line of (result.stdout ?? '').split(/\r?\n/)) {
         const match = /^\| (.+?) \| (.+?) \|$/.exec(line);
         if (match) {
           state.rows[match[1]] = match[2]; save();
           if (match[1] === 'Demo Safe') setPublic('DEMO_SAFE_ADDRESS', match[2]);
         }
-        console.log(line);
-      } });
+      }
+      process.stdout.write(result.stdout ?? ''); process.stderr.write(result.stderr ?? '');
+      if (result.status !== 0) process.exitCode = 1;
     }
   } finally { provider.destroy(); }
 }
