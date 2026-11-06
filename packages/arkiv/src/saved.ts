@@ -61,5 +61,5 @@ export async function fetchPublishedRecords(client: ArkivReadClient, publisher: 
 }
 
 export function savedCopyNotice(readAt: number): string {
-  return `Arkiv's public read limit was reached, so these numbers come from a copy read from Arkiv at ${new Date(readAt).toISOString().replace("T", " ").replace("Z", " UTC")}.`;
+  return `The live Arkiv read failed, so these numbers come from a copy read from Arkiv at ${new Date(readAt).toISOString().replace("T", " ").replace("Z", " UTC")}.`;
 }
