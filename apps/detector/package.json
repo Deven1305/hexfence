@@ -11,7 +11,8 @@
     "test": "vitest run",
     "publish:arkiv": "tsx --env-file-if-exists=../../.env src/cli.ts publish",
     "labels": "tsx src/cli.ts labels",
-    "precision": "tsx src/cli.ts precision"
+    "precision": "tsx src/cli.ts precision",
+    "h9-evidence": "tsx src/cli.ts h9-evidence"
   },
   "dependencies": {
     "@hexfence/arkiv": "workspace:*",

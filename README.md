@@ -129,7 +129,7 @@ pnpm --filter @hexfence/explorer dev
 pnpm --filter @hexfence/explorer build    # dist/ works from any path on static hosting
 ```
 
-**HexFence Pay** (`VITE_GUARD_ADDRESS`, `VITE_SEPOLIA_RPC_URL`, a browser wallet on Sepolia):
+**HexFence Pay** (`VITE_GUARD_ADDRESS`, `VITE_SEPOLIA_RPC_URL`, a browser wallet on Sepolia; optional `VITE_ARKIV_PUBLISHER` turns on the "listed in public evidence" signal, and without it the page says the signal is off):
 ```bash
 pnpm --filter @hexfence/pay dev
 pnpm --filter @hexfence/pay build
@@ -169,7 +169,7 @@ P=<publisher wallet> pnpm exec tsx -e 'import("./src/index.ts").then(async ({ ar
   - the limits are stated.
 
 ## Limits
-- Nox covers the configured Sepolia RPC read route only (see CROPS, P). Hosted Nox and Guard or payee reads through Nox are untested. One local run started in about 9 seconds; that is one local measurement, not a benchmark.
+- Nox covers the configured Sepolia RPC read route only (see CROPS, P). Hosted Nox and Guard or payee reads through Nox are untested. Nox start-up took about 9 seconds in one browser check and more than 20 seconds (not timed) in another; neither is a benchmark.
 - Module transactions bypass transaction guards.
 - MultiSend is refused (it's a delegatecall).
 - Only ETH, `transfer` and `transferFrom` are inspected; other calls are allowed and clients show "cannot verify".

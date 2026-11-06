@@ -18,12 +18,11 @@
 - [ ] Removal drill hashes open (`setGuard(0)`, then re-enable)
 - [ ] Do one full rehearsal. Each L payment costs Sepolia gas, even when it reverts
 
-**Route validation limits:** one local run started in about **9 seconds** (one
-local measurement, not a hosted benchmark). **Hosted Nox and Guard or payee reads
-through Nox are untested.** The one bootstrap read is direct, Arkiv bulk reads are
-direct, and signing and sending still go through the wallet. A successful local
-Sepolia `VERSION()` read ([PR #9](https://github.com/Deven1305/hexfence/pull/9))
-does not establish those untested flows. State the route actually shown on screen.
+**Route validation limits:** Nox start-up took about **9 seconds** in one browser
+check and more than 20 seconds (not timed) in another; neither is a hosted
+benchmark. **Hosted Nox and Guard or payee reads through Nox are untested.** The
+one bootstrap read is direct, Arkiv bulk reads are direct, and signing and
+sending still go through the wallet. State the route actually shown on screen.
 
 ## Part 1: real evidence (about 35 seconds)
 Label on screen: **Ethereum mainnet evidence · status: suspected**
@@ -42,7 +41,7 @@ Say: ***"This is a synthetic test pair, not a real attack."***
 3. **Pay B**, a new supplier → AMBER → **succeeds**. *"Not an allowlist: new suppliers still work."*
 4. **Pay P** → GREEN → **succeeds**.
 5. **Client off:** close HexFence Pay and pay L again **from Safe{Wallet}, not from Pay** → **still reverts**. *"Enforcement doesn't need our software."*
-   - Safe{Wallet} warns that the transaction will fail. **Choose to execute anyway and set a manual gas limit in the wallet** (200,000 is well above the measured cost of about 68,000), so the revert is actually mined and you get a hash.
+   - Safe{Wallet} warns that the transaction will fail. **Choose to execute anyway and set a manual gas limit in the wallet** (`RUNBOOK_T8.md` uses 200000), so the revert is actually mined and you get a hash.
 6. Show the removal drill hashes: `setGuard(0)`, then re-enabled. *"Removal is tested through real Safe transactions."*
 
 ## Part 3: why it's new (about 30 seconds)
@@ -51,6 +50,31 @@ Say: ***"This is a synthetic test pair, not a real attack."***
 Then state the limits: *"Modules bypass guards, MultiSend is refused, and a 4+4 fingerprint doesn't catch weaker lookalikes."*
 
 **Never say:** "the first recipient guard for Safe", "verified" or "evidence" about the synthetic L, or "scammer" or "malicious" about any address.
+
+## Narration script for the video (2:30–3:00)
+Spoken text only, about 370 spoken words, which is about 2:30 at 2.5 words a second before pauses and clicks, so expect 2:40 to 2:55; rehearse it with a timer. Wording follows spec §3.4: the verdict is "resembles your approved payee", the evidence is "suspected", and the synthetic pair is never called verified or evidence. Square brackets are on-screen cues, not spoken.
+
+**Hashes and counts:** the transaction hashes shown in Part 2, step 7, and the record count in Part 1 come from whatever the Sepolia run and the Arkiv publish actually produced. Replace each ‹…› with the real value before recording, and read out only what is on screen. Do not read a hash aloud.
+
+**0:00–0:15 · The problem**
+"Address poisoning: an attacker sends you a tiny transfer from an address that starts and ends like one you pay. Later you copy it from your history, and the money goes to them. HexFence makes a protected Safe refuse that payment."
+
+**0:15–0:50 · Part 1: real evidence** [explorer, label "Ethereum mainnet evidence · status: suspected"]
+"First, real data. This page has no backend. It reads Arkiv directly. Our detector reads Ethereum mainnet USDT and USDC transfers, and these ‹COUNT› records are suspected poisonings it published. Every record is marked suspected. Here is one: the victim, the address they actually paid, and the lookalike. Same start, same end, different address. Both transactions open on Etherscan. And you do not have to trust us: Verify on Ethereum re-checks the receipts, from your browser." [click Verify, ✓ appears]
+
+**0:50–2:25 · Part 2: Sepolia re-enactment** [HexFence Pay, demo Safe loaded]
+1. "Now the Safe. This is a synthetic test pair on Sepolia, not a real attack." [pause]
+2. "This demo Safe has the HexFence Guard, and P is its approved payee."
+3. "I pay L, the lookalike. HexFence Pay says: possible address poisoning. This recipient resembles your approved payee, same first four and last four characters, but it is a different address. Your protected Safe will refuse this payment. It makes me type six characters to continue anyway, so I do." [type 344120, sign]
+4. "The transaction reverts on Sepolia with LookalikeOfApprovedPayee. The warning can be overridden. The Safe's refusal cannot." [Etherscan, ‹TX_L_REVERT›]
+5. "Now a new supplier, B. New recipient: not one of your approved payees. HexFence will not block this payment. And it goes through. This is not an allowlist." [‹TX_B_OK›]
+6. "And P, the approved payee: green, and it goes through." [‹TX_P_OK›]
+7. "Last test. I close HexFence Pay and pay L again straight from Safe{Wallet}. It still reverts. Enforcement does not need our software." [‹TX_L_REVERT_2›] "And the Guard can be removed: set guard to zero, then enabled again, both real Safe transactions." [‹TX_REMOVE›, ‹TX_REENABLE›]
+
+**2:25–2:55 · Part 3: why it is new**
+"Wallets warn, but a warning is interface you can click through. Allowlists block new suppliers. Blocklists need someone to report the attacker first. HexFence denies by resemblance, at the account level, so it stops a lookalike nobody has reported, and new suppliers still work. Limits: modules bypass guards, MultiSend is refused, and a four-plus-four match does not catch weaker lookalikes. The Guard has no owner and cannot be upgraded, so it keeps working even if everything else here disappears."
+
+**Route wording:** the script never says "anonymous" or "Nox". If you want to mention the read route, say only what its panel shows on screen.
 
 ## If something fails during the live demo
 | Failure | What to do |
