@@ -4,3 +4,4 @@ export * from "./decoder.js";
 export * from "./verdict.js";
 export * from "./guardAbi.js";
 export * from "./evidence.js";
+export * from "./verdictV2.js";

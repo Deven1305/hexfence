@@ -35,6 +35,7 @@
 
 | ID | Task | Status | Evidence / next step |
 |---|---|---|---|
+| A1 | Auto-Fence V2 | In progress | New contract; real Safe 1.4.1 tests, bulk recipientDetails, verdictForV2 and 414 actual contract parity vectors. V1 unchanged. Next: full CI, Sepolia deployment and isolated unfunded Safe setup; positive-value live demo is outside the no-fund-transfer boundary. |
 | A2 | Sentinel + HexFenceAlerts | ⏸ | [PR #29](https://github.com/Deven1305/hexfence/pull/29), commit 290ba1d: all 3 required checks and WASM compile pass in CI. Consumer deployed at 0x97F6f25D51DD52565FF30D22286392686A1ED80F, tx 0x6fa36eef483077cfa825de7d5273484011e3c2b0c528d9e8bd2eec196ba4a8c9; Sourcify exact creation/runtime match 58607325. Real zero-value Sepolia demonstration tx 0x7494d97df9468b822e32aa7008e8f336979b584558053457a03ef32e00b9af15, event index 0. CRE simulation remains blocked by human login; Telegram token absent. Radar wiring follows A1. |
 
 ## Waiting on humans (tick the box when done; then the agent continues)
@@ -85,6 +86,8 @@
 | Second L (direct script, not Safe{Wallet}; gas 200000) | `0xe77e6a7a8ba5b6f9742ec953826bc47c69ffffdced3a4d40b8fe3a220e1bb46f` |
 
 ## Decisions log
+- 06 Nov (Codex 2, A1): V2 uses transient storage keyed by Safe and execution depth (not a single global pending slot). Real Safe tests exercise nested same-Safe, administrative and different-Safe execution. Learning dates mean successful recognized Safe execution, not independently confirmed ERC-20 movement; zero-value and false-returning token-shaped calls are within that limitation. V2 compiler override is solc 0.8.28/Cancun; v1 stays 0.8.26.
+
 - 06 Nov (Codex 2, user-authorized upgrade): **v2 is a new contract; v1 unchanged**. The locked spec's **"No Chainlink" is superseded by the upgrade plan** for Sentinel. No changes to the locked planning files or H9 labels.
 - 06 Nov (Codex 2): official CRE SDK 1.23.0 types differ from older docs examples: NodeRuntime has no getSecret (retrieve through runtime.getSecret before node mode); HTTP cacheSettings uses store/maxAge, not readFromCache/maxAgeMs. Implemented the installed official types and bulk alertsOf reads. Mock forwarder alerts are simulation data, not DON-authenticated alerts.
 - 06 Nov (Codex 2): original and relocated Git metadata have deny ACLs. User authorized an in-sandbox alternative: fresh checkout C:/hexfence-work/research/codex2-work with separate metadata C:/hexfence-work/research/codex2-gitdata. All feature commits/PRs use that checkout.
