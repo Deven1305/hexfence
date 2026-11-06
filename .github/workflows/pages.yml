@@ -88,6 +88,7 @@ jobs:
           corepack pnpm@10.34.9 --filter @hexfence/pay exec playwright install --with-deps chromium
           node --require ./contracts/scripts/v2-compiler-support.js apps/pay/e2e/run.mjs
           node apps/pay/e2e/visual.mjs
+          node apps/pay/e2e/upgrade-visual.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:

@@ -1,8 +1,9 @@
 import type Safe from "@safe-global/protocol-kit";
 const protocolKit = () => import("@safe-global/protocol-kit");
 import { getAddress, isAddressEqual, zeroAddress, type Address, type EIP1193Provider } from "viem";
-import { hexFenceGuardAbi } from "@hexfence/shared";
+import { hexFenceGuardAbi, hexFenceGuardV2Abi, type KnownRecipient } from "@hexfence/shared";
 import type { ReadClient } from "./rpc";
+import { V2_GUARD } from "./upgrade";
 
 export type GuardState =
   | { active: true }
@@ -15,6 +16,7 @@ export interface SafeInfo {
   threshold: number;
   guard: GuardState;
   payees: Address[];
+  v2?: { guard: Address; known: KnownRecipient[]; autoLearn: boolean };
 }
 
 /** `provider` is the composite EIP-1193 provider from rpc.ts; `signer` is the connected owner address. No onchainAnalytics, no Transaction Service. */
@@ -56,11 +58,23 @@ export async function readPayees(reads: ReadClient, guard: Address, safe: Addres
 
 export async function loadSafeInfo(safe: Safe, reads: ReadClient, guard: Address): Promise<SafeInfo> {
   const address = getAddress(await safe.getAddress());
-  const [owners, threshold, guardS, payees] = await Promise.all([
+  let guardS = await guardState(safe, guard);
+  const v2Active = guardS.active ? isAddressEqual(guard, V2_GUARD)
+    : guardS.reason === "different" && !!guardS.current && isAddressEqual(guardS.current, V2_GUARD);
+  const [owners, threshold] = await Promise.all([
     safe.getOwners(),
     safe.getThreshold(),
-    guardState(safe, guard),
-    readPayees(reads, guard, address),
   ]);
-  return { address, version: safe.getContractVersion(), owners: owners.map((o) => getAddress(o)), threshold, guard: guardS, payees };
+  let v2: SafeInfo["v2"];
+  let payees: Address[];
+  if (v2Active) {
+    const [known, autoLearn] = await Promise.all([
+      reads.readContract({ address: V2_GUARD, abi: hexFenceGuardV2Abi, functionName: "recipientDetails", args: [address] }),
+      reads.readContract({ address: V2_GUARD, abi: hexFenceGuardV2Abi, functionName: "autoLearn", args: [address] }),
+    ]);
+    v2 = { guard: V2_GUARD, known: [...known], autoLearn };
+    payees = known.filter(k => k.approved).map(k => k.recipient);
+    guardS = { active: true };
+  } else payees = await readPayees(reads, guard, address);
+  return { address, version: safe.getContractVersion(), owners: owners.map((o) => getAddress(o)), threshold, guard: guardS, payees, ...(v2 ? { v2 } : {}) };
 }
