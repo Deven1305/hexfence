@@ -33,7 +33,7 @@ try {
     const skip = page.getByRole('button', { name: 'Skip: read directly (not anonymous)', exact: true });
     if (await skip.isVisible()) await skip.click();
     await expect(page.locator('#to')).toBeVisible({ timeout: 120000 });
-    await expect(page.locator('.hf-safe-header')).toContainText('Auto-Fence V2');
+    await expect(page.locator('.safe-line')).toContainText('Auto-Fence V2');
     await expect(page.locator('.hf-radar')).toContainText('Sentinel simulation:', { timeout: 60000 });
     await page.locator('#to').fill('0x4E185e251Ac7fB83E9DE10723EAda46cadE74120');
     await expect(page.locator('.verdict')).toBeVisible();
