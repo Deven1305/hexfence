@@ -1,0 +1,53 @@
+{
+  "chainId": 11155111,
+  "scripted": true,
+  "humanWalletFlow": false,
+  "owner": "0xE89A9EF94dc4636394183d9bd1B4829043E35e98",
+  "budgetWei": "12000000000000000",
+  "startBalanceWei": "28736210090346557",
+  "maxFeePerGas": "46",
+  "maxPriorityFeePerGas": "2",
+  "maximumGas": "5580000",
+  "maximumCostWei": "256680002",
+  "governanceGuard": "0x108ea016F84d9817364b65Df6A133afe9CA33855",
+  "moduleGuard": "0xa7Dc08C6fb15fCdBF4De484FaE393fea052c546B",
+  "v2Guard": "0x0adF080DE3DA9D672fDc7330B8750a0579A698c7",
+  "payee": "0x4E185e251Ac7fB83E9DE10723EAda46cadE74120",
+  "lookalike": "0x4E185a3FC4B530244aB9ed0dE38167b403344120",
+  "safes": {
+    "governance": {
+      "address": "0xac4c3c491e5886D6690F44C51c9CEF97D0F74Bf8",
+      "version": "1.4.1",
+      "singleton": "0x41675C099F32341bf84BFc5382aF534df5C7461a",
+      "factory": "0x4e1DCf7AD4e460CfD30791CCC4F9c8a4f820ec67"
+    },
+    "module": {
+      "address": "0x3546ce33df8a40F40cdF88F21EBEfC0a6BAc2353",
+      "version": "1.5.0",
+      "singleton": "0xFf51A5898e281Db6DfC7855790607438dF2ca44b",
+      "factory": "0x14F2982D601c9458F93bd70B218933A6f8165e7b"
+    }
+  },
+  "transactions": [
+    {
+      "label": "governance.createSafe",
+      "nonce": 25,
+      "gasLimit": "600000",
+      "valueWei": "0",
+      "expectedStatus": 1,
+      "state": "mined",
+      "hash": "0x762dc25252d528998551bae6a96e891d10f7532d6536e8d242106395432df215",
+      "status": 0,
+      "blockNumber": 12077576,
+      "blockHash": "0x95bd41147e4df49f2fd295f3e7d9f8cc4078c0f286d5e437a6d9e848ad7b392d",
+      "gasUsed": "56681",
+      "effectiveGasPrice": "23",
+      "feeWei": "1303663"
+    }
+  ],
+  "moduleSource": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.28;\ninterface ISafeModule { function execTransactionFromModule(address,uint256,bytes calldata,uint8) external returns(bool); }\ncontract ReceiptModule {\n address public immutable owner; address public immutable safe;\n constructor(address s) { owner=msg.sender; safe=s; }\n function pay(address recipient) external { require(msg.sender==owner,\"owner\"); require(ISafeModule(safe).execTransactionFromModule(recipient,1,\"\",0),\"payment failed\"); }\n}",
+  "moduleCompiler": "0.8.28+commit.7893614a.Emscripten.clang",
+  "state": "failed",
+  "spentWei": "1303663",
+  "failure": "Safe creation gas limit 600000 was below read-only estimate 1170665; no Safe was created. Superseded by a fresh v2 run with new salts, larger bounds and estimates before sending."
+}
