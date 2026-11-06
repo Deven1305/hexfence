@@ -52,7 +52,8 @@ async function main() {
   if (ethers.getAddress("0x" + (await ethers.provider.getStorage(safe.target, SLOT)).slice(-40)) !== guard.target) throw Error("Guard restoration failed");
   const result = { chainId: 11155111, guard: guard.target, safe: safe.target, version: await safe.VERSION(), owner: owner.address,
     autoLearn: await guard.autoLearn(safe.target), known: Array.from(await guard.knownRecipients(safe.target)), transactions,
-    funded: false, paymentDemo: "not run; no fund transfers authorized" };
+    balanceWei: String(await ethers.provider.getBalance(safe.target)), fundingPerformed: false,
+    paymentDemo: "not run; no fund transfers authorized" };
   fs.writeFileSync(path.join(__dirname, "../deployments/v2-safe-sepolia.json"), JSON.stringify(result, null, 2) + "\n");
   console.log(JSON.stringify(result, null, 2));
 }
