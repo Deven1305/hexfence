@@ -61,8 +61,14 @@ async function explorer() {
     const page = await context.newPage();
     await page.goto(hosted ? 'https://deven1305.github.io/hexfence/explorer/' : 'http://127.0.0.1:14177/');
     await expect(page.locator('article.card').first()).toBeVisible({ timeout: 120000 });
+    for (let pageNumber = 0; pageNumber < 20 && await page.getByRole('button', { name: 'Load more', exact: true }).isVisible(); pageNumber++) {
+      const before = await page.locator('article.card').count();
+      await page.getByRole('button', { name: 'Load more', exact: true }).click();
+      await expect.poll(() => page.locator('article.card').count(), { timeout: 120000 }).toBeGreaterThan(before);
+    }
     const cards = await page.locator('article.card').count();
     check(cards >= 5, 'Explorer must show at least five real published records');
+    if (process.env.HEXFENCE_EXPECT_RECORDS) check(cards === Number(process.env.HEXFENCE_EXPECT_RECORDS), 'Explorer record count differs from expected live publication');
     await expect(page.locator('article.card .label').first()).toContainText('suspected');
     await page.screenshot({ path: path.join(output, 'explorer-records.png') });
     await page.getByRole('button', { name: 'Verify on Ethereum', exact: true }).first().click();

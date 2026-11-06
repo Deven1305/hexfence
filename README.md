@@ -96,11 +96,11 @@ npx hardhat test                 # 14 passing
 
 | Item | Value |
 |---|---|
-| HexFenceGuard (Sepolia) | *(after deploy)* |
-| Demo Safe + `VERSION()` | *(after set-up)* |
-| `setGuard` / `approvePayee(P)` | *(tx hashes)* |
-| Removal drill `setGuard(0)` / re-enable | *(tx hashes)* |
-| L payment (reverted) / B payment / P payment | *(tx hashes)* |
+| HexFenceGuard (Sepolia) | `0xA061fB511D69e5c92E50E3BE5c789472d6f19748` |
+| Demo Safe + `VERSION()` | `0x3BCc3969713778F3Ed26AE1490529eeBAD43FbD5` · `1.4.1` |
+| `setGuard` / `approvePayee(P)` | `0x2de356a6c196cb3f2040e3b8d4170ebe0cbc1b2684b0c05e26344756db6278e9` / `0x13baea5038b830810e1a9f68fbed3ae1069f981af4810cbd43c50f7b0d7d1af2` |
+| Removal drill `setGuard(0)` / re-enable | `0x5edf08eb6489d78c13f0748283e43bab8c015c851d0d40e86b030dd6794ad8e0` / `0xd1c7db48a18647713c34384afc51b116888546dd837359eecad0938a5ebe9743` |
+| L payment (reverted) / B payment / P payment | `0xa43b0eeef7253281a741deca144e5ddf0c465da9cc6f48d54673a9aa9c0f6d8f` / `0x2455ca8f1ce612149f15e80325f372202bffeb0258f808bd84acfb1f904de5ca` / `0xea209e9e3c5a9eed080e95dd0ca752b79686400da820ea67b87f98552d2992df` |
 
 ### Synthetic demo pair (not a real attack)
 `node contracts/scripts/make-lookalike-pair.js` finds two keys whose addresses share a fingerprint (a birthday search, usually 1–2 minutes). We use this ready-made pair **as recipients only**:
@@ -140,17 +140,17 @@ The `VITE_*` values end up in the public bundle, so never put a secret in one. R
 ## Arkiv publisher + query
 Schema: [arkiv/schema.md](arkiv/schema.md) (Rabdi testnet, chain 7794095, `hexfence.poisoning.v1`, 30-day expiry). Also see [why-arkiv](arkiv/why-arkiv.md), [how we use it](arkiv/how-you-use-arkiv.md), [friction](arkiv/friction.md) and [reach](arkiv/reach.md).
 
-- **Publisher wallet:** *(after the first publish)*
+- **Publisher wallet:** `0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec`
 
 One query judges can run, with `P` set to the publisher wallet:
 ```bash
 cd packages/arkiv
-P=<publisher wallet> pnpm exec tsx -e 'import("./src/index.ts").then(async ({ arkivReadClient, fetchAllEvidence }) => { const r = await fetchAllEvidence(arkivReadClient(), process.env.P); console.log(r.length, "records", r[0] ?? ""); })'
+P=0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec pnpm exec tsx -e 'import("./src/index.ts").then(async ({ arkivReadClient, fetchAllEvidence }) => { const r = await fetchAllEvidence(arkivReadClient(), process.env.P); console.log(r.length, "records", r[0] ?? ""); })'
 ```
 
 ## Live links
-- Explorer: *(after hosting)*
-- HexFence Pay: *(after hosting)*
+- Explorer: https://deven1305.github.io/hexfence/explorer/
+- HexFence Pay: https://deven1305.github.io/hexfence/pay/
 
 ## CROPS
 - **C:** The Guard is non-upgradeable and has no owner. It keeps refusing lookalikes even if our detector, explorer, client and Arkiv records all disappear. The detector is open source: anyone can run it and publish under their own wallet.

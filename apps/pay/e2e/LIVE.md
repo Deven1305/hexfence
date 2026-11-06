@@ -13,6 +13,8 @@ corepack pnpm@10.34.9 --filter @hexfence/pay exec playwright install chromium
 corepack pnpm@10.34.9 --filter @hexfence/pay test:live --explorer
 corepack pnpm@10.34.9 --filter @hexfence/pay test:live
 corepack pnpm@10.34.9 --filter @hexfence/pay test:live --direct-l
+corepack pnpm@10.34.9 --filter @hexfence/pay test:live --hosted-pay
+corepack pnpm@10.34.9 --filter @hexfence/pay test:live --hosted-explorer
 ```
 
 For resumable deployment/setup with public hashes saved outside git, run from
@@ -21,10 +23,14 @@ For resumable deployment/setup with public hashes saved outside git, run from
 ```
 node scripts/live-gate.js deploy
 npx hardhat verify --network sepolia <printed-guard-address>
+node scripts/verify-sourcify.js <printed-guard-address> <creation-tx-hash>
 node scripts/live-gate.js setup
 ```
 
 The setup mode executes the original `setup-demo.js` CLI and retains its output.
+The Sourcify v2 script is a keyless fallback for the pinned Hardhat verifier's
+retired v1 API. It submits the unchanged compiler build info. The hosted Pay mode
+only loads the real Safe/Guard/payees with a scripted wallet; it sends no payments.
 After both payment modes finish, `node scripts/live-gate.js check` invokes the
 original read-only checker twice, saving each exit code and its public output.
 

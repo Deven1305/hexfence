@@ -6,16 +6,16 @@ Anything in `‹DOUBLE_ANGLE_BRACKETS›` does not exist yet. Fill it from the s
 
 | Placeholder | Fill from |
 |---|---|
-| ‹GUARD_ADDRESS› | `docs/PROGRESS.md` addresses table (HexFenceGuard, Sepolia) |
-| ‹SAFE_ADDRESS› | same table (demo Safe) |
-| ‹TX_SETGUARD›, ‹TX_APPROVE_P› | same table |
-| ‹TX_L_REVERT›, ‹TX_B_OK›, ‹TX_P_OK› | same table (L reverted, B succeeded, P succeeded) |
-| ‹TX_REMOVE›, ‹TX_REENABLE› | same table (removal drill) |
-| ‹ARKIV_PUBLISHER› | README "Publisher wallet" after the first publish |
-| ‹RECORD_COUNT› | the count printed by the README Arkiv query |
+| 0xA061fB511D69e5c92E50E3BE5c789472d6f19748 | `docs/PROGRESS.md` addresses table (HexFenceGuard, Sepolia) |
+| 0x3BCc3969713778F3Ed26AE1490529eeBAD43FbD5 | same table (demo Safe) |
+| 0x2de356a6c196cb3f2040e3b8d4170ebe0cbc1b2684b0c05e26344756db6278e9, 0x13baea5038b830810e1a9f68fbed3ae1069f981af4810cbd43c50f7b0d7d1af2 | same table |
+| 0xa43b0eeef7253281a741deca144e5ddf0c465da9cc6f48d54673a9aa9c0f6d8f, 0x2455ca8f1ce612149f15e80325f372202bffeb0258f808bd84acfb1f904de5ca, 0xea209e9e3c5a9eed080e95dd0ca752b79686400da820ea67b87f98552d2992df | same table (L reverted, B succeeded, P succeeded) |
+| 0x5edf08eb6489d78c13f0748283e43bab8c015c851d0d40e86b030dd6794ad8e0, 0xd1c7db48a18647713c34384afc51b116888546dd837359eecad0938a5ebe9743 | same table (removal drill) |
+| 0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec | README "Publisher wallet" after the first publish |
+| 125 | the count printed by the README Arkiv query |
 | ‹PRECISION› | printed by `pnpm --filter @hexfence/detector precision` after the H9 labels exist: "N of M labelled rows were poisoning". Leave the sentence out if H9 is not done |
-| ‹EXPLORER_URL›, ‹PAY_URL› | hosting (`.github/workflows/pages.yml`, see PROGRESS H11) |
-| ‹REPO_URL› | the public repo |
+| https://deven1305.github.io/hexfence/explorer/, https://deven1305.github.io/hexfence/pay/ | hosting (`.github/workflows/pages.yml`, see PROGRESS H11) |
+| https://github.com/Deven1305/hexfence | the public repo |
 | ‹VIDEO_URL› | the uploaded video |
 | ‹GUARD_REVIEWER› | the team member who actually reviewed the Guard; `docs/AI_USAGE.md` still needs this name |
 
@@ -65,9 +65,9 @@ Limits (stated in the README): module transactions bypass guards; MultiSend is r
 
 Paste:
 
-> HexFence uses Arkiv as the open evidence layer for address poisoning. The detector reads Ethereum mainnet USDT/USDC logs and writes each suspected pair as a `hexfence.poisoning.v1` entity on the Rabdi testnet with a 30-day expiry. Each record carries the victim, the impersonated address, the lookalike and both transaction hashes, and is always marked "suspected". Writes are idempotent, so a re-run creates 0 duplicates. The explorer and HexFence Pay read the records in bulk and never look up one address at a time, so no reader tells a server which address they care about. The explorer can re-check any record against Ethereum receipts in the browser. We chose Arkiv because the evidence should be queryable by anyone, expire when it stops being useful, and not sit in a vendor's closed feed. Currently ‹RECORD_COUNT› records, published by ‹ARKIV_PUBLISHER›. Schema, friction notes, reach, why-Arkiv and how-we-use-it are in `/arkiv/`.
+> HexFence uses Arkiv as the open evidence layer for address poisoning. The detector reads Ethereum mainnet USDT/USDC logs and writes each suspected pair as a `hexfence.poisoning.v1` entity on the Rabdi testnet with a 30-day expiry. Each record carries the victim, the impersonated address, the lookalike and both transaction hashes, and is always marked "suspected". Writes are idempotent, so a re-run creates 0 duplicates. The explorer and HexFence Pay read the records in bulk and never look up one address at a time, so no reader tells a server which address they care about. The explorer can re-check any record against Ethereum receipts in the browser. We chose Arkiv because the evidence should be queryable by anyone, expire when it stops being useful, and not sit in a vendor's closed feed. Currently 125 records, published by 0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec. Schema, friction notes, reach, why-Arkiv and how-we-use-it are in `/arkiv/`.
 
-Links to give: ‹REPO_URL›`/tree/main/arkiv`, ‹EXPLORER_URL›, and the publisher wallet ‹ARKIV_PUBLISHER›. The one query judges can run is in the README ("Arkiv publisher + query").
+Links to give: https://github.com/Deven1305/hexfence`/tree/main/arkiv`, https://deven1305.github.io/hexfence/explorer/, and the publisher wallet 0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec. The one query judges can run is in the README ("Arkiv publisher + query").
 
 ### 5.2 Ethereum Foundation: Best CROPS App
 
@@ -97,10 +97,10 @@ Do not claim a latency figure unless you measured one for the video. The README 
 ## 7. Required links and items (tick before submitting)
 
 ETHGlobal and partner forms:
-- [ ] Public repo, created after kickoff, MIT licence, small commits from all four accounts: ‹REPO_URL›
+- [ ] Public repo, created after kickoff, MIT licence, small commits from all four accounts: https://github.com/Deven1305/hexfence
 - [ ] No code from the pre-event Pramaan repo
-- [ ] Live explorer: ‹EXPLORER_URL›
-- [ ] Live HexFence Pay (or install steps): ‹PAY_URL›
+- [ ] Live explorer: https://deven1305.github.io/hexfence/explorer/
+- [ ] Live HexFence Pay (or install steps): https://deven1305.github.io/hexfence/pay/
 - [ ] Video 2:30 to 3:00, 720p or better: ‹VIDEO_URL›
 - [ ] No trackers; testnet keys only; no keys or seed phrases committed (`git log -p` search before submitting)
 
@@ -108,8 +108,8 @@ In the repo:
 - [ ] `docs/planning/`: the locked spec plus every plan, prompt and report
 - [ ] `docs/AI_USAGE.md` names the reference Guard as AI-generated and reviewed
 - [ ] README: run steps, architecture, new vs reused, CROPS section, limits
-- [ ] README table filled in: ‹GUARD_ADDRESS›, ‹SAFE_ADDRESS› (with `VERSION()`), ‹TX_SETGUARD›, ‹TX_APPROVE_P›, ‹TX_L_REVERT›, ‹TX_B_OK›, ‹TX_P_OK›, ‹TX_REMOVE›, ‹TX_REENABLE›
-- [ ] README: Arkiv publisher wallet ‹ARKIV_PUBLISHER› and the query output
+- [ ] README table filled in: 0xA061fB511D69e5c92E50E3BE5c789472d6f19748, 0x3BCc3969713778F3Ed26AE1490529eeBAD43FbD5 (with `VERSION()`), 0x2de356a6c196cb3f2040e3b8d4170ebe0cbc1b2684b0c05e26344756db6278e9, 0x13baea5038b830810e1a9f68fbed3ae1069f981af4810cbd43c50f7b0d7d1af2, 0xa43b0eeef7253281a741deca144e5ddf0c465da9cc6f48d54673a9aa9c0f6d8f, 0x2455ca8f1ce612149f15e80325f372202bffeb0258f808bd84acfb1f904de5ca, 0xea209e9e3c5a9eed080e95dd0ca752b79686400da820ea67b87f98552d2992df, 0x5edf08eb6489d78c13f0748283e43bab8c015c851d0d40e86b030dd6794ad8e0, 0xd1c7db48a18647713c34384afc51b116888546dd837359eecad0938a5ebe9743
+- [ ] README: Arkiv publisher wallet 0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec and the query output
 - [ ] `arkiv/schema.md`, `friction.md`, `reach.md`, `why-arkiv.md`, `how-you-use-arkiv.md`
 - [ ] README and `docs/DEMO.md` contain no leftover `‹...›` or "(after ...)" placeholders
 

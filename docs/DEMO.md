@@ -66,10 +66,10 @@ Spoken text only, about 370 spoken words, which is about 2:30 at 2.5 words a sec
 1. "Now the Safe. This is a synthetic test pair on Sepolia, not a real attack." [pause]
 2. "This demo Safe has the HexFence Guard, and P is its approved payee."
 3. "I pay L, the lookalike. HexFence Pay says: possible address poisoning. This recipient resembles your approved payee, same first four and last four characters, but it is a different address. Your protected Safe will refuse this payment. It makes me type six characters to continue anyway, so I do." [type 344120, sign]
-4. "The transaction reverts on Sepolia with LookalikeOfApprovedPayee. The warning can be overridden. The Safe's refusal cannot." [Etherscan, ‹TX_L_REVERT›]
-5. "Now a new supplier, B. New recipient: not one of your approved payees. HexFence will not block this payment. And it goes through. This is not an allowlist." [‹TX_B_OK›]
-6. "And P, the approved payee: green, and it goes through." [‹TX_P_OK›]
-7. "Last test. I close HexFence Pay and pay L again straight from Safe{Wallet}. It still reverts. Enforcement does not need our software." [‹TX_L_REVERT_2›] "And the Guard can be removed: set guard to zero, then enabled again, both real Safe transactions." [‹TX_REMOVE›, ‹TX_REENABLE›]
+4. "The transaction reverts on Sepolia with LookalikeOfApprovedPayee. The warning can be overridden. The Safe's refusal cannot." [Etherscan, 0xa43b0eeef7253281a741deca144e5ddf0c465da9cc6f48d54673a9aa9c0f6d8f]
+5. "Now a new supplier, B. New recipient: not one of your approved payees. HexFence will not block this payment. And it goes through. This is not an allowlist." [0x2455ca8f1ce612149f15e80325f372202bffeb0258f808bd84acfb1f904de5ca]
+6. "And P, the approved payee: green, and it goes through." [0xea209e9e3c5a9eed080e95dd0ca752b79686400da820ea67b87f98552d2992df]
+7. "Last test. I close HexFence Pay and pay L again straight from Safe{Wallet}. It still reverts. Enforcement does not need our software." [‹TX_L_REVERT_2›] "And the Guard can be removed: set guard to zero, then enabled again, both real Safe transactions." [0x5edf08eb6489d78c13f0748283e43bab8c015c851d0d40e86b030dd6794ad8e0, 0xd1c7db48a18647713c34384afc51b116888546dd837359eecad0938a5ebe9743]
 
 **2:25–2:55 · Part 3: why it is new**
 "Wallets warn, but a warning is interface you can click through. Allowlists block new suppliers. Blocklists need someone to report the attacker first. HexFence denies by resemblance, at the account level, so it stops a lookalike nobody has reported, and new suppliers still work. Limits: modules bypass guards, MultiSend is refused, and a four-plus-four match does not catch weaker lookalikes. The Guard has no owner and cannot be upgraded, so it keeps working even if everything else here disappears."
