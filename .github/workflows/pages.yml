@@ -36,6 +36,12 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Attestation only runs on main; pull requests skip that step.
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+      artifact-metadata: write
     env:
       # Every VITE_* value is public in the browser bundle. Use only public or
       # origin-restricted keys. Never add DEPLOYER_PRIVATE_KEY / ARKIV_PRIVATE_KEY.
@@ -52,6 +58,12 @@ jobs:
           node-version: '22'
       - name: Install workspace dependencies
         run: corepack pnpm@10.34.9 install --frozen-lockfile
+      - name: Test contracts and workspace
+        run: |
+          npm --prefix contracts install --legacy-peer-deps
+          (cd contracts && npx hardhat test)
+          corepack pnpm@10.34.9 -r test
+          corepack pnpm@10.34.9 -r build
       - name: Require public production configuration
         if: github.event_name != 'pull_request'
         shell: bash
@@ -70,6 +82,18 @@ jobs:
         run: |
           corepack pnpm@10.34.9 --filter @hexfence/explorer build --base ./
           corepack pnpm@10.34.9 --filter @hexfence/pay build --base ./
+          corepack pnpm@10.34.9 --filter @hexfence/site build
+      - name: Capture production UI at mobile and desktop in both themes
+        run: |
+          corepack pnpm@10.34.9 --filter @hexfence/pay exec playwright install --with-deps chromium
+          node --require ./contracts/scripts/v2-compiler-support.js apps/pay/e2e/run.mjs
+          node apps/pay/e2e/visual.mjs
+          node apps/pay/e2e/upgrade-visual.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: xray-visuals
+          path: artifacts/xray/
       - name: Assemble Pages artifact
         shell: bash
         run: |
@@ -77,7 +101,40 @@ jobs:
           cp -R apps/explorer/dist/. _site/explorer/
           cp -R apps/pay/dist/. _site/pay/
           touch _site/.nojekyll
-          cp -R apps/site/. _site/
+          cp -R apps/site/dist/. _site/
+      - name: Record SHA-256 of every published file
+        shell: bash
+        run: |
+          (cd _site && find . -type f ! -name SHA256SUMS.txt ! -name .nojekyll -printf '%P\0' | sort -z | xargs -0 sha256sum) > SHA256SUMS.txt
+          cp SHA256SUMS.txt _site/SHA256SUMS.txt
+          wc -l SHA256SUMS.txt
+      - name: Attest the published files
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: actions/attest@v4
+        with:
+          subject-checksums: SHA256SUMS.txt
+      - name: Verify Pay build provenance
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          gh attestation verify _site/pay/index.html \
+            --repo "$GITHUB_REPOSITORY" \
+            --signer-workflow "$GITHUB_REPOSITORY/.github/workflows/pages.yml" \
+            --source-ref refs/heads/main --source-digest "$GITHUB_SHA" \
+            --deny-self-hosted-runners --format json > pay-provenance.json
+      - name: Keep provenance verification result
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: pay-provenance
+          path: pay-provenance.json
+      - name: Keep the checksum list for the release record
+        uses: actions/upload-artifact@v4
+        with:
+          name: sha256sums
+          path: SHA256SUMS.txt
       - uses: actions/upload-pages-artifact@v4
         with:
           path: _site
@@ -98,3 +155,42 @@ jobs:
       - name: Deploy Pages artifact
         id: deployment
         uses: actions/deploy-pages@v4
+
+  release-record:
+    # Writes hexfence.release.v1 to Arkiv after a deploy. Skips if the publisher secret is unset.
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check publisher configuration
+        id: config
+        env:
+          ARKIV_PRIVATE_KEY: ${{ secrets.ARKIV_PRIVATE_KEY }}
+        shell: bash
+        run: |
+          if [ -z "$ARKIV_PRIVATE_KEY" ]; then
+            echo 'ARKIV_PRIVATE_KEY repository secret is missing; no release record written.'
+            echo 'enabled=false' >> "$GITHUB_OUTPUT"
+          else
+            echo 'enabled=true' >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.config.outputs.enabled == 'true'
+      - uses: actions/setup-node@v4
+        if: steps.config.outputs.enabled == 'true'
+        with:
+          node-version: '22'
+      - uses: actions/download-artifact@v4
+        if: steps.config.outputs.enabled == 'true'
+        with:
+          name: sha256sums
+      - name: Install and build
+        if: steps.config.outputs.enabled == 'true'
+        run: |
+          corepack pnpm@10.34.9 install --frozen-lockfile
+          corepack pnpm@10.34.9 --filter @hexfence/shared --filter @hexfence/arkiv build
+      - name: Publish release record
+        if: steps.config.outputs.enabled == 'true'
+        env:
+          ARKIV_PRIVATE_KEY: ${{ secrets.ARKIV_PRIVATE_KEY }}
+          ARKIV_ACCESS_KEY: ${{ secrets.ARKIV_ACCESS_KEY }}
+        run: corepack pnpm@10.34.9 --filter @hexfence/detector exec tsx src/publishRelease.ts "$GITHUB_WORKSPACE/SHA256SUMS.txt" "$GITHUB_SHA"

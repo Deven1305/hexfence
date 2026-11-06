@@ -1,94 +1,92 @@
-# HexFence demo script
+# Demo video: 3:00 script
 
-**Video: 2:30–3:00, at least 720p** (ETHGlobal allows 2–4 minutes, EF CROPS at most 3). The spec's rough part lengths add up to 4 minutes, so the video needs the shorter timings below. In person, you can use the longer versions.
+Checked against the live pages on 6 Nov 2026 (about 18:00 IST, main 8c3c175). Rules: **2:30–3:00**, at least 720p, normal-speed footage, **a person's own voice** (no text-to-speech or AI voiceover), at most 4 bullets on any slide. Show only real pages, terminals and receipts.
 
-## Before recording
-- [ ] Check Pay's **Read route** status. During start-up, Safe and payee reads wait. Wait for **Reads go through Nox (Sphinx mixnet)**, or choose **Skip: read directly (not anonymous)** and show the labelled direct route. A wallet can connect while start-up is pending; loading a Safe waits for the route decision.
-- [ ] If start-up fails, show the labelled direct fallback and say it is not anonymous. If an already active Nox route fails, reads show an error rather than silently switching to direct; reload to retry, or explicitly skip on the next start-up.
-- [ ] Run `node contracts/scripts/check-t8.js` with every address/hash argument in [RUNBOOK_T8.md](RUNBOOK_T8.md), require exit 0, and keep its public rows. Also check the second Safe{Wallet} L hash. Explorer evidence and the H6 wallet flow still need their separate checks.
-- [ ] Explorer open on the real publisher, with counts showing (needs `VITE_ARKIV_PUBLISHER`, `VITE_MAINNET_RPC_URL`)
-- [ ] One record chosen and already verified once: ✓ appears, and both Etherscan links open
-- [ ] HexFence Pay open, wallet on Sepolia, demo Safe loaded, status shows the Guard is active
-- [ ] Demo Safe holds test ETH, has the Guard set, and P approved (`payees(safe)` shows P)
-- [ ] Open the reverted L payment on Blockscout, which decodes `LookalikeOfApprovedPayee` because the Guard is verified there: https://eth-sepolia.blockscout.com/tx/0xa43b0eeef7253281a741deca144e5ddf0c465da9cc6f48d54673a9aa9c0f6d8f. The Guard is not verified on Etherscan, so do not show Etherscan for the revert reason
-- [ ] Safe{Wallet} open in a second tab for step 5
-- [ ] Addresses ready to paste, with B a fresh test address:
-  - P `0x4E185e251Ac7fB83E9DE10723EAda46cadE74120`
-  - L `0x4E185a3FC4B530244aB9ed0dE38167b403344120`
-- [ ] Removal drill hashes open (`setGuard(0)`, then re-enable)
-- [ ] Do one full rehearsal. Each L payment costs Sepolia gas, even when it reverts
+**Wallet legend:** 🟢 = no wallet needed, anyone can record it. 🔑 = needs a person with a wallet (Dhruv's wallet `0x0f7e…2803` owns the demo Safe). Every 🔑 step has a 🟢 fallback that uses the recorded receipts, so the video works without a new payment.
 
-**Route validation limits:** Guard and payee reads through Nox worked on the
-hosted site. Nox start-up took 26–38 seconds in hosted browser runs and timed out at 60 seconds during a network outage; these are single observations, not benchmarks.
-The one bootstrap read is direct, Arkiv bulk reads are direct, and signing and
-sending still go through the wallet. State the route actually shown on screen.
+## Before recording (10 min)
 
-## Part 1: real evidence (about 35 seconds)
-Label on screen: **Ethereum mainnet evidence · status: suspected**
+1. Open these tabs and let each one finish loading. The public Arkiv endpoint is rate-limited: load the explorer once, then don't reload it.
+   - Landing: https://deven1305.github.io/hexfence/
+   - Guided demo (after PR #45 merges): https://deven1305.github.io/hexfence/demo.html. Every status on it is read live; a good backup if Pay or Arkiv is slow, and a good closing shot.
+   - Explorer: https://deven1305.github.io/hexfence/explorer/ (wait for "Showing 173 of 173 publisher records. All records loaded.")
+   - Pay preview: https://deven1305.github.io/hexfence/pay/?safe=0x3BCc3969713778F3Ed26AE1490529eeBAD43FbD5 (wait 25–40 s for "Nox reads active" and "Guard active")
+   - L revert on Blockscout (decodes the reason): https://eth-sepolia.blockscout.com/tx/0xa43b0eeef7253281a741deca144e5ddf0c465da9cc6f48d54673a9aa9c0f6d8f
+   - Direct-script L revert: https://sepolia.etherscan.io/tx/0xe77e6a7a8ba5b6f9742ec953826bc47c69ffffdced3a4d40b8fe3a220e1bb46f
+   - B success: https://sepolia.etherscan.io/tx/0x2455ca8f1ce612149f15e80325f372202bffeb0258f808bd84acfb1f904de5ca and P success: https://sepolia.etherscan.io/tx/0xea209e9e3c5a9eed080e95dd0ca752b79686400da820ea67b87f98552d2992df
+   - Guard source on Etherscan: https://sepolia.etherscan.io/address/0xA061fB511D69e5c92E50E3BE5c789472d6f19748#code
+2. Copy these three addresses into a note:
+   - P (approved) `0x4E185e251Ac7fB83E9DE10723EAda46cadE74120`
+   - L (synthetic lookalike) `0x4E185a3FC4B530244aB9ed0dE38167b403344120`
+   - B (new supplier) `0xcB0a33f755826307CcaC3f4b4833e7e19d38cEb6`
+3. Optional terminal for 2:20: from the repo root, after `corepack pnpm@10.34.9 install`, have the MCP call ready (command at the end of this file).
 
-1. Open the explorer. *"This page has no backend. It reads Arkiv directly."*
-2. Point at the counts. *"Our detector found these suspected poisonings in Ethereum mainnet USDT and USDC transfers."*
-   - **Say only what is true of the number on screen.** One real run found 43,227 pairs in about 24 hours, but the count on screen is what was published to Arkiv. If only part was published, say: *"One 24-hour run found 43,227; here is the part we published."*
-3. Open a record: victim, impersonated address, lookalike. *"Same start, same end, different address."* Open a transaction on Etherscan.
-4. Click **Verify on Ethereum** → ✓. *"You don't have to trust us. This re-checks the receipts on Ethereum, from your browser."*
+## Script
 
-## Part 2: synthetic re-enactment on Sepolia (about 1 minute 45)
-Say: ***"This is a synthetic test pair, not a real attack."***
+| Time | Screen and action | Say (in your own words) |
+|---|---|---|
+| 0:00–0:15 🟢 | Landing hero and the X-Ray of P against L | "Address poisoning puts a lookalike in your history. These two addresses share the first 4 and last 4 characters. 31 of 40 differ. HexFence makes your Safe refuse the lookalike." |
+| 0:15–0:40 🟢 | Explorer, Evidence tab: "Showing 173 of 173", the "suspected" badge. Open one row's **X-Ray**, then **Verify on Ethereum** | "This is real Ethereum mainnet data, read from Arkiv in my browser. Our detector found 47,694 suspected pairs in one day of USDT and USDC transfers; we published 173. Each one is suspected, and anyone can re-check both transactions on Ethereum." |
+| 0:40–0:55 🟢 | **Losses** tab: the one suspected follow-up payment, 303.635007 USDT. Then **Campaigns**: records grouped by attack transaction | "Losses shows a suspected payment that followed a planting, as a lead with a downloadable pack, not a confirmed loss. Campaigns groups records by attack transaction: one transaction here mentions dozens of victims." |
+| 0:55–1:00 | Cut to Pay | (no narration) |
+| 1:00–1:35 🟢 | Pay preview: point at "Nox reads active" and "v1.4.1 · 1/2 · Guard active". Paste **L**, amount 0.0001, **Check payment** → RED "Possible address poisoning". Then **B** → AMBER "New recipient". Then **P** → GREEN "Approved payee" | "Pay reads the Safe's approved payees once, through the Nox mixnet, and compares in the browser. L is a synthetic Sepolia address we made; it resembles our approved payee, so it's red. A new supplier is amber and still allowed. The approved payee is green." |
+| 1:35–2:00 🔑 | Connect Dhruv's wallet. Pay L: typing `E74120` is refused, `344120` is accepted. Sign and send. Show the reverted transaction | "I can still force it by typing the last six characters. The Safe executes, and the Guard reverts it on-chain." |
+| 1:35–2:00 🟢 fallback | Instead: the recorded L revert on Blockscout, showing `LookalikeOfApprovedPayee`, then the B and P success receipts | "This is the recorded payment to L: reverted by the Guard with LookalikeOfApprovedPayee. The new supplier and the approved payee went through. These were sent from a script wallet." |
+| 2:00–2:20 🟢 | Direct-script L revert on Etherscan, then the Guard source on Etherscan | "Here Pay isn't involved at all: a script paid L straight from the Safe, and the Guard still refused. The rule lives in the account, with no owner and no upgrade path." |
+| 2:20–2:40 🟢 | Terminal: the MCP call returns `"level":"RED","reason":"resembles"`. Then Pay's **Explain another call (ERC-7730)** panel, opened | "AI agents that pay can ask the same question through our MCP tool. And for calls HexFence can't check, Pay can explain an ERC-7730 descriptor without changing the verdict." |
+| 2:40–3:00 🟢 | README CROPS section | "Security is our lead CROPS property. It's open source under MIT, comparisons stay in your browser, and reads go through Nox. Everything runs on testnet, and the limits are in the README." |
 
-1. *"This demo Safe has the HexFence Guard, and P is its approved payee."*
-2. **Pay L** in HexFence Pay → RED: resembles P → type the last 6 characters (`344120`) to continue → sign and execute → **reverts with `LookalikeOfApprovedPayee(L, P)`** (decoded on Sepolia Blockscout). *"The warning can be overridden. The Safe's refusal can't."*
-3. **Pay B**, a new supplier → AMBER → **succeeds**. *"Not an allowlist: new suppliers still work."*
-4. **Pay P** → GREEN → **succeeds**.
-5. **Client off** (recorded today as the direct script transaction `0xe77e6a7a…1bb46f`, which is not Safe{Wallet}; the Safe{Wallet} version below applies only if H6 is done): close HexFence Pay and pay L again **from Safe{Wallet}, not from Pay** → **still reverts**. *"Enforcement doesn't need our software."*
-   - Safe{Wallet} warns that the transaction will fail. **Choose to execute anyway and set a manual gas limit in the wallet** (`RUNBOOK_T8.md` uses 200000), so the revert is actually mined and you get a hash.
-6. Show the removal drill hashes: `setGuard(0)`, then re-enabled. *"Removal is tested through real Safe transactions."*
+Total: 3:00. If you are over, cut 2:20–2:40 first.
 
-## Part 3: why it's new (about 30 seconds)
-*"Wallets warn, but a warning is UI you can click through. Allowlists block new suppliers. Blocklists need someone to have reported the attacker first. HexFence denies by resemblance, at the account level: it stops a lookalike nobody has ever reported, and new suppliers still work."*
+### Only if real CRE output exists
 
-Then state the limits: *"Modules bypass guards, MultiSend is refused, and a 4+4 fingerprint doesn't catch weaker lookalikes."*
+Only replace 2:20–2:40 if a person has run `cre login` and `sentinel/SIMULATION.md` holds the real output of `cre workflow simulate`. Then show that terminal output, the consumer transaction, and Pay's Radar banner for the demo Safe. Say "CRE simulation", not "deployed". Until then, Pay shows "Sentinel simulation: no alerts returned for this Safe": don't present Sentinel as working.
 
-**Never say:** "the first recipient guard for Safe", "verified" or "evidence" about the synthetic L, or "scammer" or "malicious" about any address.
+### Things not to show as working
 
-## Narration script for the video (2:30–3:00)
-Spoken text only, about 370 spoken words, which is about 2:30 at 2.5 words a second before pauses and clicks, so expect 2:40 to 2:55; rehearse it with a timer. Wording follows spec §3.4: the verdict is "resembles your approved payee", the evidence is "suspected", and the synthetic pair is never called verified or evidence. Square brackets are on-screen cues, not spoken.
+- Pay inside Safe{Wallet} (B8): not tested by a person.
+- The Chrome extension on app.safe.global (T14): not tested.
+- The V2 learning Guard: deployed, but its Safe is unfunded, so no live payment.
+- The module guard (Safe 1.5.0): deployed, but no live Safe uses it.
+- A second Arkiv publisher: none exists; the live explorer reads one.
+- Hindi: you can show the हिन्दी button, but say it hasn't been checked by a native speaker yet.
 
-**Hashes and counts:** the transaction hashes shown in Part 2 and the record count in Part 1 are the values recorded in `docs/T8_LIVE_RESULTS.md` (125 at T8; 173 after the 48 spread records published 6 Nov). Read out only what is on screen. Do not read a hash aloud.
+## MCP command for 2:20
 
-**0:00–0:15 · The problem**
-"Address poisoning: an attacker sends you a tiny transfer from an address that starts and ends like one you pay. Later you copy it from your history, and the money goes to them. HexFence makes a protected Safe refuse that payment."
+PowerShell, from the repo root:
 
-**0:15–0:50 · Part 1: real evidence** [explorer, label "Ethereum mainnet evidence · status: suspected"]
-"First, real data. This page has no backend. It reads Arkiv directly. Our detector reads Ethereum mainnet USDT and USDC transfers, and these 173 records are suspected poisonings it published. Every record is marked suspected. Here is one: the victim, the address they actually paid, and the lookalike. Same start, same end, different address. Both transactions open on Etherscan. And you do not have to trust us: Verify on Ethereum re-checks the receipts, from your browser." [click Verify, ✓ appears]
+```powershell
+'{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"demo","version":"0"}}}',
+'{"jsonrpc":"2.0","method":"notifications/initialized"}',
+'{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"hexfence_check","arguments":{"recipient":"0x4E185a3FC4B530244aB9ed0dE38167b403344120","approvedPayees":["0x4E185e251Ac7fB83E9DE10723EAda46cadE74120"]}}}' |
+  corepack pnpm@10.34.9 --silent --filter @hexfence/mcp start
+```
 
-**0:50–2:25 · Part 2: Sepolia re-enactment** [HexFence Pay, demo Safe loaded]
-1. "Now the Safe. This is a synthetic test pair on Sepolia, not a real attack." [pause]
-2. "This demo Safe has the HexFence Guard, and P is its approved payee."
-3. "I pay L, the lookalike. HexFence Pay says: possible address poisoning. This recipient resembles your approved payee, same first four and last four characters, but it is a different address. Your protected Safe will refuse this payment. It makes me type six characters to continue anyway, so I do." [type 344120, sign]
-4. "The transaction reverts on Sepolia with LookalikeOfApprovedPayee. The warning can be overridden. The Safe's refusal cannot." [Sepolia Blockscout: https://eth-sepolia.blockscout.com/tx/0xa43b0eeef7253281a741deca144e5ddf0c465da9cc6f48d54673a9aa9c0f6d8f]
-5. "Now a new supplier, B. New recipient: not one of your approved payees. HexFence will not block this payment. And it goes through. This is not an allowlist." [0x2455ca8f1ce612149f15e80325f372202bffeb0258f808bd84acfb1f904de5ca]
-6. "And P, the approved payee: green, and it goes through." [0xea209e9e3c5a9eed080e95dd0ca752b79686400da820ea67b87f98552d2992df]
-7. "Last test. I switch HexFence Pay off and send the same payment to L again as a direct transaction from a script. It still reverts. Enforcement does not need our software." [https://eth-sepolia.blockscout.com/tx/0xe77e6a7a8ba5b6f9742ec953826bc47c69ffffdced3a4d40b8fe3a220e1bb46f] "And the Guard can be removed: set guard to zero, then enabled again, both real Safe transactions." [0x5edf08eb6489d78c13f0748283e43bab8c015c851d0d40e86b030dd6794ad8e0, 0xd1c7db48a18647713c34384afc51b116888546dd837359eecad0938a5ebe9743]
+Real output on 6 Nov: `{"level":"RED","reason":"resembles","recipient":"0x4E185a3FC4B530244aB9ed0dE38167b403344120","payee":"0x4E185e251Ac7fB83E9DE10723EAda46cadE74120"}`.
 
-**Swap note:** if H6 yields a reverted Safe{Wallet} payment of L, replace the direct-script hash in step 7 with that one and say "from Safe{Wallet}". Until then the narration says it was a direct transaction from a script.
+## If something fails while recording
 
-**2:25–2:55 · Part 3: why it is new**
-"Wallets warn, but a warning is interface you can click through. Allowlists block new suppliers. Blocklists need someone to report the attacker first. HexFence denies by resemblance, at the account level, so it stops a lookalike nobody has reported, and new suppliers still work. Limits: modules bypass guards, MultiSend is refused, and a four-plus-four match does not catch weaker lookalikes. The Guard has no owner and cannot be upgraded, so it keeps working even if everything else here disappears."
-
-**Route wording:** the script never says "anonymous" or "Nox". If you want to mention the read route, say only what its panel shows on screen.
-
-## If something fails during the live demo
-| Failure | What to do |
+| Problem | Do this |
 |---|---|
-| Read-route start-up is still pending | Wait for the Nox status, or click **Skip: read directly (not anonymous)**. Safe/payee reads wait until that decision. Call direct reads non-anonymous |
-| Wallet refuses to send the L payment | Show the decoded refusal in Pay, then the L reverted hash already recorded in the README |
-| Arkiv is slow or rate limited | Set `VITE_ARKIV_ACCESS_KEY`. Failing that, use the recorded video |
-| Verify shows "could not verify" because of the RPC | Use another `VITE_MAINNET_RPC_URL` and try again. Don't describe it as a failed record |
-| Blockscout is slow or doesn't show the decoded error | Show the revert in Pay's decoded result. The Guard is verified on Blockscout (https://eth-sepolia.blockscout.com/address/0xA061fB511D69e5c92E50E3BE5c789472d6f19748) and not on Etherscan, so don't use Etherscan for the revert reason |
+| Explorer stuck at "reading Arkiv…" | The public endpoint is rate-limited. Wait a minute and reload once. |
+| Pay stuck on "Nox connecting · choose read route" | Wait up to 40 s, or click **Skip: read directly (not anonymous)** and say so. |
+| Pay stuck at "Checking…" | Reload the preview link; the evidence read goes to the same rate-limited Arkiv endpoint. |
+| The live L send doesn't revert | Stop. Use the 🟢 fallback receipts. |
 
-## Recording checklist
-- [ ] 2:30–3:00, at least 720p, audio clear
-- [ ] Part 2 opens with the "synthetic test pair" sentence
-- [ ] Label "status: suspected" visible in Part 1
-- [ ] All four non-negotiables shown: lookalike rejected, legitimate recipients allowed (P and B), removal tested, real evidence from Arkiv
-- [ ] No keys, seed phrases or `.env` on screen
+## Hard judge questions
+
+| Question | Answer |
+|---|---|
+| Isn't this an allowlist? | No. A new address passes. Only a different address with an approved payee's fingerprint is refused. |
+| What about 5+5 or 3+3 matches? | A 5+5 match also shares the 4+4 fingerprint, so it's refused. A 3+3-only match is outside the rule. |
+| What if the first payment is wrong? | v1 trusts the payees the owners approve. V2 learns on first use, so a wrong first payment can be learned; owners can `forget` it. |
+| Wallets already warn. What's new? | A warning can be clicked through; the Guard can't. We don't claim wallets lack warnings. |
+| Why Arkiv, not Postgres? | Static pages share wallet-attributed records with built-in expiry and no API of our own. A database would make us the operator. |
+| What if Arkiv or Chainlink goes down? | The Guard reads neither. Pay says when evidence is unavailable. |
+| False positives? | Two random addresses share a 4+4 fingerprint with chance 1 in 2^32. A collision is resemblance, not intent; owners can approve the second address after removing the first. |
+| Is your precision 100%? | No human-checked precision yet. The 30 sample labels were assigned by AI. |
+| Gas? | Measured on a local Safe 1.4.1: 182,927 gas for a new V2 recipient, 72,839 for a repeat; whole Safe calls, not a universal quote. |
+| Modules, MultiSend, governance? | Module transactions bypass transaction guards; our module guard for Safe 1.5.0 is deployed but not used by a live Safe yet. MultiSend is a delegatecall and is refused. Owners can remove the Guard. |
+| Who uses it? | DAO treasuries and payment teams are the intended users. No pilots or paying users yet. |
+| Has a person checked it? | The Guard review in the repo is by AI. Human sign-off, a person-run wallet test and the Hindi check are still open, and we say so. |
+| Does the Campaigns hourly chart show attack rate? | No. 125 of the 173 records come from one block, because we published the most recent records first. The chart says so. |

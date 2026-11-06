@@ -7,3 +7,20 @@
 .address-check input { width: min(100%, 32rem); box-sizing: border-box; }
 .bulk-status { margin-block: 1rem; }
 @media (max-width: 540px) { .dashboard-row { grid-template-columns: minmax(6rem, 1fr) 1fr 2rem; font-size: .8rem; gap: .4rem; } }
+
+.campaigns-panel { margin:1.5rem 0; }
+.campaigns-panel h3 { text-transform:none; }
+.campaign-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:.8rem; margin:1.2rem 0; }
+.campaign-detail .hf-xray { min-width:16rem; }
+.hourly-panel, .match-comparison { padding:1rem; border:1px solid var(--line); margin:1.5rem 0; }
+.dashboard-fill { background:var(--accent); }
+.comparison-row { margin:1rem 0; padding-top:.7rem; border-top:1px solid var(--line); }
+.comparison-series { display:grid; grid-template-columns:minmax(10rem,1fr) 2fr; align-items:center; gap:1rem; margin:.4rem 0; font-size:.8rem; }
+.comparison-fill { display:block; height:100%; }
+.comparison-fill.observed { background:var(--accent); }
+.comparison-fill.expected { background:var(--amber); }
+.hourly-chart .dashboard-row { grid-template-columns:minmax(12rem,1.4fr) 2fr 2.5rem; font-size:.78rem; }
+@media(max-width:540px) {
+  .comparison-series { grid-template-columns:1fr; gap:.25rem; }
+  .hourly-chart .dashboard-row { grid-template-columns:1fr 1fr 2rem; font-size:.72rem; }
+}

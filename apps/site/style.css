@@ -95,3 +95,37 @@ footer p { margin: 0; }
   .artifacts > a:nth-child(even) { border-left: 0; padding-left: 0; }
   .button { width: 100%; gap: 1rem; }
 }
+
+#live-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1rem; }
+.boundary .hf-address { font-size:.72rem; }
+
+/* Guided demo page */
+.demo-intro { border-top: 0; padding-block: 4rem 2rem; }
+.demo-intro h1 { font-size: clamp(2.4rem, 4.6vw, 4rem); }
+.demo-steps { list-style: none; padding: 0; margin-block: 0 2rem; counter-reset: none; }
+.demo-step { border: 1px solid var(--line); background: var(--surface); padding: 2rem; margin-bottom: 1.5rem; min-width: 0; }
+.demo-step > p:not(.step-label) { color: var(--muted); max-width: 46rem; }
+.demo-step .step-label { margin-bottom: 1rem; }
+.demo-step h2 { font-size: clamp(1.6rem, 2.6vw, 2.2rem); }
+.demo-live, .demo-xray { display: grid; gap: 1rem; margin-top: 1.5rem; min-width: 0; }
+.demo-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; }
+.demo-caption { color: var(--muted); font-size: .92rem; margin: 0; }
+.demo-links { display: flex; flex-wrap: wrap; gap: 1.5rem; font-weight: 600; font-size: .9rem; margin: 0; }
+.demo-verdict { display: grid; gap: .6rem; padding: 1rem; border: 1px solid var(--line); min-width: 0; }
+.demo-check { margin-top: 1.5rem; display: grid; gap: .6rem; }
+.demo-check label { font-weight: 650; }
+.demo-check > div { display: flex; gap: .75rem; flex-wrap: wrap; }
+.demo-check input { flex: 1 1 18rem; min-width: 0; font: inherit; font-family: ui-monospace, "Cascadia Code", Consolas, monospace; padding: .75rem; border: 1px solid var(--line); background: var(--bg); color: var(--ink); }
+.demo-check input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.demo-check .button { width: auto; }
+.demo-receipt { display: grid; grid-template-columns: 1.4fr 1.4fr 1fr auto; gap: 1rem; align-items: center; padding: 1rem; border: 1px solid var(--line); border-left-width: 4px; min-width: 0; }
+.demo-receipt.ok { border-left-color: var(--accent); }
+.demo-receipt.refused { border-left-color: #b3261e; }
+.demo-receipt > span { color: var(--muted); font-size: .88rem; overflow-wrap: anywhere; }
+.demo-receipt .demo-status { color: var(--ink); font-weight: 700; }
+@media (max-width: 900px) { .demo-receipt { grid-template-columns: 1fr; gap: .35rem; } }
+@media (max-width: 640px) { .demo-step { padding: 1.25rem; } }
+.demo-level { padding: .6rem .8rem; border-left: 4px solid var(--line); background: var(--tint); font-weight: 650; }
+.demo-level.red { border-left-color: #b3261e; }
+.demo-level.amber { border-left-color: #b26b00; }
+.demo-level.green { border-left-color: var(--accent); }

@@ -1,0 +1,72 @@
+{
+  "schema": "hexfence.loss-run.v1",
+  "chainId": 1,
+  "fromBlock": 26347577,
+  "toBlock": 26354776,
+  "logCount": 1423954,
+  "poisoningPairs": 54067,
+  "lossTransactions": 1,
+  "paymentCases": 1,
+  "totals": [
+    {
+      "token": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+      "amount": "303635007",
+      "formatted": "303.635007"
+    },
+    {
+      "token": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      "amount": "0",
+      "formatted": "0"
+    }
+  ],
+  "completedAt": "2026-11-06T09:17:51.771Z",
+  "status": "suspected",
+  "publication": {
+    "publisher": "0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec",
+    "created": 0,
+    "alreadyThere": 1,
+    "stoppedForFunds": false,
+    "txHashes": []
+  },
+  "rawPatterns": {
+    "transactions": 239,
+    "paymentCases": 258,
+    "totals": [
+      {
+        "token": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+        "amount": "137442269415",
+        "formatted": "137442.269415"
+      },
+      {
+        "token": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        "amount": "377024803592",
+        "formatted": "377024.803592"
+      }
+    ]
+  },
+  "callShapeCheckedAt": "2026-11-06T09:34:12.960Z",
+  "initialRetraction": {
+    "reason": "Initial raw-pattern records withdrawn after discovering automated PoolManager flow",
+    "publisher": "0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec",
+    "txHash": "0xbc3820c1e396f7a1cb956cf77ebac44246a5fa6e7b3f19f0a0e97e92fb1a600e",
+    "entityKeys": [
+      "0xf63413d9fc6b6e9ef33f7bfc3291fc57cd6b755abc932af89395af36e5e8a5b9",
+      "0x236ed9a2adee78f104a56bf66d1884d2618ef01ad9e97d3bed0aa9bb7e00d1ec",
+      "0xe1bb203aeafab9afcb47794e13198090345ce8c9b8224f03dd13641c0506bbae",
+      "0xe43d92f6a6efce059c6c954bb8ba84ef9a10f4fbba1acb64f7d5f8e0adf45e3f",
+      "0x2a693742c1cecaa41776bab3fb879c8748efd240675587e0510585a1483c420a"
+    ],
+    "at": "2026-11-06T09:25:02.955Z"
+  },
+  "publicationHistory": [
+    {
+      "publisher": "0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec",
+      "created": 1,
+      "alreadyThere": 0,
+      "stoppedForFunds": false,
+      "txHashes": [
+        "0x899bc5466cc62545cbfd69478a587605f412dbb0af51e63882e5e32fdbb3923e"
+      ]
+    }
+  ]
+}

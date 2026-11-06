@@ -40,7 +40,7 @@ export async function fetchTransferLogs(
 }
 
 /** One window; if the RPC rejects it (response too big, too many results), split it in two. */
-async function getLogsSplitting(client: PublicClient, from: bigint, to: bigint): Promise<TransferLog[]> {
+export async function getLogsSplitting(client: PublicClient, from: bigint, to: bigint): Promise<TransferLog[]> {
   try {
     const raw = await client.getLogs({ address: [MAINNET_USDT, MAINNET_USDC], event: TRANSFER_EVENT, fromBlock: from, toBlock: to, strict: true });
     const out: TransferLog[] = [];

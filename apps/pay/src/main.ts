@@ -1,6 +1,10 @@
-import { decodeSafeCall, verdictFor, type Verdict } from "@hexfence/shared";
-import { connectAnon, routeStatusText, type AnonOutcome } from "./anon";
-import { arkivReadClient, fetchAllEvidence } from "@hexfence/arkiv";
+import { AddressXray, SafeHeader, VerdictCard } from "@hexfence/ui";
+import "@hexfence/ui/style.css";
+import type { VerdictV2 as Verdict } from "@hexfence/shared";
+import { paymentVerdict, paymentVerdictText } from "./upgrade";
+import { radarPanel } from "./radar";
+import { explainPanel } from "./explain";
+import type { AnonOutcome } from "./anon";
 import { getAddress, getContract, type Address, type EIP1193Provider, type Hex } from "viem";
 import type Safe from "@safe-global/protocol-kit";
 import { ConfigError, loadConfig, SEPOLIA_CHAIN_ID, SEPOLIA_EXPLORER, type Config } from "./config";
@@ -9,7 +13,7 @@ import { frictionSatisfied, frictionSuffix, requiresFriction } from "./friction"
 import { planFromSimulation, simulateExec } from "./execute";
 import { buildPaymentCall, erc20Abi, InputError, parseAddress, parseAmount, type Asset } from "./payment";
 import { describeRevert } from "./revert";
-import { compositeProvider, createReadClient, type ReadClient } from "./rpc";
+import type { ReadClient } from "./rpc";
 import { loadSafeInfo, openSafe, openSafeReadOnly, type SafeInfo } from "./safe";
 import {
   buildApprovePayeeCall,
@@ -24,8 +28,9 @@ import {
   type SetupCall,
 } from "./setup";
 import "./setup.css";
+import { detectSafeApp, proposeInSafe, type SafeAppContext } from "./safeapp";
 import { toHindi } from "./i18n";
-import { GUARD_INACTIVE_SENTENCE, verdictText, type Lang } from "./verdictCopy";
+import { GUARD_INACTIVE_SENTENCE, type Lang } from "./verdictCopy";
 import { connect, discoverWallets, isUserRejection, switchToSepolia, walletChainId, type WalletOption } from "./wallet";
 
 const app = document.getElementById("app") as HTMLElement;
@@ -57,18 +62,22 @@ interface State {
   route: Promise<void>;
   outcome?: AnonOutcome;
   trying?: string;
+  routeLines?: string[];
   skip: AbortController;
   /** Safe address from `?safe=0x…`, loaded once when the Safe section first renders. */
   pendingSafe?: string;
+  /** Set when Pay runs inside Safe{Wallet} as a Safe App: the Safe session proposes transactions, no wallet is connected here. */
+  safeApp?: SafeAppContext;
   /** Last Safe loaded, kept so the address survives connecting a wallet. */
   lastSafe?: Address;
   lang: Lang;
+  step: number;
   shown?: { verdict: Verdict; box: HTMLElement };
 }
 
 let state: State;
 
-function boot(): void {
+async function boot(): Promise<void> {
   let config: Config;
   try {
     config = loadConfig(import.meta.env as Record<string, string | undefined>);
@@ -76,11 +85,21 @@ function boot(): void {
     app.replaceChildren(el("h1", {}, "HexFence Pay"), el("div", { class: "error" }, e instanceof ConfigError ? e.message : String(e)));
     return;
   }
-  state = { config, reads: createReadClient(config.sepoliaRpcUrl), route: Promise.resolve(), skip: new AbortController(), lang: "en" };
+  app.replaceChildren(el("h1", {}, "HexFence Pay"), el("p", { role: "status" }, "Loading payment tools?"));
+  await new Promise<void>((resolve) => requestAnimationFrame(() => setTimeout(resolve, 0)));
+  const { createReadClient } = await import("./rpc");
+  state = { config, reads: createReadClient(config.sepoliaRpcUrl), route: Promise.resolve(), skip: new AbortController(), lang: "en", step: 1 };
   state.pendingSafe = new URLSearchParams(window.location.search).get("safe")?.trim() || undefined;
   state.route = startRoute();
   new MutationObserver(applyLang).observe(app, { childList: true, subtree: true });
   render();
+  void detectSafeApp().then((ctx) => {
+    if (!ctx) return;
+    state.safeApp = ctx;
+    if (ctx.chainId === SEPOLIA_CHAIN_ID) state.pendingSafe = ctx.safeAddress;
+    state.step = 1;
+    render();
+  });
 }
 
 function render(): void {
@@ -88,12 +107,24 @@ function render(): void {
     el("h1", {}, "HexFence Pay"),
     el("p", { class: "sub" }, "Checks a payment against your approved payees before you sign. Sepolia test network."),
     langBar(),
+    stepper(),
     routeSection(),
-    walletSection(),
-    safeSection(),
-    paymentSection(),
-    setupSection(),
+    ...(state.info ? [SafeHeader(state.info.address, `v${state.info.version} · ${state.info.threshold}/${state.info.owners.length} · Guard ${state.info.guard.active ? "active" : "inactive"}${state.info.v2 ? " / Auto-Fence V2" : ""}`)] : []),
+    ...(state.info ? [radarPanel(state.reads, state.info)] : []),
+    [walletSection, safeSection, paymentSection, setupSection][state.step]!(),
   );
+}
+
+function stepper(): HTMLElement {
+  const list = el("ol", { class: "hf-stepper", "aria-label": "Payment progress" });
+  ["Connect", "Safe", "Pay", "Fence settings"].forEach((label, i) => {
+    const button = el("button", { type: "button" }, `${i + 1}. ${label}`);
+    button.onclick = () => { state.step = i; render(); };
+    const item = el("li", {}, button);
+    if (i === state.step) button.setAttribute("aria-current", "step");
+    list.append(item);
+  });
+  return list;
 }
 
 // ---------- anonymous reads (T11) ----------
@@ -101,6 +132,9 @@ let routeEl: HTMLElement | undefined;
 
 async function startRoute(): Promise<void> {
   const c = state.config;
+  const { createReadClient } = await import("./rpc");
+  state.reads = createReadClient(c.sepoliaRpcUrl);
+  const { connectAnon, routeStatusText } = await import("./anon");
   const outcome = await connectAnon({
     sepoliaRpcUrl: c.sepoliaRpcUrl,
     signal: state.skip.signal,
@@ -111,12 +145,13 @@ async function startRoute(): Promise<void> {
   });
   state.trying = undefined;
   state.outcome = outcome;
+  state.routeLines = routeStatusText(outcome);
   if (outcome.fetchFn) state.reads = createReadClient(c.sepoliaRpcUrl, outcome.fetchFn);
   fillRoute();
 }
 
 function routeSection(): HTMLElement {
-  routeEl = el("section");
+  routeEl = el("details", { class: "route-status" });
   fillRoute();
   return routeEl;
 }
@@ -124,7 +159,7 @@ function routeSection(): HTMLElement {
 function fillRoute(): void {
   const s = routeEl;
   if (!s) return;
-  s.replaceChildren(el("h2", {}, "Read route"));
+  s.replaceChildren(el("summary", {}, state.outcome?.active ? "Nox reads active" : state.outcome ? "Direct reads · not anonymous" : "Nox connecting · choose read route"));
   if (!state.outcome) {
     s.append(el("p", { class: "small" }, `Connecting to anonymous read routes (${state.trying ?? "starting"})… Safe and payee reads wait for this.`));
     const b = el("button", {}, "Skip: read directly (not anonymous)");
@@ -132,7 +167,7 @@ function fillRoute(): void {
     s.append(b);
     return;
   }
-  for (const line of routeStatusText(state.outcome)) s.append(el("p", { class: "small" }, line));
+  for (const line of state.routeLines ?? []) s.append(el("p", { class: "small" }, line));
 }
 
 // ---------- 1. wallet ----------
@@ -143,6 +178,10 @@ function walletSection(): HTMLElement {
   s.append(status);
   if (state.account) {
     status.textContent = `Connected: ${state.account} (${state.wallet?.name ?? "wallet"})`;
+    return s;
+  }
+  if (state.safeApp) {
+    status.textContent = "Running inside Safe{Wallet}. Payments are proposed in Safe{Wallet}, where you sign and confirm. No wallet connection is needed here.";
     return s;
   }
   status.textContent = "Looking for wallets…";
@@ -168,9 +207,10 @@ async function onConnect(w: WalletOption, section: HTMLElement): Promise<void> {
     if ((await walletChainId(w.provider)) !== SEPOLIA_CHAIN_ID) await switchToSepolia(w.provider);
     state.wallet = w;
     state.account = getAddress(account);
-    state.provider = compositeProvider(w.provider, state.reads);
+    state.provider = undefined;
     state.safe = undefined;
     state.info = undefined;
+    state.step = 1;
     render();
   } catch (e) {
     showError(section, isUserRejection(e) ? "Connection cancelled in the wallet." : errText(e));
@@ -181,7 +221,11 @@ async function onConnect(w: WalletOption, section: HTMLElement): Promise<void> {
 function safeSection(): HTMLElement {
   const s = el("section");
   s.append(el("h2", {}, "2. Safe"));
-  if (!state.account) {
+  if (state.safeApp && state.safeApp.chainId !== SEPOLIA_CHAIN_ID) {
+    s.append(el("div", { class: "error" }, `This Safe is on chain ${state.safeApp.chainId}. HexFence Pay works on Sepolia only: open a Sepolia Safe in Safe{Wallet}.`));
+  } else if (state.safeApp) {
+    s.append(el("div", { class: "notice preview" }, `Safe App mode: checking payments for ${state.safeApp.safeAddress}. You sign and confirm in Safe{Wallet}.`));
+  } else if (!state.account) {
     s.append(el("div", { class: "notice preview" }, "Live preview: real Safe data and real verdicts, no wallet needed. Connect a Sepolia wallet to sign and send."));
   }
   const input = el("input", { id: "safe-address", placeholder: "Safe address (0x…)", spellcheck: "false" });
@@ -206,7 +250,10 @@ async function onLoadSafe(raw: string, out: HTMLElement): Promise<void> {
   try {
     const address = parseAddress(raw, "Safe address");
     await state.route;
-    if (state.wallet) state.provider = compositeProvider(state.wallet.provider, state.reads);
+    if (state.wallet) {
+      const { compositeProvider } = await import("./rpc");
+      state.provider = compositeProvider(state.wallet.provider, state.reads);
+    }
     const code = await state.reads.getCode({ address });
     if (!code || code === "0x") throw new InputError("There is no contract at that address on Sepolia.");
     const safe = state.provider && state.account ? await openSafe(state.provider, state.account, address) : await openSafeReadOnly(state.reads, address);
@@ -214,10 +261,12 @@ async function onLoadSafe(raw: string, out: HTMLElement): Promise<void> {
     state.safe = safe;
     state.info = info;
     state.lastSafe = info.address;
+    state.step = 2;
     const { publisher, arkivAccessKey } = state.config;
-    state.listed ??= loadListed(publisher !== undefined, () =>
-      fetchAllEvidence(arkivReadClient({ accessKey: arkivAccessKey }), publisher as Address),
-    );
+    state.listed ??= loadListed(publisher !== undefined, async () => {
+      const { arkivReadClient, fetchAllEvidence } = await import("@hexfence/arkiv");
+      return fetchAllEvidence(arkivReadClient({ accessKey: arkivAccessKey }), publisher as Address);
+    });
     render();
   } catch (e) {
     out.replaceChildren(el("div", { class: "error" }, errText(e)));
@@ -234,7 +283,7 @@ function renderSafeInfo(out: HTMLElement, info: SafeInfo): void {
     out.append(el("div", { class: "error" }, "Pay signs and sends in one step, so it supports Safes with threshold 1 only."));
   }
   if (info.guard.active) {
-    out.append(el("div", { class: "notice" }, `HexFence Guard ${state.config.guard} is active on this Safe.`));
+    out.append(el("div", { class: "notice" }, `HexFence Guard ${info.v2?.guard ?? state.config.guard} is active on this Safe.`));
   } else {
     const why =
       info.guard.reason === "unsupported"
@@ -254,6 +303,7 @@ function renderSafeInfo(out: HTMLElement, info: SafeInfo): void {
   const ul = el("ul");
   for (const p of info.payees) ul.append(el("li", { class: "mono" }, p));
   out.append(ul);
+  if (info.v2) out.append(el("p", { class: "small" }, `Auto-Fence V2: ${info.v2.known.length} recorded recipient(s). Automatic learning ${info.v2.autoLearn ? "on" : "off"}.`));
 }
 
 // ---------- 3. payment ----------
@@ -273,8 +323,35 @@ function paymentSection(): HTMLElement {
   const amount = el("input", { id: "amount", placeholder: "0.01", inputmode: "decimal" });
   const check = el("button", {}, "Check payment");
   const out = el("div");
-  check.onclick = () => void onCheck({ asset: asset.value, token: token.value, to: to.value, amount: amount.value }, out);
-  s.append(el("label", { for: "asset" }, "Asset"), asset, tokenWrap, el("label", { for: "to" }, "Recipient"), to, el("label", { for: "amount" }, "Amount"), amount, check, out);
+  const preview = el("div", { "aria-live": "polite" });
+  let revision = 0;
+  let debounce: ReturnType<typeof setTimeout> | undefined;
+  to.oninput = () => {
+    const version = ++revision;
+    out.replaceChildren(); preview.replaceChildren();
+    clearTimeout(debounce);
+    debounce = setTimeout(() => {
+    try {
+      const recipient = parseAddress(to.value, "Recipient");
+      const info = state.info!;
+      const paint = (listed?: ListedState) => {
+        if (version !== revision) return;
+        const v = paymentVerdict({ to: recipient, value: 0n, data: "0x", operation: 0 }, info, state.config.guard, listed?.status === "ok" ? listed.map : undefined);
+        const box = VerdictCard(v.level); fillVerdictBox(box, v); preview.replaceChildren(box);
+        state.shown = { verdict: v, box };
+      };
+      paint(); void state.listed?.then(paint);
+    } catch { /* Wait for a complete address. */ }
+    }, 120);
+  };
+  check.onclick = () => {
+    clearTimeout(debounce); preview.replaceChildren();
+    const version = ++revision;
+    void onCheck({ asset: asset.value, token: token.value, to: to.value, amount: amount.value }, out, () => version === revision);
+  };
+  s.append(el("label", { for: "asset" }, "Asset"), asset, tokenWrap, el("label", { for: "to" }, "Recipient"), to, el("label", { for: "amount" }, "Amount"), amount, preview, check, out);
+  s.append(explainPanel(state.info, state.config.guard, state.lang, state.config.publisher));
+  for (const field of [asset, token, amount]) field.addEventListener("input", () => { ++revision; out.replaceChildren(); });
   return s;
 }
 
@@ -294,7 +371,7 @@ async function resolveAsset(kind: string, tokenRaw: string): Promise<Asset> {
   return { kind: "erc20", token, decimals, symbol };
 }
 
-async function onCheck(f: { asset: string; token: string; to: string; amount: string }, out: HTMLElement): Promise<void> {
+async function onCheck(f: { asset: string; token: string; to: string; amount: string }, out: HTMLElement, current: () => boolean = () => true): Promise<void> {
   out.replaceChildren(el("p", { class: "small" }, "Checking…"));
   try {
     const { safe, info } = state;
@@ -303,12 +380,11 @@ async function onCheck(f: { asset: string; token: string; to: string; amount: st
     const recipient = parseAddress(f.to, "Recipient");
     const amount = parseAmount(f.amount, asset.kind === "eth" ? 18 : asset.decimals);
     const call = buildPaymentCall(asset, recipient, amount);
-    const decoded = decodeSafeCall(call, { safe: info.address, guard: state.config.guard });
     const listed = await state.listed;
-    const verdict = verdictFor(decoded, info.payees, listed?.status === "ok" ? listed.map : undefined);
-    renderVerdict(out, verdict, recipient, call);
+    const verdict = paymentVerdict(call, info, state.config.guard, listed?.status === "ok" ? listed.map : undefined);
+    if (current()) renderVerdict(out, verdict, recipient, call);
   } catch (e) {
-    out.replaceChildren(el("div", { class: "error" }, errText(e)));
+    if (current()) out.replaceChildren(el("div", { class: "error" }, errText(e)));
   }
 }
 
@@ -356,14 +432,19 @@ function applyLang(): void {
 
 function fillVerdictBox(box: HTMLElement, verdict: Verdict): void {
   const info = state.info as SafeInfo;
-  const text = verdictText(verdict, { guardActive: info.guard.active, publisher: state.config.publisher, lang: state.lang });
-  const hindi = state.lang === "hi";
+  const text = paymentVerdictText(verdict, { guardActive: info.guard.active, publisher: state.config.publisher, lang: state.lang }, info);
+  const hindi = state.lang === "hi" && !text.englishOnly;
   box.replaceChildren(el("strong", {}, verdict.level === "GREY" ? "CANNOT VERIFY" : verdict.level));
   text.sentences.forEach((sentence, i) => {
     const p = el("p", {}, i === 0 && verdict.level === "RED" ? el("strong", {}, sentence) : sentence);
     if (hindi && !(sentence === GUARD_INACTIVE_SENTENCE)) p.lang = "hi";
+    if (text.englishOnly) p.lang = "en";
     box.append(p);
   });
+  if ("recipient" in verdict) {
+    if ("payee" in verdict) box.append(AddressXray(verdict.payee, verdict.recipient, verdict.reason === "resembles-known" ? "Recorded recipient" : "Approved payee"));
+    box.append(AddressXray(verdict.recipient, "payee" in verdict ? verdict.payee : undefined, "Recipient"));
+  }
   if (verdict.level === "RED" && verdict.reason === "listed") {
     const url = state.config.explorerUrl;
     if (url) box.append(el("p", { class: "small" }, link(url, "Open the explorer")));
@@ -371,17 +452,17 @@ function fillVerdictBox(box: HTMLElement, verdict: Verdict): void {
 }
 
 function renderVerdict(out: HTMLElement, verdict: Verdict, recipient: Address, call: Call): void {
-  const box = el("div", { class: `verdict ${verdict.level}` });
+  const box = VerdictCard(verdict.level);
   fillVerdictBox(box, verdict);
   state.shown = { verdict, box };
   out.replaceChildren(box);
-  if (!state.account) {
+  if (!state.account && !state.safeApp) {
     out.append(el("p", { class: "small" }, "Live preview: this is the real verdict. Connect a Sepolia wallet to sign and send."));
     return;
   }
 
   const friction = requiresFriction(verdict);
-  const go = el("button", {}, friction ? "Continue anyway" : "Sign and send");
+  const go = el("button", {}, friction ? "Continue anyway" : state.safeApp ? "Propose in Safe{Wallet}" : "Sign and send");
   const cancel = el("button", {}, friction ? "Reject" : "Cancel");
   cancel.onclick = () => out.replaceChildren(); // no wallet call
   const result = el("div");
@@ -394,9 +475,29 @@ function renderVerdict(out: HTMLElement, verdict: Verdict, recipient: Address, c
   go.onclick = () => {
     go.disabled = true;
     cancel.disabled = true;
-    void onExecute(call, result).finally(() => (cancel.disabled = false));
+    void (state.safeApp ? onPropose(call, result) : onExecute(call, result)).finally(() => (cancel.disabled = false));
   };
   out.append(go, cancel, result);
+}
+
+/** Safe App mode: hand the call to Safe{Wallet}. Safe{Wallet} collects signatures, simulates and sends; the Guard still decides on-chain. */
+async function onPropose(call: SetupCall, out: HTMLElement): Promise<boolean> {
+  out.replaceChildren(el("p", { class: "small" }, "Waiting for Safe{Wallet}…"));
+  try {
+    const { info, safeApp } = state;
+    if (!info || !safeApp) throw new InputError("Load a Safe first.");
+    if (info.address.toLowerCase() !== safeApp.safeAddress.toLowerCase()) throw new InputError("The checked Safe is not the Safe this app is open in. Reload the Safe from Safe{Wallet}.");
+    const safeTxHash = await proposeInSafe(call);
+    out.replaceChildren(el("div", { class: "notice" }, `Proposed in Safe{Wallet} (safeTxHash ${safeTxHash}). Confirm and execute it there.`));
+    if (info.v2) {
+      state.info = undefined;
+      out.append(el("p", {}, "Reload the Safe after execution to refresh Auto-Fence recipients before another payment."));
+    }
+    return true;
+  } catch (e) {
+    out.replaceChildren(el("div", { class: "error" }, `Not proposed. ${errText(e)}`));
+    return false;
+  }
 }
 
 async function onExecute(call: SetupCall, out: HTMLElement): Promise<boolean> {
@@ -427,6 +528,13 @@ async function onExecute(call: SetupCall, out: HTMLElement): Promise<boolean> {
     done.append(el("p", {}, "Transaction: ", link(`${SEPOLIA_EXPLORER}/tx/${hash}`, hash)));
     if (receipt.status === "success") {
       done.append(el("div", { class: "notice" }, `Confirmed in block ${receipt.blockNumber}.`));
+      if (info.v2) {
+        try { state.info = await loadSafeInfo(safe, state.reads, state.config.guard); }
+        catch {
+          state.info = undefined;
+          done.append(el("p", { class: "error" }, "Transaction confirmed; recorded recipients could not refresh. Reload the Safe before another payment."));
+        }
+      }
     } else {
       done.append(el("div", { class: "error" }, !sim.ok ? describeRevert(sim.info) : "The transaction reverted on-chain."));
     }
@@ -447,6 +555,10 @@ function setupSection(): HTMLElement {
     s.append(el("p", { class: "small" }, "Load a Safe first."));
     return s;
   }
+  if (!account && state.safeApp) {
+    s.append(el("p", { class: "small" }, "Guard setup is not in the Safe App yet. Open HexFence Pay on its own page with a Sepolia wallet that owns this Safe."));
+    return s;
+  }
   if (!account) {
     s.append(el("p", { class: "small" }, "Connect a Sepolia wallet that owns this Safe to enable the Guard and approve payees."));
     return s;
@@ -454,6 +566,10 @@ function setupSection(): HTMLElement {
   const blocker = setupBlocker(info, account);
   if (blocker) {
     s.append(el("div", { class: "error" }, blocker));
+    return s;
+  }
+  if (info.v2) {
+    s.append(el("p", { class: "notice" }, `Auto-Fence V2 is active. Automatic learning is ${info.v2.autoLearn ? "on" : "off"}. Manage learning, approval, forget and Guard removal through owner-signed contract calls. V1 payee setup controls do not apply to this Guard.`));
     return s;
   }
   const guard = state.config.guard;
@@ -543,4 +659,4 @@ function clearErrors(section: HTMLElement): void {
   section.querySelectorAll(".error").forEach((n) => n.remove());
 }
 
-boot();
+void boot().catch(() => { app.replaceChildren(el("p", { class: "error" }, "Payment tools could not load. Reload to retry.")); });
