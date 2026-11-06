@@ -1,0 +1,11 @@
+{
+  "publisher": "0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec",
+  "readAt": 1793982487749,
+  "lossTx": "0x6fe839c128085bc4492c0e09bf4c9c69f60aaca5d9f72aa88ec30be89b606bac",
+  "victim": "0x297Aa81460B3802b0Efa19DD2eD11D27E2Bd47A9",
+  "impersonated": "0xD85f3437354546eA95196222Ea7861c89b66780E",
+  "lookalike": "0xd85F8b89B1d104bCEd783B1E2BB09EF7d211780e",
+  "token": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+  "amount": "303635007",
+  "status": "suspected"
+}
