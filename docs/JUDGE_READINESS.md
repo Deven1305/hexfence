@@ -66,7 +66,7 @@ Data note: the 173 records are a chosen subset of a 47,694-pair detector run. 12
 | C1 Check SDK and MCP | `@hexfence/check`, `@hexfence/mcp` with `hexfence_check` | Offline comparison only |
 | C3 Multi-publisher | Explorer agreement counts | One publisher live |
 | T14 Extension | Builds, unit tests | Not tested on app.safe.global |
-| Not built | B3 batch protection was cut; C2 and C4 were scrapped; B1 needs approval to spend tGLM; B4 governance guard is on another branch | |
+| Not built | B3 batch protection was cut; C2 and C4 were scrapped; B1 needs approval to spend tGLM | |
 
 ## Claim rules for the submission
 
@@ -75,3 +75,7 @@ Data note: the 173 records are a chosen subset of a 47,694-pair detector run. 12
 - AI-assigned H9 labels are not human precision.
 - Never describe a scripted payment as a Safe{Wallet} or human test.
 - Human work left: H6, H9, H10, Guard sign-off, CRE login and run, T14, B8, video, submission.
+
+## B4 governance follow-up
+
+[PR #47](https://github.com/Deven1305/hexfence/pull/47) adds the separately deployed HexFenceGovernanceGuardV2 at 0x108ea016F84d9817364b65Df6A133afe9CA33855, exact Sourcify match 58635387. It refuses lookalike new owner/module addresses in three specified self-calls, while leaving setGuard unchecked. [Scope, receipts and limits](../contracts/README_GOVERNANCE.md). Only Safes that install this new transaction guard get these checks; no live Safe was switched and Pay remains pinned to original V2. Local contract tests: 68 passing; full workspace checks and the v1 browser regression passed in CI. No live governance operation is claimed.

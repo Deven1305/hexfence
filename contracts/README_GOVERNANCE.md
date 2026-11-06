@@ -1,4 +1,4 @@
-﻿# Governance fence: HexFenceGovernanceGuardV2
+# Governance fence: HexFenceGovernanceGuardV2
 
 This is a **new transaction guard**, deployed separately from HexFenceGuardV2. **Only Safes that execute setGuard with this new guard address get these checks.** A Safe has one transaction guard: installing this replaces its previous transaction guard. No existing Sepolia Safe was switched, and Pay, its pinned V2 deployment and the v1 demo remain on their existing paths. Pay does not recognize this new address as its configured V2 deployment.
 
@@ -28,7 +28,7 @@ The existing module guard deployment reads the original V2 address. It does not 
 
 Sepolia only: [0x108ea016F84d9817364b65Df6A133afe9CA33855](https://sepolia.etherscan.io/address/0x108ea016F84d9817364b65Df6A133afe9CA33855). Creation [0x8d274c070f3a387e3c473be449a516eb6bc22342f64ec88bc60714969e744018](https://sepolia.etherscan.io/tx/0x8d274c070f3a387e3c473be449a516eb6bc22342f64ec88bc60714969e744018), block 12077102. Sourcify exact creation/runtime match **58635387**, job 9893b169-ae6c-40b6-8402-18756131b2a3. [Public deployment record](deployments/governance-sepolia.json). Runtime hash: 0x9eab6ac2ce5b53c3511bea1386007fb8e4cffef52beec24ee2d09db8786b5f58.
 
-Only the existing Sepolia testnet key/balance paid deployment gas. No funds or tGLM were transferred, and no Safe was installed/configured live. The original deployment command reported an RPC-stage failure after broadcast. Read-only nonce/runtime/block/receipt checks recovered the already mined creation; no duplicate deployment was sent. The source match was then obtained through Sourcify's official v2 API.
+Only the existing Sepolia testnet key/balance paid deployment gas. No funds or tGLM were transferred, and no Safe was installed/configured live. The original deployment command reported failure after broadcast; the original failing step was not captured. Read-only nonce/runtime/block/receipt checks recovered the already mined creation; no duplicate deployment was sent. The source match was then obtained through Sourcify's official v2 API.
 
 From contracts, with existing testnet settings in ignored root .env:
 
@@ -50,3 +50,5 @@ This is a narrow resemblance rule, not proof of owner identity or module behavio
 All existing [V2 payment/first-use/EVM-success limits](README_V2.md#honest-limits) apply. Recognized EVM-successful token-shaped execution does not prove token receipt. Owners can remove this guard and change lists. The governance tests use real Safe 1.4.1 locally; no live governance operation or human wallet flow is claimed. The contract is a testnet prototype without an external audit.
 
 Official sources read before implementation: [Safe 1.4.1 OwnerManager](https://github.com/safe-global/safe-smart-account/blob/v1.4.1/contracts/base/OwnerManager.sol), [ModuleManager](https://github.com/safe-global/safe-smart-account/blob/v1.4.1/contracts/base/ModuleManager.sol), [GuardManager](https://github.com/safe-global/safe-smart-account/blob/v1.4.1/contracts/base/GuardManager.sol).
+
+Validation: npx hardhat test returned 68 passing locally. The exact recursive workspace test/build commands passed in [CI 42233393884](https://github.com/Deven1305/hexfence/actions/runs/42233393884), after local Windows spawn EPERM blocked them. The additional [Pages run 42233404026](https://github.com/Deven1305/hexfence/actions/runs/42233404026) passed the v1 scripted payment regression and actual-data visual checks. Non-Sepolia deployment was refused with exit 1; a fresh Sepolia read confirmed receipt status 1, exact compiled runtime and Guard interface support.
