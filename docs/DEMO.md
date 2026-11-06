@@ -18,10 +18,9 @@
 - [ ] Removal drill hashes open (`setGuard(0)`, then re-enable)
 - [ ] Do one full rehearsal. Each L payment costs Sepolia gas, even when it reverts
 
-**Route validation limits:** Nox start-up took about **9 seconds** in one browser
-check and more than 20 seconds (not timed) in another; neither is a hosted
-benchmark. **Hosted Nox and Guard or payee reads through Nox are untested.** The
-one bootstrap read is direct, Arkiv bulk reads are direct, and signing and
+**Route validation limits:** Guard and payee reads through Nox worked on the
+hosted site. Nox start-up took 26–38 seconds in hosted browser runs and timed out at 60 seconds during a network outage; these are single observations, not benchmarks.
+The one bootstrap read is direct, Arkiv bulk reads are direct, and signing and
 sending still go through the wallet. State the route actually shown on screen.
 
 ## Part 1: real evidence (about 35 seconds)

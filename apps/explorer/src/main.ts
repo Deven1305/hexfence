@@ -64,7 +64,7 @@ if (!isAddress(publisherEnv, { strict: false })) {
     if (!ownChecked) return;
     const matches = checkOwnAddress(downloaded, ownInput.value);
     ownResult.textContent = matches === null ? "Enter an Ethereum address." :
-      `${matches.length} suspected records mention this address among ${downloaded.length} downloaded records. ` +
+      `${matches.length} suspected ${matches.length === 1 ? "record mentions" : "records mention"} this address among ${downloaded.length} downloaded records. ` +
       (matches.length === 0 ? "No match does not show an address is harmless. " : "A match can be in the lookalike, impersonated or victim role. ") +
       (complete ? "Bulk loading complete." : "Bulk loading is incomplete; results may change as pages arrive.");
   }
@@ -74,7 +74,7 @@ if (!isAddress(publisherEnv, { strict: false })) {
     if (replace || search) results.replaceChildren(...records.map((e) => recordCard(e, rpcUrl)));
     else results.append(...added.map((e) => recordCard(e, rpcUrl)));
     searchStatus.textContent = search ?
-      `${records.length} suspected records mention ${search} among downloaded records. ` +
+      `${records.length} suspected ${records.length === 1 ? "record mentions" : "records mention"} ${search} among downloaded records. ` +
       (complete ? "" : "More pages are still loading. ") +
       "No match does not show an address is harmless." : "";
   }

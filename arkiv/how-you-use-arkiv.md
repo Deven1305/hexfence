@@ -6,11 +6,11 @@ Answers for [Build on Arkiv (from scratch)](https://ethglobal.com/events/mumbai/
 
 | Design | Fit and user-visible result |
 |---|---|
-| Indexed lookalike, impersonated, victim | Explorer searches all three addresses using findEvidenceByAddress. Pay never uses this search: it bulk-reads and matches locally. |
+| Indexed lookalike, impersonated, victim | The fields stay indexed for other readers (`findEvidenceByAddress`, schema). Neither of our apps queries them today: explorer and Pay bulk-read and match addresses locally, so an address is not sent to the RPC. |
 | Schema tag and createdBy(publisher) | Readers choose whose claims to display; another writer's same-schema entities do not silently enter the dataset. |
 | Indexed variant | Explorer totals distinguish zero-value from dust. Live: 125 = 124 zero-value + 1 dust. |
 | Stable evidenceId | Writer bulk-reads existing IDs and skips them. Rerun: 0 created, 125 already present; no duplicate cards from that run. |
-| Key ordering, at most 100 rows/page | Explorer renders one page then Load more; hosted browser loaded all 125. Pay walks all pages before comparing locally. |
+| Key ordering, at most 100 rows/page | Explorer walks all pages automatically and shows progress; the hosted browser reached 125 of 125. Pay walks all pages before comparing locally. |
 | Wallet ownership | Publisher 0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec owns its records. Network rules restrict mutations to the owner; our app exposes no editor, and the writer creates records rather than editing claims. Attribution does not establish truth. |
 | ExpirationTime.fromDays(30) | Old warnings age out instead of accumulating forever. Configured in the writer; a full 30-day cycle has not elapsed in our test. |
 | executeBatch of 25 creates | Additional 100 records used four transactions; explorer then showed 125. Batching bounds write cost/flow, not verdict severity. |
@@ -19,7 +19,7 @@ The complete indexed/plain split is in [schema.md](schema.md) and [schema.ts](..
 
 ## Does each feature change something users see?
 
-The table maps each used Arkiv feature to a visible result and its limits. Explorer counts, search, cards and pagination read Rabdi. Pay reads bulk evidence for an exact-address signal. Its Guard/payee reads are Sepolia contract reads; the Guard never queries Arkiv. Synthetic L is not published as evidence and receives only the resemblance warning.
+The table maps each used Arkiv feature to a visible result and its limits. Explorer counts, views, cards and pagination read Rabdi; its address search and check run on those downloaded records. Pay reads bulk evidence for an exact-address signal. Its Guard/payee reads are Sepolia contract reads; the Guard never queries Arkiv. Synthetic L is not published as evidence and receives only the resemblance warning.
 
 Rows are validated with PoisoningEvidenceSchema before use; status is always **suspected**. Verify on Ethereum fetches both referenced mainnet receipts and checks the token transfer pattern. The live first-record check passed; it neither changes status nor proves malicious intent.
 
