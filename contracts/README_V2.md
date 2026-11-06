@@ -32,6 +32,10 @@ Use only an existing testnet key and existing balance in the ignored root `.env`
 
 A positive-value Sepolia P-then-L payment demonstration needs a human to fund this isolated Safe and authorize its payments. Under this session's no-fund-transfer boundary, that demonstration is not executed by the agent. The positive-value flow is covered locally against real Safe contracts. Do not present the setup/removal transactions as a P-then-L payment demonstration or as a human wallet test.
 
+Human command after funding the isolated Safe with at least two Sepolia wei: `node scripts/demo-v2-payments.js 0x4E185e251Ac7fB83E9DE10723EAda46cadE74120 0x4E185a3FC4B530244aB9ed0dE38167b403344120`. This sends one wei to P and broadcasts a forced-gas L transaction expected to revert; it requires a fresh empty list and records actual receipts only. The script is provided but has not been run by the agent.
+
+Recorded Sepolia preparation: V2 [0x0adF080DE3DA9D672fDc7330B8750a0579A698c7](https://sepolia.etherscan.io/address/0x0adF080DE3DA9D672fDc7330B8750a0579A698c7), [deployment](https://sepolia.etherscan.io/tx/0xbafcc10e3e4008adc5281495ad39985f6d6d82d8507f4b6aad89be69de8bc14e), Sourcify exact creation/runtime match **58609655**. New isolated Safe [0x5142C7E9DE82726CaCb847c5469D460508738214](https://sepolia.etherscan.io/address/0x5142C7E9DE82726CaCb847c5469D460508738214) is 1-of-1, version 1.4.1, learning enabled, recipient list empty and balance zero at setup. [Removal](https://sepolia.etherscan.io/tx/0x267d7fb1721c2c2c909ace707aeb77d7da75bd13b0e9bf638e6d381277dfd500) and [restoration](https://sepolia.etherscan.io/tx/0xa7a4afc8a75465d612c4615ec5acdd582d773dd18ed48898f0643d11142b330b) succeeded. These are scripted setup results, not a human wallet test.
+
 ## Honest limits
 
 - Trust on first use: an initial mistaken recipient can become the holder. Learning starts when enabled; it does not import earlier on-chain history.
