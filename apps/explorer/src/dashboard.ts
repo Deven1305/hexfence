@@ -53,6 +53,5 @@ export function renderDashboard(records: readonly PoisoningEvidence[]): HTMLElem
     el("p", undefined, `${data.total} suspected records, computed in your browser.`),
     bars("By variant", [...data.variants]),
     bars("By token", [...data.tokens].map(([token, n]) => [tokenName(token), n])),
-    bars("Records over time · Ethereum attack blocks", data.timeline.map((b) => [`${b.from}–${b.to}`, b.count])),
-    el("p", "dashboard-note", "Ordered by Ethereum block, oldest to newest."));
+    el("p", "dashboard-note", "Counts are computed from downloaded publisher records."));
 }

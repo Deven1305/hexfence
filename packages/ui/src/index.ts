@@ -48,7 +48,7 @@ export function SafeHeader(address: Address, detail: string): HTMLElement {
 }
 export function VerdictCard(level: string): HTMLElement { const p = document.createElement("div"); p.className = `verdict ${level}`; p.setAttribute("role", "status"); return p; }
 export function RadarBanner(text: string): HTMLElement { const p = document.createElement("aside"); p.className = "hf-radar"; p.setAttribute("role", "status"); p.textContent = text; return p; }
-export function DataTable(headers: string[], rows: (string | Node)[][], details: Node[] = []): HTMLElement {
+export function DataTable(headers: string[], rows: (string | Node)[][], details: Node[] = [], detailLabel = "X-Ray"): HTMLElement {
   const wrap = document.createElement("div"); wrap.className = "hf-table-wrap";
   const table = document.createElement("table"); table.className = "hf-table";
   const head = table.createTHead().insertRow(); for (const label of headers) { const th = document.createElement("th"); th.scope = "col"; th.textContent = label; head.append(th); }
@@ -57,7 +57,7 @@ export function DataTable(headers: string[], rows: (string | Node)[][], details:
     const tr = body.insertRow(); for (const value of row) tr.insertCell().append(value);
     const detail = details[i];
     if (detail) {
-      const button = document.createElement("button"); button.type = "button"; button.textContent = "X-Ray"; button.setAttribute("aria-expanded", "false");
+      const button = document.createElement("button"); button.type = "button"; button.textContent = detailLabel; button.setAttribute("aria-expanded", "false");
       tr.insertCell().append(button);
       const expansion = body.insertRow(); expansion.hidden = true;
       const cell = expansion.insertCell(); cell.colSpan = headers.length + 1;

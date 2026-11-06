@@ -142,8 +142,8 @@
 | ID | Status | Commit | Notes | Next step |
 |---|---|---|---|---|
 | A3 | ✔ Merged [PR #28](https://github.com/Deven1305/hexfence/pull/28) | 73e8939 | Shared UI, live verdict, step navigation, deferred dependencies, expandable evidence rows and live landing counters. Final CI: 14 unchanged v1 contract tests, 173 workspace tests / 4 skips, builds and scripted-wallet regression passed. Initial Pay JavaScript including preloads: 309,603 bytes. All 12 captures at 375/1440 light/dark inspected. RadarBanner exported and unwired. | Complete; extension and remaining section 7 polish are separate rows below. |
-| A4 | In progress | feat/rescue-v0 | Loss fixtures green; schema, idempotent writer, local pack and explorer tools implemented. Real 7,200-block scan running; no publication claimed. | Finish tests, scan/publication, UI checks and PR. |
-| B2 | Todo | ? | Campaign grouping, timestamp axis and match-length comparison. | After A4. |
+| A4 | ✔ Merged [PR #36](https://github.com/Deven1305/hexfence/pull/36) | 5c60874 | Completed real 7,200-block scan and call-shape check: one supported suspected case, 303.635007 USDT, USDC 0. Raw automated flows excluded; initial entities withdrawn with audit trail. Supported Arkiv create and zero-write live repeat passed. CI: 32 contracts, 220 workspace / 3 skips, builds, actual receipt/calldata checks, pack SHA-256, exactly one balanceOf and 16 inspected captures. | Complete. Human reviews any pack before contacting an issuer/exchange/authority; the app sends nothing. |
+| B2 | In progress | feat/campaigns-time | Grouping by transaction, distinct mentioned-victim counts, exact UTC-hour binning from real block timestamps, and explicit random-middle match model. Six fixtures pass. | Full checks, live chart captures and PR. |
 | Extension UI | Todo | ? | Use AddressXray/VerdictCard in review window. | After B2. |
 | UI polish | Todo | ? | Complete section 7 refinements within freeze. | After extension. |
 
@@ -166,3 +166,5 @@
 - 06 Nov 15:07 IST: Published the supported 303.635007 USDT case as hexfence.loss.v1 using existing publisher funds: Rabdi tx 0x899bc5466cc62545cbfd69478a587605f412dbb0af51e63882e5e32fdbb3923e. Initial raw candidates remain withdrawn. Next: live idempotence probe, full CI and Losses captures before merging A4.
 
 - 06 Nov 15:10 IST: Supported record publication succeeded (1 created, tx 0x899bc5466cc62545cbfd69478a587605f412dbb0af51e63882e5e32fdbb3923e). Live repeat returned 0 created / 1 already present / 0 transactions, proving idempotence. The generated manifest retains the original publication receipt and initial retraction. Final CI, real receipt/balance/download checks and mobile/dark screenshots remain before merge.
+
+- 06 Nov 15:31 IST: A4 merged after both build checks passed and 16 screenshots were inspected. B2 implements local campaign grouping, actual per-block timestamps for exact UTC-hour counts (no interpolation), and observed address matches versus an explicit independent-uniform middle-digit model. Counts are scoped to downloaded publisher records. Six new fixtures pass; real chart capture pending.
