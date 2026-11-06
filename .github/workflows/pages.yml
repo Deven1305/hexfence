@@ -6,6 +6,7 @@ on:
     paths:
       - 'apps/explorer/**'
       - 'apps/pay/**'
+      - 'apps/site/**'
       - 'packages/**'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
@@ -16,6 +17,7 @@ on:
     paths:
       - 'apps/explorer/**'
       - 'apps/pay/**'
+      - 'apps/site/**'
       - 'packages/**'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
@@ -75,13 +77,7 @@ jobs:
           cp -R apps/explorer/dist/. _site/explorer/
           cp -R apps/pay/dist/. _site/pay/
           touch _site/.nojekyll
-          cat > _site/index.html <<'HTML'
-          <!doctype html>
-          <html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-          <title>HexFence</title><h1>HexFence</h1>
-          <p><a href="./explorer/">Evidence explorer</a></p>
-          <p><a href="./pay/">HexFence Pay (Sepolia)</a></p></html>
-          HTML
+          cp -R apps/site/. _site/
       - uses: actions/upload-pages-artifact@v4
         with:
           path: _site
