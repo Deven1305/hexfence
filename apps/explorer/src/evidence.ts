@@ -1,24 +1,12 @@
-import { asc, eq, gt } from "@arkiv-network/sdk/query";
+import { asc, gt } from "@arkiv-network/sdk/query";
 import { key } from "@arkiv-network/sdk/schema";
 import { fromArkivRow, PAGE_SIZE, PoisoningSchema, type ArkivReadClient } from "@hexfence/arkiv";
 import type { PoisoningEvidence } from "@hexfence/shared";
 import type { Address, Hex } from "viem";
 
-export interface VariantCounts {
-  zeroValue: bigint;
-  dust: bigint;
-}
-
-/** Counted by the node, so the explorer never downloads every record to show the totals. */
-export async function countByVariant(client: ArkivReadClient, publisher: Address): Promise<VariantCounts> {
-  const count = (variant: PoisoningEvidence["variant"]) =>
-    client.count().from(PoisoningSchema).createdBy(publisher).where(eq("variant", variant)).fetch();
-  const [zeroValue, dust] = await Promise.all([count("zero-value"), count("dust")]);
-  return { zeroValue, dust };
-}
-
 export interface EvidencePage {
   records: PoisoningEvidence[];
+  total: bigint;
   /** Pass to the next call; undefined when this was the last page. */
   nextKey: Hex | undefined;
 }
@@ -36,10 +24,12 @@ export async function fetchEvidencePage(
     .orderBy(asc("$key"))
     .limit(PAGE_SIZE);
   if (afterKey) q = q.where(gt("$key", key(afterKey)));
+  // Count the full publisher query, not the remaining-key filter on later pages.
+  const total = await client.count().from(PoisoningSchema).createdBy(publisher).fetch();
   const page = await q.fetch();
   const records = page.entities
     .map((row) => fromArkivRow(row as unknown as Record<string, unknown>))
     .filter((e): e is PoisoningEvidence => e !== null);
   const tail = page.entities.at(-1);
-  return { records, nextKey: page.entities.length === PAGE_SIZE && tail ? (tail.$key as Hex) : undefined };
+  return { records, total, nextKey: page.entities.length === PAGE_SIZE && tail ? (tail.$key as Hex) : undefined };
 }

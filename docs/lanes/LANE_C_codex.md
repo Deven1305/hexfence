@@ -102,3 +102,4 @@ After H5/S4: set `VITE_ARKIV_PUBLISHER`, run `pnpm --filter @hexfence/explorer d
 | 06 Nov 02:31 | T7 | ✔ README, four Arkiv files, AI_USAGE; only human-produced values left open | 03804f5 |
 | 06 Nov 02:31 | Demo | ✔ docs/DEMO.md; timings shortened so the video fits 3:00 | 393ad20 |
 | 06 Nov 02:31 | T9 | ✔ Verify on Ethereum: 24 tests on real saved receipts; live ✓ and could-not-verify checked in the browser | e3db3e0 |
+| 06 Nov (feat/live-evidence) | Scheduled publisher + explorer views | Implemented bounded scheduled publication, automatic bulk paging, local views/search/address checks and focused tests. No commit per organiser instruction. Test startup blocked by Node spawn EPERM; no workaround. Details and human setup: docs/LIVE_EVIDENCE.md. | uncommitted for organiser review |

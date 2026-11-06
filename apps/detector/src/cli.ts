@@ -12,7 +12,7 @@
 // detect and publish read the repo-root .env (or the environment).
 import { parseArgs } from "node:util";
 import { arkivReadClient, publishEvidence } from "@hexfence/arkiv";
-import { formatEther, isHex } from "viem";
+import { formatEther, isHex, parseEther } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { PoisoningDetector } from "./detect.js";
 import { fetchTransferLogs, mainnetClient } from "./fetch.js";
@@ -33,6 +33,7 @@ const { positionals, values } = parseArgs({
     sheet: { type: "string", default: "labels/h9-sample.csv" },
     evidence: { type: "string", default: "labels/h9-evidence.md" },
     rpc: { type: "string", default: "https://ethereum-rpc.publicnode.com" },
+    scheduled: { type: "boolean", default: false },
   },
 });
 
@@ -96,30 +97,42 @@ async function runPublish(): Promise<void> {
   const accessKey = process.env.ARKIV_ACCESS_KEY;
 
   const all = readEvidence(values.out);
-  // --limit N publishes only the N most recent attacks (and says so); without it, everything.
+  // Manual --limit selects before deduplication for compatibility. Scheduled runs
+  // pass all recent candidates; the writer caps NEW records after deduplication.
   const records =
-    values.limit === undefined
+    values.scheduled
+      ? [...all].sort((a, b) => b.attackBlock - a.attackBlock)
+      : values.limit === undefined
       ? all
       : [...all].sort((a, b) => b.attackBlock - a.attackBlock).slice(0, positiveInt(values.limit, "--limit"));
   const publisher = privateKeyToAccount(privateKey).address; // the public address only; the key is never printed
-  console.error(`publisher ${publisher}: publishing ${records.length} of ${all.length} records from ${values.out}`);
+  console.error(`publisher ${publisher}: considering ${records.length} of ${all.length} records from ${values.out}`);
 
   // Fail early with a clear message: an unfunded publisher otherwise gets a vague "execution error".
   const reader = arkivReadClient(accessKey ? { accessKey } : {});
   const balance = await reader.getBalance({ address: publisher });
   console.error(`publisher balance: ${formatEther(balance)} tGLM`);
-  if (balance === 0n) throw new Error(`publisher ${publisher} has no tGLM: fund it at https://hub.arkiv.network/faucet`);
+  if (balance === 0n) {
+    console.log("Publisher has no tGLM; nothing written. Fund the Rabdi publisher before publishing.");
+    return;
+  }
 
   const report = await publishEvidence(
     {
       privateKey,
       ...(accessKey ? { accessKey } : {}),
       batchSize: positiveInt(values.batch, "--batch"),
+      ...(values.scheduled ? {
+        maxRecords: positiveInt(process.env.PUBLISH_MAX_RECORDS || "10", "PUBLISH_MAX_RECORDS"),
+        // Above the measured 0.00047 tGLM single-record upper bound; not a price prediction.
+        budget: { perRecord: parseEther("0.001"), reserve: parseEther("0.005") },
+      } : {}),
       onBatch: (done, total, txHash) => console.error(`  ${done}/${total} created (tx ${txHash})`),
     },
     records,
     reader,
   );
+  if (report.stoppedForFunds) console.log("Stopped cleanly: publisher funds are below the funding allowance. No further writes attempted.");
   console.log(
     `publisher ${report.publisher}: ${report.created} created, ${report.alreadyThere} already on Arkiv, ${report.txHashes.length} transactions`,
   );
@@ -141,11 +154,12 @@ function runPrecision(): void {
 
 function positiveInt(s: string, name: string): number {
   const n = Number(s);
-  if (!Number.isInteger(n) || n <= 0) throw new Error(`${name} must be a positive integer`);
+  if (!Number.isSafeInteger(n) || n <= 0) throw new Error(`${name} must be a positive integer`);
   return n;
 }
 
 main().catch((e: unknown) => {
-  console.error(e instanceof Error ? e.message : e);
+  // RPC errors may include request URLs or signed transaction details.
+  console.error(values.scheduled ? "Scheduled publication failed; no automatic retry. Check configuration, RPC availability and publisher funds." : e instanceof Error ? e.message : e);
   process.exit(1);
 });
