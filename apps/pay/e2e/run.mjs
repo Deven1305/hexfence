@@ -110,7 +110,7 @@ try {
       if (!id.replaceAll('\\', '/').endsWith('/apps/pay/src/main.ts')) return;
       return code + `\nwindow.addEventListener('e2e:call', (event) => {
         const call = { ...event.detail, value: BigInt(event.detail.value) };
-        const verdict = verdictFor(decodeSafeCall(call, { safe: state.info.address, guard: state.config.guard }), state.info.payees);
+        const verdict = paymentVerdict(call, state.info, state.config.guard);
         const out = document.createElement('div'); app.append(out);
         renderVerdict(out, verdict, call.to, call);
       });`;
