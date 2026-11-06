@@ -174,3 +174,11 @@
 | JUDGE | ✔ | [PR #37](https://github.com/Deven1305/hexfence/pull/37), full CI build passed (42200235106). CHAINLINK, requirement tables, README/privacy, submission, 3:00 demo/Q&A and all Arkiv criterion files checked against main 59201da. Fresh public query: 173 unique suspected records. CRE runtime, human reviews/video, adoption and maintenance gaps remain explicit. A4 #36 merged during review and is separately documented; next is B7 after this PR merges. |
 
 Decision (06 Nov, Codex 2): official Arkiv str limit is 128 UTF-8 bytes. The merged B7 prototype's 5,601-byte checksum manifest exceeds it; a 129-byte value was rejected by the pinned SDK. Report the gap and fix it in the ordered B7 follow-up. Key pagination does not promise an atomic snapshot under concurrent publication.
+
+## Codex 2 B7 follow-up
+
+| ID | Status | Evidence / next step |
+|---|---|---|
+| B7 | In progress | Fixed release manifest str overflow with bounded bytes and digest validation, tested idempotence/conflict handling. gh provenance check succeeded under exact signer/main/commit/hosted-runner policy using a writable Sigstore cache; actual JSON committed. No live Arkiv release write: CI explicitly skipped for missing publisher secret. Full checks and PR merge next. |
+
+Waiting on humans: optional release publication requires an existing testnet publisher secret and existing balance, configured by a human. Follow docs/ATTESTATIONS.md; inspect the real receipt. The agent neither adds the secret nor spends tGLM.

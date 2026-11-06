@@ -64,3 +64,7 @@ The ID deliberately excludes victim and attack transaction: one representative c
 ## Separate release-record prototype
 
 `hexfence.release.v1` in [release.ts](../packages/arkiv/src/release.ts) indexes commit and manifest hash, stores SHA256SUMS and requests 90-day expiry. At the research checkpoint it stores a 5,601-byte manifest in `str`, exceeding the official 128 UTF-8 byte limit. No live release record or user-facing reader is proved. This is a gap, not evidence that the poisoning writer failed. See [readiness](../docs/JUDGE_READINESS.md) for subsequent separately evidenced fixes.
+
+## B7 follow-up: tested bytes representation
+
+The later release encoder fixes the manifest field to bytes, with a 64 KiB cap and digest validation before network access. Indexed commit/hash and 90-day expiry are unchanged. No old-row migration, live write or browser reader is claimed. [Provenance evidence, limits and human publication steps](../docs/ATTESTATIONS.md).

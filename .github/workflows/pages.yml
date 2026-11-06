@@ -113,6 +113,23 @@ jobs:
         uses: actions/attest@v4
         with:
           subject-checksums: SHA256SUMS.txt
+      - name: Verify Pay build provenance
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          gh attestation verify _site/pay/index.html \
+            --repo "$GITHUB_REPOSITORY" \
+            --signer-workflow "$GITHUB_REPOSITORY/.github/workflows/pages.yml" \
+            --source-ref refs/heads/main --source-digest "$GITHUB_SHA" \
+            --deny-self-hosted-runners --format json > pay-provenance.json
+      - name: Keep provenance verification result
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: pay-provenance
+          path: pay-provenance.json
       - name: Keep the checksum list for the release record
         uses: actions/upload-artifact@v4
         with:

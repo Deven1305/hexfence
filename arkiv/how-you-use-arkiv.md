@@ -52,3 +52,5 @@ Off-Arkiv choices: [why-arkiv.md](why-arkiv.md). Measured reach: [reach.md](reac
 | V2 learned recipients / Sentinel alerts | Sepolia contracts, not Arkiv records. Neither Guard depends on Arkiv. |
 
 Key continuation is not a fixed-block atomic snapshot during concurrent writes. Pair IDs exclude victim/transaction, so records preserve representative context, not every incident. Human precision is unestablished; AI-assigned labels are not a human result. See the [partner requirement table](../docs/JUDGE_READINESS.md) for all remaining gaps.
+
+B7 update: the release manifest now uses tested bytes encoding. [GitHub provenance verification](../docs/ATTESTATIONS.md) succeeded for a historical public Pay index with exact workflow/ref/commit policy. Live Arkiv release publication is still absent; the configured CI job skipped for a missing secret. This does not change the poisoning or loss publication observations.
