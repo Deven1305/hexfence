@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { ethers } from '../../../contracts/node_modules/ethers/lib.esm/index.js';
 const f = JSON.parse(readFileSync(new URL('.fixture.json', import.meta.url), 'utf8'));
-const rpc = new ethers.JsonRpcProvider('http://127.0.0.1:18545');
+const rpc = new ethers.JsonRpcProvider('http://127.0.0.1:18545', undefined, { cacheTimeout: -1 }); // ethers caches repeat reads for 250 ms; a local payment can finish faster than that.
 
 test('built Pay: real Safe 1.4.1, Guard, P/B success, L mined revert and bulk reads', async ({ page }) => {
   // Hold the real bootstrap request until the user-facing skip button has been used.
