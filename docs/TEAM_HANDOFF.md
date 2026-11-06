@@ -20,7 +20,7 @@ The detector reads Ethereum mainnet USDT and USDC logs and publishes suspected a
 
 URLs are case-sensitive (`/Pay/` is a 404). Pages deploys from `main` through `.github/workflows/pages.yml`. Hard-refresh if you see an old page.
 
-Recorded counts: 1,126 suspected evidence records and 1 suspected loss record (reported read: 6 Nov 2026 16:28 UTC). In the earlier headless Chrome check on 6 Nov at about 18:00 IST, Pay on the demo Safe reached "Nox reads active", "v1.4.1 · 1/2 · Guard active" and "Sentinel simulation: no alerts returned for this Safe", and gave the synthetic L a RED "Possible address poisoning" verdict. No console errors on any of the three pages in that earlier check.
+Recorded counts: 1,126 suspected evidence records and 1 suspected loss record (read 6 Nov 2026 16:28 UTC). In the earlier headless Chrome check on 6 Nov at about 18:00 IST, Pay on the demo Safe reached "Nox reads active", "v1.4.1 · 1/2 · Guard active" and "Sentinel simulation: no alerts returned for this Safe", and gave the synthetic L a RED "Possible address poisoning" verdict. No console errors on any of the three pages in that earlier check.
 
 ## What is on main
 
