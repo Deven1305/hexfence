@@ -106,29 +106,30 @@ describe("EvidenceBloomFilter", () => {
 describe("checkRecipientOffline", () => {
   const filter = EvidenceBloomFilter.fromAddresses([USDT]);
 
-  it("returns GREEN approved for payee", () => {
+  it("returns GREEN approved for an approved payee", () => {
     const res = checkRecipientOffline(P_DEMO, [P_DEMO], filter);
-    expect(res).toEqual({ level: "GREEN", reason: "approved", recipient: P_DEMO });
+    expect(res.verdict).toEqual({ level: "GREEN", reason: "approved", recipient: P_DEMO });
   });
 
-  it("returns RED listed for address in evidence filter", () => {
+  it("reports a filter hit as possibly listed without changing the verdict", () => {
     const res = checkRecipientOffline(USDT, [P_DEMO], filter);
-    expect(res).toEqual({ level: "RED", reason: "listed", recipient: USDT });
+    expect(res.possiblyListed).toBe(true);
+    expect(res.verdict).toEqual({ level: "AMBER", reason: "new", recipient: USDT });
   });
 
-  it("returns RED resembles for lookalike of approved payee", () => {
+  it("returns RED resembles for a lookalike of an approved payee", () => {
     const res = checkRecipientOffline(L_DEMO, [P_DEMO], filter);
-    expect(res).toEqual({ level: "RED", reason: "resembles", recipient: L_DEMO, payee: P_DEMO });
+    expect(res.verdict).toEqual({ level: "RED", reason: "resembles", recipient: L_DEMO, payee: P_DEMO });
   });
 
-  it("returns AMBER new for unlisted new recipient", () => {
+  it("returns AMBER new and no hit for an unlisted new recipient", () => {
     const res = checkRecipientOffline(USDC, [P_DEMO], filter);
-    expect(res).toEqual({ level: "AMBER", reason: "new", recipient: USDC });
+    expect(res).toEqual({ verdict: { level: "AMBER", reason: "new", recipient: USDC }, possiblyListed: false });
   });
 
-  it("prioritizes approved payee over listed evidence", () => {
-    // If a recipient is in approvedPayees AND in the evidence filter, approved takes precedence
+  it("keeps an approved payee GREEN and still reports the filter hit", () => {
     const res = checkRecipientOffline(USDT, [USDT], filter);
-    expect(res.level).toBe("GREEN");
+    expect(res.verdict.level).toBe("GREEN");
+    expect(res.possiblyListed).toBe(true);
   });
 });

@@ -18,7 +18,7 @@ export interface HexfenceCheckResult {
 /**
  * Check a recipient against approved payees using @hexfence/shared verdictFor.
  * Returns exact Verdict object.
- * When recipient is invalid or cannot be verified, returns GREY unsupported.
+ * When the recipient or any approved payee is malformed, returns GREY unsupported.
  * It will NEVER say a recipient is cleared when it cannot verify.
  */
 export function checkRecipient(recipient: string, approvedPayees: string[]): Verdict {
@@ -27,14 +27,11 @@ export function checkRecipient(recipient: string, approvedPayees: string[]): Ver
   }
 
   const cleanRecipient = checksum(recipient);
-  const validPayees: Address[] = [];
-  if (Array.isArray(approvedPayees)) {
-    for (const p of approvedPayees) {
-      if (p && typeof p === "string" && isAddress(p, { strict: false })) {
-        validPayees.push(checksum(p));
-      }
-    }
+  // A malformed payee could be the one this recipient resembles, so it cannot be skipped.
+  if (!Array.isArray(approvedPayees) || approvedPayees.some((p) => typeof p !== "string" || !isAddress(p, { strict: false }))) {
+    return { level: "GREY", reason: "unsupported" };
   }
+  const validPayees: Address[] = approvedPayees.map((p) => checksum(p));
 
   const payment: DecodedPayment = {
     kind: "eth",
@@ -76,7 +73,7 @@ export function createHexfenceMcpServer(): McpServer {
 
   server.tool(
     "hexfence_check",
-    "Check a recipient address against approved payees to detect address-poisoning lookalikes. Reverts on-chain if a lookalike shares the first 4 and last 4 hex characters.",
+    "Compare a recipient address with a list of approved payees. Returns RED when it is a different address sharing the first 4 and last 4 hex characters of an approved payee. This is an offline comparison: it reads no chain data and sends nothing.",
     {
       recipient: z.string().describe("Candidate recipient Ethereum address"),
       approvedPayees: z.array(z.string()).describe("List of approved payee Ethereum addresses"),

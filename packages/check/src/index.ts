@@ -22,39 +22,31 @@ export {
 } from "./bloom.js";
 
 import type { Address } from "viem";
-import { fingerprint, sameAddress } from "@hexfence/shared";
+import { verdictFor, type Verdict } from "@hexfence/shared";
 import type { EvidenceBloomFilter } from "./bloom.js";
 
-export type SimpleCheckVerdict =
-  | { level: "GREEN"; reason: "approved"; recipient: Address }
-  | { level: "RED"; reason: "listed"; recipient: Address }
-  | { level: "RED"; reason: "resembles"; recipient: Address; payee: Address }
-  | { level: "AMBER"; reason: "new"; recipient: Address };
+export type OfflineCheck = {
+  /** The same verdict as @hexfence/shared. A filter hit never changes it. */
+  verdict: Verdict;
+  /**
+   * True when the filter may contain this address. A filter can return false
+   * positives, so this means "possibly listed" and needs the full evidence
+   * set to confirm. False means it is not in the set the filter was built from.
+   */
+  possiblyListed: boolean;
+};
 
 /**
- * Pure offline check of a candidate recipient address against approved payees
- * and an optional offline evidence bloom filter.
- *
- * Runs completely locally with zero network calls.
+ * Check a recipient against approved payees and an optional evidence filter.
+ * Runs locally with zero network calls.
  */
 export function checkRecipientOffline(
   recipient: Address,
   approvedPayees: Address[],
   evidenceFilter?: EvidenceBloomFilter,
-): SimpleCheckVerdict {
-  if (approvedPayees.some((p) => sameAddress(p, recipient))) {
-    return { level: "GREEN", reason: "approved", recipient };
-  }
-
-  if (evidenceFilter && evidenceFilter.has(recipient)) {
-    return { level: "RED", reason: "listed", recipient };
-  }
-
-  const fp = fingerprint(recipient);
-  const resembles = approvedPayees.find((p) => fingerprint(p) === fp);
-  if (resembles) {
-    return { level: "RED", reason: "resembles", recipient, payee: resembles };
-  }
-
-  return { level: "AMBER", reason: "new", recipient };
+): OfflineCheck {
+  return {
+    verdict: verdictFor({ kind: "eth", recipient, amount: 0n }, approvedPayees),
+    possiblyListed: evidenceFilter?.has(recipient) ?? false,
+  };
 }

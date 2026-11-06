@@ -104,16 +104,13 @@ describe("hexfenceCheckHandler", () => {
     });
   });
 
-  it("filters out invalid addresses in approvedPayees and checks remaining valid ones", async () => {
+  it("returns GREY when any approved payee is malformed, even if the rest are valid", async () => {
     const result = await hexfenceCheckHandler({
       recipient: L_DEMO,
       approvedPayees: ["invalid-payee", P_DEMO],
     });
-
-    expect(result.verdict.level).toBe("RED");
-    if (result.verdict.level === "RED" && result.verdict.reason === "resembles") {
-      expect(result.verdict.payee).toBe(P_DEMO);
-    }
+    expect(result.verdict).toEqual({ level: "GREY", reason: "unsupported" });
+    expect(result.isError).toBe(true);
   });
 });
 

@@ -72,7 +72,7 @@ export class EvidenceBloomFilter {
   }
 
   /**
-   * Check if an address is suspected to be in the evidence set.
+   * Check if an address may be in the set. True can be a false positive.
    * Runs completely offline with no network calls.
    * Zero false negatives: if address was added, always returns true.
    */
