@@ -1,4 +1,5 @@
-import Safe from "@safe-global/protocol-kit";
+import type Safe from "@safe-global/protocol-kit";
+const protocolKit = () => import("@safe-global/protocol-kit");
 import { getAddress, isAddressEqual, zeroAddress, type Address, type EIP1193Provider } from "viem";
 import { hexFenceGuardAbi } from "@hexfence/shared";
 import type { ReadClient } from "./rpc";
@@ -18,6 +19,7 @@ export interface SafeInfo {
 
 /** `provider` is the composite EIP-1193 provider from rpc.ts; `signer` is the connected owner address. No onchainAnalytics, no Transaction Service. */
 export async function openSafe(provider: EIP1193Provider, signer: Address, safeAddress: Address) {
+  const { default: Safe } = await protocolKit();
   return Safe.init({ provider: provider as never, signer, safeAddress });
 }
 
@@ -28,6 +30,7 @@ export async function openSafeReadOnly(reads: ReadClient, safeAddress: Address) 
     on: () => undefined,
     removeListener: () => undefined,
   } as unknown as EIP1193Provider;
+  const { default: Safe } = await protocolKit();
   return Safe.init({ provider: provider as never, safeAddress });
 }
 

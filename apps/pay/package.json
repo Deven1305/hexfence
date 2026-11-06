@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -p tsconfig.json && vite build",
-    "test": "vitest run --exclude e2e/**",
+    "test": "vitest run --exclude \"e2e/**\"",
     "test:e2e": "node e2e/run.mjs",
     "test:live": "node e2e/live.mjs"
   },
@@ -17,7 +17,8 @@
     "@hexfence/arkiv": "workspace:*",
     "@hexfence/shared": "workspace:*",
     "@safe-global/protocol-kit": "8.0.11",
-    "viem": "2.57.16"
+    "viem": "2.57.16",
+    "@hexfence/ui": "workspace:*"
   },
   "devDependencies": {
     "@playwright/test": "1.58.2",

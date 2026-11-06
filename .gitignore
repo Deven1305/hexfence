@@ -17,3 +17,8 @@ apps/detector/out/
 .DS_Store
 .vscode/
 .idea/
+
+# Local upgrade tooling and visual QA output
+.upgrade-git/
+.pnpm-store/
+artifacts/

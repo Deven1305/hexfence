@@ -44,6 +44,9 @@ importers:
       '@hexfence/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@hexfence/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       viem:
         specifier: 2.57.16
         version: 2.57.16(typescript@5.9.3)(zod@4.6.7)
@@ -91,6 +94,9 @@ importers:
       '@hexfence/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@hexfence/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@safe-global/protocol-kit':
         specifier: 8.0.11
         version: 8.0.11(typescript@5.9.3)(zod@4.6.7)
@@ -104,6 +110,28 @@ importers:
       '@types/node':
         specifier: ^22.20.5
         version: 22.20.5
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+      vite:
+        specifier: 8.3.6
+        version: 8.3.6(@types/node@22.20.5)(esbuild@0.28.2)(tsx@4.23.15)
+      vitest:
+        specifier: 4.1.12
+        version: 4.1.12(@types/node@22.20.5)(vite@8.3.6(@types/node@22.20.5)(esbuild@0.28.2)(tsx@4.23.15))
+
+  apps/site:
+    dependencies:
+      '@hexfence/arkiv':
+        specifier: workspace:*
+        version: link:../../packages/arkiv
+      '@hexfence/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      viem:
+        specifier: 2.57.16
+        version: 2.57.16(typescript@5.9.3)(zod@4.6.7)
+    devDependencies:
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -151,6 +179,25 @@ importers:
       '@types/node':
         specifier: ^22.20.5
         version: 22.20.5
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: 4.1.12
+        version: 4.1.12(@types/node@22.20.5)(vite@8.3.6(@types/node@22.20.5)(esbuild@0.28.2)(tsx@4.23.15))
+
+  packages/ui:
+    dependencies:
+      '@fontsource/inter':
+        specifier: 5.2.8
+        version: 5.2.8
+      '@fontsource/jetbrains-mono':
+        specifier: 5.2.8
+        version: 5.2.8
+      viem:
+        specifier: 2.57.16
+        version: 2.57.16(typescript@5.9.3)(zod@4.6.7)
+    devDependencies:
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -387,6 +434,12 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@fontsource/inter@5.2.8':
+    resolution: {integrity: sha512-P6r5WnJoKiNVV+zvW2xM13gNdFhAEpQ9dQJHt3naLvfg+LkF2ldgSLiF4T41lf1SQCM9QmkqPTn4TH568IRagg==}
+
+  '@fontsource/jetbrains-mono@5.2.8':
+    resolution: {integrity: sha512-6w8/SG4kqvIMu7xd7wt6x3idn1Qux3p9N62s6G3rfldOUYHpWcc2FKrqf+Vo44jRvqWj2oAtTHrZXEP23oSKwQ==}
 
   '@jridgewell/sourcemap-codec@1.6.0':
     resolution: {integrity: sha512-T7jf+5zgsZHwNJ4lvQ7/aezbyk0nNX+zJVWpmHA7VYsEx7a7qr5Rg5IbtJFqkgze5Y2sruq1RUY8Q837Od7iFw==}
@@ -1236,6 +1289,10 @@ snapshots:
 
   '@esbuild/win32-x64@0.28.2':
     optional: true
+
+  '@fontsource/inter@5.2.8': {}
+
+  '@fontsource/jetbrains-mono@5.2.8': {}
 
   '@jridgewell/sourcemap-codec@1.6.0': {}
 
