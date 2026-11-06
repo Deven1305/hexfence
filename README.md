@@ -106,7 +106,7 @@ npx hardhat test                 # 14 passing
 | Removal drill `setGuard(0)` / re-enable | `0x5edf08eb6489d78c13f0748283e43bab8c015c851d0d40e86b030dd6794ad8e0` / `0xd1c7db48a18647713c34384afc51b116888546dd837359eecad0938a5ebe9743` |
 | L payment (reverted) / B payment / P payment | `0xa43b0eeef7253281a741deca144e5ddf0c465da9cc6f48d54673a9aa9c0f6d8f` / `0x2455ca8f1ce612149f15e80325f372202bffeb0258f808bd84acfb1f904de5ca` / `0xea209e9e3c5a9eed080e95dd0ca752b79686400da820ea67b87f98552d2992df` |
 
-Decoded revert and Guard source: [reverted L payment](https://eth-sepolia.blockscout.com/tx/0xa43b0eeef7253281a741deca144e5ddf0c465da9cc6f48d54673a9aa9c0f6d8f) and [Guard source](https://eth-sepolia.blockscout.com/address/0xA061fB511D69e5c92E50E3BE5c789472d6f19748) on Sepolia Blockscout. The Guard is verified there, not on Etherscan.
+Decoded revert and Guard source: [reverted L payment](https://eth-sepolia.blockscout.com/tx/0xa43b0eeef7253281a741deca144e5ddf0c465da9cc6f48d54673a9aa9c0f6d8f) and [Guard source](https://eth-sepolia.blockscout.com/address/0xA061fB511D69e5c92E50E3BE5c789472d6f19748) on Sepolia Blockscout. The Guard source is also verified on [Etherscan](https://sepolia.etherscan.io/address/0xA061fB511D69e5c92E50E3BE5c789472d6f19748#code).
 
 ### Synthetic demo pair (not a real attack)
 `node contracts/scripts/make-lookalike-pair.js` finds two keys whose addresses share a fingerprint (a birthday search, usually 1–2 minutes). We use this ready-made pair **as recipients only**:
@@ -194,7 +194,7 @@ P=0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec pnpm exec tsx -e 'import("./src/ind
 - Only ETH, `transfer` and `transferFrom` are inspected; other calls are allowed and clients show "cannot verify".
 - A 4+4 fingerprint doesn't catch weaker lookalikes.
 - Evidence covers only Ethereum mainnet USDT and USDC, and every record is "suspected", not a finding about any person.
-- Detector output has no hand-labelled precision figure yet (T13 is waiting on the human labels).
+- Detector precision on 30 random records (seed 4919) is 30/30 = 100%. The labels were assigned by AI from public Etherscan tags and on-chain facts, not by hand (see docs/AI_USAGE.md). 30 is a small sample.
 - Safe warns that a broken guard can lock a Safe: the demo Safe is isolated, holds test funds only, and the removal drill is tested.
 
 ## Licence
