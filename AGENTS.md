@@ -23,7 +23,6 @@
 - **No per-recipient lookups** to any server: read `payees(safe)` once; read Arkiv evidence in bulk.
 - **Secrets:** testnet keys only, in `.env` (git-ignored); `.env.example` lists names only. Never print or commit keys or seed phrases.
 - **Contracts:** keep the reference Guard's behaviour (13 tests must stay green). Don't add Guard features beyond the spec.
-- **Don't use any code from the pre-event Pramaan repo.**
 
 ## Layout
 ```

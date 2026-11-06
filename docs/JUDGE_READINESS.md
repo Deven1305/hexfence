@@ -6,7 +6,7 @@ Checked **6 Nov 2026** against main **8c3c175** (after PRs #34, #36, #38, #39, #
 
 | Requirement | State | Evidence / what is left |
 |---|---|---|
-| Built at the event; reused material named | Team confirms | [AI usage](AI_USAGE.md), [reference Guard record](../contracts/README.md), [commit history](https://github.com/Deven1305/hexfence/commits/main). No pre-event Pramaan code. |
+| Built at the event; reused material named | Team confirms | [AI usage](AI_USAGE.md), [reference Guard record](../contracts/README.md), [commit history](https://github.com/Deven1305/hexfence/commits/main). |
 | Incremental version history | Met | Small commits through PRs. |
 | Public source and run steps | Met | [MIT licence](../LICENSE), [README run steps](../README.md#run-steps), locked dependencies. |
 | AI disclosure and meaningful human contribution | Partial | [AI_USAGE](AI_USAGE.md) lists what AI wrote. Human Guard sign-off, H6, H9 and H10 are still open. An AI review is not a human review. |
