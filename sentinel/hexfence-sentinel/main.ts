@@ -9,7 +9,7 @@ import { z } from "zod";
 import { candidates, encodeAlert, resembles } from "./logic";
 
 const address = z.string().regex(/^0x[0-9a-fA-F]{40}$/).refine(x => x !== zeroAddress);
-export const configSchema = z.object({
+const configSchema = z.object({
   chainSelectorName: z.literal("ethereum-testnet-sepolia"),
   guard: address, guardVersion: z.enum(["v1", "v2"]), alerts: address,
   safes: z.array(address).min(1).max(5),
@@ -39,7 +39,7 @@ function notify(node: NodeRuntime<Config>, text: string, token: string): boolean
   } catch { return false; }
 }
 
-export function onLog(runtime: Runtime<Config>, log: EVMLog): string {
+function onLog(runtime: Runtime<Config>, log: EVMLog): string {
   if (log.removed) return "removed log ignored";
   const cfg = runtime.config;
   if (!log.blockNumber || log.txHash.length !== 32) throw Error("Log missing provenance");
@@ -83,7 +83,7 @@ export function onLog(runtime: Runtime<Config>, log: EVMLog): string {
   return "log processed";
 }
 
-export function initWorkflow(config: Config) {
+function initWorkflow(config: Config) {
   const evm = evmFor(config);
   const signature = { values: [hexToBase64(keccak256(toBytes("Transfer(address,address,uint256)")))] };
   const safes = { values: config.safes.map(s => hexToBase64(padHex(s as Hex, { size: 32 }))) };
