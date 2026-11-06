@@ -52,13 +52,14 @@ async function buildApp(app, outDir) {
 async function explorer() {
   check(ethers.isAddress(env.VITE_ARKIV_PUBLISHER), 'VITE_ARKIV_PUBLISHER is required');
   const outDir = path.join(here, '.explorer-live-build');
-  await buildApp('explorer', outDir);
-  const web = await preview({ root: path.join(root, 'apps/explorer'), build: { outDir }, preview: { host: '127.0.0.1', port: 14177, strictPort: true } });
+  const hosted = process.argv.includes('--hosted-explorer');
+  if (!hosted) await buildApp('explorer', outDir);
+  const web = hosted ? null : await preview({ root: path.join(root, 'apps/explorer'), build: { outDir }, preview: { host: '127.0.0.1', port: 14177, strictPort: true } });
   const browser = await chromium.launch();
   const context = await browser.newContext({ viewport: { width: 1280, height: 960 }, recordVideo: { dir: output, size: { width: 1280, height: 960 } } });
   try {
     const page = await context.newPage();
-    await page.goto('http://127.0.0.1:14177/');
+    await page.goto(hosted ? 'https://deven1305.github.io/hexfence/explorer/' : 'http://127.0.0.1:14177/');
     await expect(page.locator('article.card').first()).toBeVisible({ timeout: 120000 });
     const cards = await page.locator('article.card').count();
     check(cards >= 5, 'Explorer must show at least five real published records');
@@ -67,10 +68,10 @@ async function explorer() {
     await page.getByRole('button', { name: 'Verify on Ethereum', exact: true }).first().click();
     await expect(page.locator('.verdict.good').first()).toBeVisible({ timeout: 120000 });
     await page.screenshot({ path: path.join(output, 'explorer-verified.png') });
-    state.explorer = { publisher: env.VITE_ARKIV_PUBLISHER, visibleRecords: cards, verification: await page.locator('.verdict.good').first().innerText(), realData: true, at: new Date().toISOString() };
+    state[hosted ? 'hostedExplorer' : 'explorer'] = { url: page.url(), publisher: env.VITE_ARKIV_PUBLISHER, visibleRecords: cards, verification: await page.locator('.verdict.good').first().innerText(), realData: true, at: new Date().toISOString() };
     await save();
-    console.log('Explorer:', JSON.stringify(state.explorer));
-  } finally { await context.close(); await browser.close(); web.httpServer.close(); }
+    console.log('Explorer:', JSON.stringify(state[hosted ? 'hostedExplorer' : 'explorer']));
+  } finally { await context.close(); await browser.close(); web?.httpServer.close(); }
 }
 
 async function walletSetup() {
@@ -108,9 +109,11 @@ async function directL() {
 
 async function pay() {
   const wallet = await walletSetup();
+  const hosted = process.argv.includes('--hosted-pay');
+  const payUrl = hosted ? 'https://deven1305.github.io/hexfence/pay/' : 'http://127.0.0.1:14176/';
   const outDir = path.join(here, '.live-build');
-  await buildApp('pay', outDir);
-  const web = await preview({ root: path.join(root, 'apps/pay'), build: { outDir }, preview: { host: '127.0.0.1', port: 14176, strictPort: true } });
+  if (!hosted) await buildApp('pay', outDir);
+  const web = hosted ? null : await preview({ root: path.join(root, 'apps/pay'), build: { outDir }, preview: { host: '127.0.0.1', port: 14176, strictPort: true } });
   const browser = await chromium.launch();
   const context = await browser.newContext({ viewport: { width: 1280, height: 960 }, recordVideo: { dir: output, size: { width: 1280, height: 960 } } });
   let phase;
@@ -168,7 +171,7 @@ async function pay() {
     let loaded = false;
     for (let attempt = 1; attempt <= 2; attempt++) {
       const start = Date.now();
-      await page.goto('http://127.0.0.1:14176/');
+      await page.goto(payUrl);
       const result = { attempt, route: 'nox', guardAndPayeesLoaded: false };
       try {
         const active = page.getByText('Reads go through Nox (Sphinx mixnet).', { exact: true });
@@ -186,7 +189,7 @@ async function pay() {
       if (loaded) break;
     }
     if (!loaded) {
-      await page.goto('http://127.0.0.1:14176/');
+      await page.goto(payUrl);
       await page.getByRole('button', { name: 'Skip: read directly (not anonymous)' }).click();
       await expect(page.getByText('Reads go directly from your browser to the RPC provider. They are not anonymous.', { exact: true })).toBeVisible();
       await connectAndLoad();
@@ -194,6 +197,11 @@ async function pay() {
       console.log('Nox failed twice; explicitly skipped. Continuing with labelled direct reads.');
     }
     await page.screenshot({ path: path.join(output, 'pay-route-and-safe.png'), fullPage: true });
+    if (hosted) {
+      state.hostedPay = { url: payUrl, route: state.route, safe: state.safe, guardAndPayeesLoaded: true, scriptedWallet: true, readOnly: true, at: new Date().toISOString() };
+      await page.screenshot({ path: path.join(output, 'hosted-pay-safe.png'), fullPage: true });
+      await save(); console.log('Hosted Pay:', JSON.stringify(state.hostedPay)); return;
+    }
     for (const [name, level] of [['lpay', 'RED'], ['bpay', 'AMBER'], ['ppay', 'GREEN']]) {
       if (state.payments[name]) { console.log('Existing broadcast; not repeating:', name, state.payments[name].hash); continue; }
       phase = name;
@@ -217,11 +225,11 @@ async function pay() {
       console.log(name + ':', JSON.stringify(record));
     }
     state.completedAt = new Date().toISOString(); await save();
-  } finally { await context.close(); await browser.close(); web.httpServer.close(); }
+  } finally { await context.close(); await browser.close(); web?.httpServer.close(); }
 }
 
 try {
-  if (process.argv.includes('--explorer')) await explorer();
+  if (process.argv.includes('--explorer') || process.argv.includes('--hosted-explorer')) await explorer();
   else if (process.argv.includes('--direct-l')) await directL();
   else await pay();
 } catch (error) {

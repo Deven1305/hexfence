@@ -4,11 +4,11 @@
 > Status: ☐ todo · ▶ in progress · ✔ done · ⏸ waiting on humans
 
 ## Now
-- **Current task:** T8 live gate on feat/t8-live; waiting for Sepolia ETH and Rabdi tGLM funding, preparing the scripted production-browser run.
+- **Current task:** T8 live gate passed on Sepolia with a scripted wallet; completing hosted checks and PR evidence.
 - **Agent working:** Codex (live pass authorised by Dhruv).
-- **Last updated:** 06 Nov 07:55 IST
-- **Tests (live branch, local only):** contracts 14; setup/checker/verify scripts 13; workspace 121 passed, 3 live integration tests skipped; recursive build passed; original local-chain Playwright E2E 1 passed. The new Sepolia runner is prepared but not run while unfunded.
-- **Next step for whoever comes next:** fund the two public addresses below; agents poll balances and resume deploy/setup/publish/pay automatically. Deven must enable Pages → GitHub Actions. H6 stays human-only as an actual wallet-flow check.
+- **Last updated:** 06 Nov 09:06 IST
+- **Tests (live branch, local only):** contracts 14; setup/checker/verify scripts 13; workspace 121 passed, 3 live integration tests skipped; recursive build passed; original local-chain Playwright E2E 1 passed. Sepolia production browser L/B/P passed, Nox Guard/payee reads passed first attempt (29,485 ms), and both real L hashes passed check-t8 (exit 0).
+- **Next step for whoever comes next:** finish hosted real-data checks and review PR #16. H6 remains an actual human wallet-flow check; the successful T8 wallet was scripted.
 
 ## Tasks (strict order)
 
@@ -22,7 +22,7 @@
 | T5 | P0 | `apps/explorer`: a static Vite app reading Arkiv (search, Etherscan links, counts, label "Ethereum mainnet evidence · status: suspected") | Builds; shows real records | ⏸ | 52bb472 | Claude Code (Lane C) | Search, counts and paged list work against live Rabdi with an empty test publisher. Counts use `client.count()` and the list loads a page at a time, because of Lane A's size note (not `fetchAllEvidence`). No fixture in the app. **⏸ on S4/H5:** real records have not been seen through Arkiv yet; set `VITE_ARKIV_PUBLISHER` and re-check. |
 | T6 | P0 | `apps/pay` (HexFence Pay): connect a wallet, load the Safe (Protocol Kit), build an ETH/ERC-20 payment, read `guard.payees(safe)` once, verdicts RED/AMBER/GREEN/GREY with the exact spec strings, 6-character friction, sign + execute | Unit tests for the verdict logic pass; manual Sepolia test (H6) | ⏸ | bd20404 | Claude Code (Lane B) | Code + 20 unit tests done (verdict strings incl. Guard-inactive variant, friction, payment building, revert decoding, forced-gas plan, config, provider routing); `tsc` + `vite build` clean. ⏸ on H6 (live Sepolia test, needs S3); steps in `docs/lanes/LANE_B_claude2.md`. On `main`. |
 | T7 | P0 | Docs draft: README (run steps, architecture, **CROPS**, limits), `arkiv/*.md` (5 files), `docs/AI_USAGE.md` (from the session log) | Real content; placeholders only for tx hashes | ✔ | 03804f5 | Claude Code (Lane C) | Placeholders left are human values only: Guard/Safe addresses and hashes, publisher wallet, live links, published record count, human Guard reviewer. Add the Anon-RPC sentence to CROPS only when T11 is ✔. Demo script: `docs/DEMO.md` (393ad20). |
-| T8 | GATE | End to end on Sepolia: L reverts, B succeeds, P succeeds, removal-drill hashes recorded, the explorer shows real evidence | Every hash in the table below (H7) | ⏸ | ff02152 | Codex | Real mainnet scan complete; all local checks passed. Waiting for deployer/publisher funding. No Sepolia transaction sent, no Arkiv entity written, live browser runner not yet run. Agents continue read-only balance polling. |
+| T8 | GATE | End to end on Sepolia: L reverts, B succeeds, P succeeds, removal-drill hashes recorded, the explorer shows real evidence | Every hash in the table below (H7) | ✔ | pending | Codex | Scripted production Pay wallet: real Safe 1.4.1, Nox Guard/payee reads first attempt (29,485 ms); L RED refused E74120, accepted 344120, gas 200000, mined LookalikeOfApprovedPayee; B AMBER and P GREEN succeeded. Direct script L (not Safe{Wallet}) also reverted; check-t8 exit 0 for both hashes. Arkiv publish 25 then 0 created; browser showed 25 suspected records and verified both mainnet receipts. H6 stays unticked. |
 | T9 | P1 | Explorer "Verify on Ethereum" (receipt check) | ✓ on a real record; "could not verify" on a broken one | ✔ | e3db3e0 | Claude Code (Lane C) | 24 tests on real saved mainnet receipts (zero-value and dust) plus broken records. Live in the browser via publicnode: a real record from a detector run gave ✓; the same record with a wrong block gave "could not verify". A failed RPC is also "could not verify". On `main` ahead of T8 (see Decisions log). |
 | T10 | P1 | HexFence Pay: the "listed in public evidence" signal (exact match, bulk Arkiv read) | Test: a listed address → RED listed; the synthetic L → only RED resembles | ✔ | 8ee2058 | Claude Code (Lane B) | Code + 5 tests done (listed -> RED listed; L -> only RED resembles; map keyed on `lookalike` only; failed read -> "evidence unavailable"). The done-when is test-based, so ✔. On `main` ahead of T8 (see Decisions log). Live Arkiv read untested until a publisher exists (H5). |
 | T11 | P1 | Anon-RPC for the client's RPC reads (`@anon-rpc/browser-harness`), with a labelled fallback | The demo shows reads going through Anon-RPC | ✔ | 0a1676e | Claude Code (Lane B) | Anon-RPC reads use the Nox route only (tor-js and Nym removed). `anon.ts` tries Nox; a route counts only after a real read returns through it. Failure or the skip button gives direct reads that the page labels not anonymous; once Nox is active, later failures are errors, not silent direct reads. Passthrough specifier excluded. Live: Nox active, and a real Safe 1.4.1 `VERSION()` contract read on Sepolia returned through it. Not exercised: Guard/payee read and live Arkiv read through Nox. On `main` ahead of T8 (see Decisions log); a build of `main` reached Nox active in the browser. |
@@ -32,17 +32,17 @@
 
 ## Waiting on humans (tick the box when done; then the agent continues)
 
-**Live pass funding (06 Nov):** send about 0.05 Sepolia ETH to `0xE89A9EF94dc4636394183d9bd1B4829043E35e98` ([Google faucet](https://cloud.google.com/application/web3/faucet/ethereum/sepolia)); claim/transfer Rabdi tGLM to `0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec` ([Arkiv faucet](https://hub.arkiv.network/faucet)). Use an existing funded wallet; do not put generated keys into a webpage or extension. Arkiv requires wallet sign-in and the attempted Sepolia faucet requires a mainnet-balance anti-bot check; agents stopped as instructed. Agents poll balances read-only.
+**Live pass funding completed:** Dhruv claimed Sepolia ETH and 10 Rabdi tGLM to his existing wallet. With explicit per-transfer authorisation, ADB sent 0.05 Sepolia ETH to the deployer and 0.1 tGLM to the publisher. Balances were confirmed read-only. No generated key entered a webpage or extension.
 
-**Pages configuration completed:** `Settings → Pages → Build and deployment → Source` is now `GitHub Actions`; the read-only API reports `build_type: workflow` and `https://deven1305.github.io/hexfence/`. Deployment and hosted real-data checks still wait for the Guard address/public variables and funding. No settings workaround was attempted.
+**Pages configuration completed:** Source is GitHub Actions. Public variables set: VITE_ARKIV_PUBLISHER, VITE_GUARD_ADDRESS, VITE_SEPOLIA_RPC_URL, VITE_MAINNET_RPC_URL. Main workflow run 42156170418 built and deployed successfully; browser checks follow. VITE_* values enter public JavaScript; these are public addresses and endpoints only.
 **Order and exact commands: `docs/RUNBOOK_T8.md`.** It replaces the manual parts below where they differ: after H2, run `npx hardhat verify`; `contracts/scripts/setup-demo.js` does H3 (creates the Safe, `setGuard`, `approvePayee(P)`, removal drill), so Safe{Wallet} is only needed for the second L payment in H7. For H11, `.github/workflows/pages.yml` builds and deploys both apps once the repository variables and the Pages source are set; until then it fails on purpose at its configuration check.
-- [ ] **H1:** new deployer key is already in the live worktree root .env (never display it). Funding remains: about 0.05 Sepolia ETH to `0xE89A9EF94dc4636394183d9bd1B4829043E35e98`. Use an existing wallet or a human-operated faucet; do not generate another key.
-- [ ] **H2:** `cd contracts && npx hardhat run scripts/deploy.js --network sepolia`. It prints `HexFenceGuard deployed at: 0x…` and `Deploy tx: 0x…`; paste both into the table below and into `.env` as `VITE_GUARD_ADDRESS`.
-- [ ] **H3:** in Safe{Wallet} on Sepolia, create a 1-of-1 demo Safe and fund it with test ETH. In Transaction Builder, one call per transaction: `setGuard(guard)`, then `approvePayee(P)`. Then the removal drill: `setGuard(0x0…0)` → re-enable. Paste the hashes below.
+- [x] **H1:** fresh testnet deployer key in ignored root .env; 0.05 Sepolia ETH funding confirmed.
+- [x] **H2:** real Guard deployed at `0xA061fB511D69e5c92E50E3BE5c789472d6f19748`, transaction `0x02311f96b37101ade733a9ee27f4093d71969bb3d2187f336b975ec59c57e132`. Sourcify v2 exact creation/runtime match (58580359). Etherscan browser still shows Verify and Publish; no Etherscan verification claimed.
+- [x] **H3:** original setup-demo.js ran on Sepolia: real 1-of-1 Safe 1.4.1, funded, setGuard, approvePayee(P), setGuard(0), re-enable. Hashes below. Scripted setup, not a Safe{Wallet} UI test.
 - [x] **H4:** live worktree MAINNET_RPC_URL set to https://ethereum-rpc.publicnode.com. Fresh scan: blocks 26345544–26352743, 1,366,618 USDT/USDC logs, 47,694 suspected pairs (36,382 zero-value, 11,312 dust). Output is ignored `apps/detector/out/evidence.jsonl`.
-- [ ] **H5 (real Arkiv evidence):** publisher key is already in the live worktree .env. A human must claim/transfer Rabdi tGLM to `0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec` via https://hub.arkiv.network/faucet using an existing wallet. Agents stopped at wallet-connect. Try publishing without ARKIV_ACCESS_KEY first; no access-key account/sign-in will be created by an agent.
+- [x] **H5 (real Arkiv evidence):** 0.1 tGLM received; publish:arkiv --limit 25 without ARKIV_ACCESS_KEY created 25, transaction `0xe0b88b37643fb0ff1c730ea2cc662789dd6992b1e38c5ac4fc13dfa70c7bf0ea`. Rerun: 0 created, 25 already on Arkiv, 0 transactions. Browser displayed 25 suspected records and verified both receipts on Ethereum.
 - [ ] **H6 (human wallet flow, not the scripted runner):** use a real wallet that owns the demo Safe; if none is available, a separate explicit owner-handover decision is needed. Agents never import a key into a page or extension. Open Pay, connect on Sepolia, load the public Safe address from the table, verify the active Guard and P. Pay L (RED): E74120 must be refused, 344120 accepted; sign/send and record the mined Guard revert. Pay B (AMBER) and P (GREEN), confirm success. Record wallet/version and hashes. No scripted-wallet result ticks this box.
-- [ ] **H7:** run the demo payments (L, B, P) and paste the tx hashes
+- [x] **H7:** L/B/P passed with a **scripted wallet**, not Safe{Wallet}. Second L was a **direct script, not Safe{Wallet}** (gas 200000). check-t8.js exited 0 for each L hash and decoded LookalikeOfApprovedPayee(L, P). H6 remains unticked.
 - [ ] **H8:** record the video (2:30–3:00, ≥720p)
 - [ ] **H9 (T13):** open `apps/detector/labels/h9-sample.csv` (30 random real records). For each row, open `attack_tx` and `reference_tx` on Etherscan and write `yes`, `no` or `unsure` in the `label` column:
   - **yes** = address poisoning: the victim really paid `impersonated` earlier (reference tx), and the attack tx is a zero-value or dust transfer between the victim and `lookalike` (same first 4 + last 4 characters), typically sent by a contract that does the same to many addresses.
@@ -59,16 +59,19 @@
 |---|---|
 | Sepolia deployer (new, testnet only) | `0xE89A9EF94dc4636394183d9bd1B4829043E35e98` |
 | Arkiv publisher (new, Rabdi) | `0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec` |
-| HexFenceGuard (Sepolia) | |
-| Demo Safe (Sepolia) + `VERSION()` | |
-| P (approved payee) / L (lookalike) / B (new supplier) | P `0x4E185e251Ac7fB83E9DE10723EAda46cadE74120` · L `0x4E185a3FC4B530244aB9ed0dE38167b403344120` · B (fill in) |
-| `setGuard` / `approvePayee(P)` | |
-| Removal drill `setGuard(0)` / re-enable | |
-| L payment (reverted) / B payment / P payment | |
+| HexFenceGuard (Sepolia) | `0xA061fB511D69e5c92E50E3BE5c789472d6f19748` · deploy `0x02311f96b37101ade733a9ee27f4093d71969bb3d2187f336b975ec59c57e132` |
+| Demo Safe (Sepolia) + `VERSION()` | `0x3BCc3969713778F3Ed26AE1490529eeBAD43FbD5` · `1.4.1` |
+| P (approved payee) / L (lookalike) / B (new supplier) | P `0x4E185e251Ac7fB83E9DE10723EAda46cadE74120` · L `0x4E185a3FC4B530244aB9ed0dE38167b403344120` · B `0xcB0a33f755826307CcaC3f4b4833e7e19d38cEb6` |
+| `setGuard` / `approvePayee(P)` | `0x2de356a6c196cb3f2040e3b8d4170ebe0cbc1b2684b0c05e26344756db6278e9` / `0x13baea5038b830810e1a9f68fbed3ae1069f981af4810cbd43c50f7b0d7d1af2` |
+| Removal drill `setGuard(0)` / re-enable | `0x5edf08eb6489d78c13f0748283e43bab8c015c851d0d40e86b030dd6794ad8e0` / `0xd1c7db48a18647713c34384afc51b116888546dd837359eecad0938a5ebe9743` |
+| L payment (reverted) / B payment / P payment | `0xa43b0eeef7253281a741deca144e5ddf0c465da9cc6f48d54673a9aa9c0f6d8f` / `0x2455ca8f1ce612149f15e80325f372202bffeb0258f808bd84acfb1f904de5ca` / `0xea209e9e3c5a9eed080e95dd0ca752b79686400da820ea67b87f98552d2992df` |
 | Arkiv publisher wallet + README query | |
-| Explorer URL / HexFence Pay URL | |
+| Explorer URL / HexFence Pay URL | https://deven1305.github.io/hexfence/explorer/ / https://deven1305.github.io/hexfence/pay/ |
+
+| Second L (direct script, not Safe{Wallet}; gas 200000) | `0xe77e6a7a8ba5b6f9742ec953826bc47c69ffffdced3a4d40b8fe3a220e1bb46f` |
 
 ## Decisions log
+- 06 Nov (T8 live verification): the pinned Hardhat 2 verifier calls Sourcify API v1, retired July 2026 (live HTTP 404). Added scripts/verify-sourcify.js using the documented v2 standard-JSON API and unchanged build info. Live exact creation/runtime match obtained; repeat lookup passed. The existing Etherscan path remains enabled when ETHERSCAN_API_KEY is supplied. Etherscan itself still shows unverified.
 - 06 Nov (Dhruv, T8 live pass): Dhruv explicitly authorised agents to perform the testnet key generation, deployment and payment steps previously labelled human-only in AGENTS.md, and lifted lane ownership for this pass. Keys stay only in the ignored root `.env` of `C:/hexfence-work/live`; no key may enter a webpage or extension. No captcha, sign-in or wallet-connect is to be bypassed. The wallet test will be scripted and cannot tick H6 or claim a Safe{Wallet} test. Work is on `feat/t8-live`, via one PR to main, with no agent merge.
 - 06 Nov: the P0 client is **HexFence Pay** (Plan B). Extension interception wasn't verified by the 01:00 checkpoint, so the extension moved to T14 (P2). If the team has already verified interception, swap T6 and T14 here.
 - 06 Nov (Claude Code): **Arkiv SDK 1.0.1 differs from spec §3.2; following the docs.** (a) ~~There is no `createdBy(addr)`~~ **Correction (T4a):** `createdBy(addr)` does exist in 1.0.1 (shorthand for `eq("$creator", …)`) and is used. (b) A page holds **≤100** rows (not 200) and there is no `hasNextPage()`; page by key with `orderBy(asc("$key"))` + `gt("$key", key(last))`. (c) The SDK asks for Node ≥22.10.
@@ -90,3 +93,5 @@
 | 06 Nov (live pass) | Codex | T8 runner preparation | Sourcify enabled without an Etherscan key; Node-only scripted signer and real-production-build Pay/explorer capture runner added. All local checks passed. Sepolia and Arkiv balances remain zero; no live transaction broadcast. | pending |
 
 | 06 Nov (live pass) | Codex | Detector / unfunded publication probe | Fresh real mainnet scan: 1,366,618 logs, blocks 26345544–26352743 → 47,694 suspected pairs. `publish:arkiv --limit 25` without an access key reached the public Rabdi balance read, then exited 1: publisher has 0 tGLM. No entities written; idempotence is not claimed. PR #16 build passed, deploy skipped. | pending |
+
+| 06 Nov 09:06 | Codex | T8 live gate | Sepolia deploy/setup/removal; production Pay L/B/P via Nox; direct-script L; both checkers exit 0; Arkiv 25 then 0 created; explorer real records + receipt verification. Scripted wallet; H6 untouched. | pending |
