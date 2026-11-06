@@ -8,7 +8,7 @@ Safe operators checking suppliers can use [HexFence Pay](https://deven1305.githu
 
 ## Can people try it today?
 
-Yes. Both hosted apps passed real-data browser checks. Explorer showed **125 suspected records** after Load more; Verify on Ethereum confirmed both receipts for the first record. Pay loaded the actual Safe, Guard and approved payees through Nox. Payments need a Sepolia wallet owning a configured Safe. The recorded T8 wallet was explicitly scripted, not Safe{Wallet}; H6 remains unticked. Explorer reading needs no HexFence account or test tokens.
+Yes. Both hosted apps passed real-data browser checks. Explorer showed **173 suspected records**; Verify on Ethereum confirmed both receipts for the first record. Pay loaded the actual Safe, Guard and approved payees through Nox. Payments need a Sepolia wallet owning a configured Safe. The recorded T8 wallet was explicitly scripted, not Safe{Wallet}; H6 remains unticked. Explorer reading needs no HexFence account or test tokens.
 
 Publisher: `0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec`. Rabdi chain: `7794095`. Public read-only query from repo root:
 
@@ -16,7 +16,7 @@ Publisher: `0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec`. Rabdi chain: `7794095`.
 corepack pnpm@10.34.9 --filter @hexfence/detector exec tsx ../../arkiv/query.ts
 ```
 
-Observed output: **125 records, 125 uniqueEvidenceIds, 124 zeroValue, 1 dust, statuses [suspected]**. [query.ts](query.ts) uses the production bulk reader with publisher filtering and key pagination. No key or wallet is needed.
+Observed output: **173 records, 173 uniqueEvidenceIds, 147 zeroValue, 26 dust, statuses [suspected]**. [query.ts](query.ts) uses the production bulk reader with publisher filtering and key pagination. No key or wallet is needed.
 
 ## Measured data and publication scope
 
@@ -24,7 +24,7 @@ Observed output: **125 records, 125 uniqueEvidenceIds, 124 zeroValue, 1 dust, st
 |---|---|
 | Fresh mainnet scan | Blocks 26345544–26352743; 1,366,618 USDT/USDC logs |
 | Detector output | 47,694 suspected pairs: 36,382 zero-value, 11,312 dust |
-| Published subset | 125 records: 124 zero-value, 1 dust; latest attack blocks selected by --limit 125, not a random precision sample |
+| Published subset | First 125 records: 124 zero-value, 1 dust; latest attack blocks selected by --limit 125, not a random precision sample. On 6 Nov 48 more were added, one per equal slice of the scan (lowest evidenceId in each slice), for 173 in total |
 | First publication | 25 created in [0xe0b88b…bf0ea](https://rabdi.explorer.arkiv.network/tx/0xe0b88b37643fb0ff1c730ea2cc662789dd6992b1e38c5ac4fc13dfa70c7bf0ea) |
 | Additional publication | 100 created, 25 already present, 4 transactions; first [0xfadb29…efcca](https://rabdi.explorer.arkiv.network/tx/0xfadb29df57c9863d8b51433aa8f237001e0f78a16768da03c7fca66e647efcca) |
 | Rerun --limit 125 | **0 created, 125 already on Arkiv, 0 transactions** |

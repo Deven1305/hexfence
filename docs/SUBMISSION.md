@@ -17,7 +17,7 @@ Values below come from the live T8 run (`docs/T8_LIVE_RESULTS.md`) unless the la
 | TX_REENABLE | 0xd1c7db48a18647713c34384afc51b116888546dd837359eecad0938a5ebe9743 | same (removal drill, re-enable) |
 | TX_L_REVERT_2 | 0xe77e6a7a8ba5b6f9742ec953826bc47c69ffffdced3a4d40b8fe3a220e1bb46f | `docs/T8_LIVE_RESULTS.md` (direct script transaction, not Safe{Wallet}) |
 | ARKIV_PUBLISHER | 0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec | README "Publisher wallet" |
-| RECORD_COUNT | 125 | `docs/T8_LIVE_RESULTS.md` (124 zero-value, 1 dust, all suspected) |
+| RECORD_COUNT | 173 | Hosted explorer, 6 Nov (147 zero-value, 26 dust, all suspected): 125 from `docs/T8_LIVE_RESULTS.md` plus 48 spread across the scan |
 | SITE_URL | https://deven1305.github.io/hexfence/ | Pages workflow |
 | EXPLORER_URL | https://deven1305.github.io/hexfence/explorer/ | Pages workflow, PROGRESS H11 |
 | PAY_URL | https://deven1305.github.io/hexfence/pay/ | same |
@@ -50,7 +50,7 @@ Around it:
 - **Detector:** reads Ethereum mainnet USDT and USDC transfer logs and finds lookalike pairs. Every record is marked "suspected".
 - **Arkiv:** the pairs are written as `hexfence.poisoning.v1` records with 30-day expiry, idempotently (a re-run creates 0 duplicates).
 - **Explorer:** loads every Arkiv record, shows views by variant, token and attack block, checks an address inside the browser without sending it to a server, links both transactions on Etherscan, and re-checks the receipts with "Verify on Ethereum".
-- **HexFence Pay:** decodes a Safe payment, reads the Safe's payees once, and shows a verdict (red: resembles an approved payee; amber: new recipient; green: approved). To send a red payment anyway the user must type 6 characters. It has two Hindi verdict lines and tries the Nox mixnet for its Sepolia reads. Without a wallet it gives a read-only preview with real verdicts.
+- **HexFence Pay:** decodes a Safe payment, reads the Safe's payees once, and shows a verdict (red: resembles an approved payee; amber: new recipient; green: approved). To send a red payment anyway the user must type 6 characters. It has a हिन्दी button for the whole page and every verdict, and tries the Nox mixnet for its Sepolia reads. Without a wallet it gives a read-only preview with real verdicts.
 
 The demo is in two clearly separate parts. Part 1 is real mainnet evidence read live from Arkiv. Part 2 is a **synthetic re-enactment on Sepolia** using a pair of addresses we generated ourselves, not a real attack: paying the lookalike reverts on-chain, paying a new supplier succeeds, paying the approved payee succeeds, and the lookalike still reverts with our client switched off.
 
@@ -74,7 +74,7 @@ Limits (stated in the README): module transactions bypass guards; MultiSend is r
 
 Paste:
 
-> HexFence uses Arkiv as the open evidence layer for address poisoning. The detector reads Ethereum mainnet USDT/USDC logs and writes each suspected pair as a `hexfence.poisoning.v1` entity on the Rabdi testnet with a 30-day expiry. Each record carries the victim, the impersonated address, the lookalike and both transaction hashes, and is always marked "suspected". Writes are idempotent, so a re-run creates 0 duplicates. The explorer and HexFence Pay read the records in bulk and never look up one address at a time, so no reader tells a server which address they care about. The explorer can re-check any record against Ethereum receipts in the browser. We chose Arkiv because the evidence should be queryable by anyone, expire when it stops being useful, and not sit in a vendor's closed feed. Currently 125 records, published by 0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec. Schema, friction notes, reach, why-Arkiv and how-we-use-it are in `/arkiv/`.
+> HexFence uses Arkiv as the open evidence layer for address poisoning. The detector reads Ethereum mainnet USDT/USDC logs and writes each suspected pair as a `hexfence.poisoning.v1` entity on the Rabdi testnet with a 30-day expiry. Each record carries the victim, the impersonated address, the lookalike and both transaction hashes, and is always marked "suspected". Writes are idempotent, so a re-run creates 0 duplicates. The explorer and HexFence Pay read the records in bulk and never look up one address at a time, so no reader tells a server which address they care about. The explorer can re-check any record against Ethereum receipts in the browser. We chose Arkiv because the evidence should be queryable by anyone, expire when it stops being useful, and not sit in a vendor's closed feed. Currently 173 records, published by 0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec. Schema, friction notes, reach, why-Arkiv and how-we-use-it are in `/arkiv/`.
 
 Links to give: https://github.com/Deven1305/hexfence/tree/main/arkiv, https://deven1305.github.io/hexfence/explorer/, and the publisher wallet 0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec. The one query judges can run is in the README ("Arkiv publisher + query").
 
@@ -124,5 +124,5 @@ In the repo:
 
 Human boxes that change what you may claim:
 - [ ] H9 labels done: only then may the text state a precision (‹PRECISION›). Otherwise leave it out, as the README does
-- [ ] H10 Hindi check done (`docs/H10_HINDI_CHECK.md`): otherwise say the Hindi lines are "not yet reviewed by a native speaker"
+- [ ] H10 Hindi check done (`docs/H10_HINDI_CHECK.md`): otherwise say the Hindi is "not yet reviewed by a native speaker"
 - [ ] Safe{Wallet} UI removal drill done by a person: otherwise say the removal drill was run by script only

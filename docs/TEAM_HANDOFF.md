@@ -1,6 +1,6 @@
 # Team handoff: read this before working on HexFence
 
-For teammates and their coding agents. Written Fri 6 Nov 2026, about 11:45 IST, at `main` after PR #24 plus this docs change. Check `git log` and open PRs for anything newer.
+For teammates and their coding agents. Last updated Fri 6 Nov 2026 after the Hindi and copy pass. Check `git log` and open PRs for anything newer.
 
 **Deadline:** submission Sat 7 Nov 2026, 09:00 IST (aim for 08:30). Proposed feature freeze: Fri 22:00 IST, then rebuild the video, record the voiceover and submit. The team has not confirmed the freeze time.
 
@@ -45,24 +45,25 @@ Tests on the combined code before the final merge: contracts 14 passing; workspa
 | A native speaker | H10: check the Hindi (`docs/H10_HINDI_CHECK.md`) | T12 |
 | A team member | Review the Guard and be named as `‹GUARD_REVIEWER›` | Submission text, `docs/AI_USAGE.md` |
 | Repo admin (Deven) | Add secret `ARKIV_PRIVATE_KEY`, testnet publisher key only. Dhruv's account has no admin rights | Scheduled publisher |
+| Repo admin (Deven) | Turn on Settings → General → "Automatically delete head branches". Dhruv's attempt returned 404 for the same reason | Merged branches pile up |
 | Dhruv | Write the post-Mumbai sentence at `arkiv/reach.md:38` | Arkiv answers |
 | Team | Rebuild the video after freeze, add voiceover, upload | `‹VIDEO_URL›`, T14 row in the video if the extension passes |
 | Team | Choose the submission option and submit by 08:30 | Everything |
 
 ### Decisions still open
 
-1. **Evidence spread.** All 125 live records have attack block 26352743 (measured from the hosted explorer), so the "over time" view has one bar. Publishing a sample across the 24-hour run would fix that and spend testnet tGLM.
-2. **Hindi wording.** Dhruv felt the current verdict text sounds unnatural. Changing it needs `apps/pay/src/verdictCopy.ts`, the Hindi tests in `apps/pay/test/pay.test.ts`, and a logged spec deviation.
-3. **Languages.** Hindi covers only two Pay verdicts, shown after a payment check. Marathi is not built (P2 in the spec). Translating the wider site is not started and needs a native check.
-4. **Video.** The existing silent cut predates today's UI, so its footage no longer matches the site.
+1. **Hindi wording.** Dhruv felt the current verdict text sounds unnatural. Changing it needs `apps/pay/src/verdictCopy.ts`, the Hindi tests in `apps/pay/test/pay.test.ts`, and a logged spec deviation.
+2. **Languages.** The हिन्दी button translates the Pay page and every verdict; technical errors and the setup warnings stay in English. Landing and explorer have no language button. Marathi is not built (P2 in the spec). All Hindi still needs the native check in H10.
+3. **Video.** The existing silent cut predates today's UI, so its footage no longer matches the site.
 
 ## Funds and addresses
 
-Balances read from Rabdi on 6 Nov: publisher `0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec` holds 0.0663 tGLM; Dhruv's wallet `0x0f7e6EAdB11d0780ba1F24f30B5B5859DaFd2803` holds 9.90 tGLM. **Do not move tGLM without Dhruv's explicit approval.** All other public addresses and hashes are in `docs/PROGRESS.md` and `docs/SUBMISSION.md`.
+Balances read from Rabdi on 6 Nov: publisher `0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec` holds 0.0535 tGLM after publishing 173 records (125 at T8 plus 48 spread across the scan, from a detector run of 47,694); Dhruv's wallet `0x0f7e6EAdB11d0780ba1F24f30B5B5859DaFd2803` holds 9.90 tGLM. **Do not move tGLM without Dhruv's explicit approval.** All other public addresses and hashes are in `docs/PROGRESS.md` and `docs/SUBMISSION.md`.
 
 ## Rules that are easy to break
 
 - **Honesty:** nothing fake or hard-coded. Evidence status is always "suspected". The synthetic Sepolia lookalike only ever gets "resembles your approved payee". Do not claim the extension or the setup panel works until the checks above pass. Do not claim universal protection.
+- **Public pages lead with what the product does.** Dhruv's decision on 6 Nov: no lists of limits on the landing page or in the apps. Limits live in `README.md` and are answered honestly when asked. Every sentence on a page must still be true, and warnings a user needs before signing stay.
 - **UI copy:** no "safe" as an adjective, and no "verified", "scam" or "malicious" (Safe the product, "Verify on Ethereum" and "cannot verify" are fine).
 - **Privacy:** no per-recipient lookups to any server, no trackers, no remote fonts or CDNs. The explorer's address checks must stay on downloaded records.
 - **Secrets:** testnet keys only, in git-ignored `.env`; `.env.example` holds names only. Never print or commit a key. Every `VITE_*` value is public.

@@ -7,8 +7,8 @@
 - **Read first:** `docs/TEAM_HANDOFF.md` (current state, open work, rules for this pass).
 - **Current task:** scope additions merged (PRs #21–#24). Human checks and the open decisions in the handoff remain.
 - **Agent working:** none running; Claude Code organiser (Dhruv's laptop) last.
-- **Last updated:** 06 Nov 11:45 IST
-- **Tests:** contracts 14; workspace 169 passed, 4 skipped; recursive build passed. Hosted landing, explorer (125 of 125) and read-only Pay (L RED, P GREEN, through Nox) checked in headless Chrome.
+- **Last updated:** 06 Nov, after the Hindi and copy pass
+- **Tests:** contracts 14; workspace 169 passed, 4 skipped; recursive build passed. Hosted landing, explorer (173 of 173 after the spread publish) and read-only Pay (L RED, P GREEN, through Nox) checked in headless Chrome.
 - **Next step for whoever comes next:** T14 go/no-go, Pay setup with a real wallet on an isolated Safe, then H6, H9, H10, Guard review. No more tGLM transfer without Dhruv's explicit approval.
 
 ## Tasks (strict order)
@@ -27,7 +27,7 @@
 | T9 | P1 | Explorer "Verify on Ethereum" (receipt check) | ✓ on a real record; "could not verify" on a broken one | ✔ | e3db3e0 | Claude Code (Lane C) | 24 tests on real saved mainnet receipts (zero-value and dust) plus broken records. Live in the browser via publicnode: a real record from a detector run gave ✓; the same record with a wrong block gave "could not verify". A failed RPC is also "could not verify". On `main` ahead of T8 (see Decisions log). |
 | T10 | P1 | HexFence Pay: the "listed in public evidence" signal (exact match, bulk Arkiv read) | Test: a listed address → RED listed; the synthetic L → only RED resembles | ✔ | 8ee2058 | Claude Code (Lane B) | Code + 5 tests done (listed -> RED listed; L -> only RED resembles; map keyed on `lookalike` only; failed read -> "evidence unavailable"). The done-when is test-based, so ✔. On `main` ahead of T8 (see Decisions log). Live hosted Pay loaded the published dataset during T8; the exact-address RED-listed branch was unit-tested, not a live payment to a real suspected lookalike. |
 | T11 | P1 | Anon-RPC for the client's RPC reads (`@anon-rpc/browser-harness`), with a labelled fallback | The demo shows reads going through Anon-RPC | ✔ | 0a1676e | Claude Code (Lane B) | Anon-RPC reads use the Nox route only (tor-js and Nym removed). `anon.ts` tries Nox; a route counts only after a real read returns through it. Failure or the skip button gives direct reads that the page labels not anonymous; once Nox is active, later failures are errors, not silent direct reads. Passthrough specifier excluded. Live: Nox active, and a real Safe 1.4.1 `VERSION()` contract read on Sepolia returned through it. Live T8 also loaded Guard/payees through Nox locally (29,485 ms) and hosted (38,085 ms); Arkiv bulk reads remain direct as designed. On `main` ahead of T8 (see Decisions log); a build of `main` reached Nox active in the browser. |
-| T12 | P1 | Hindi strings in the verdict | A native speaker has checked them | ⏸ | a41d5f9 | Claude Code (Lane B) | Hindi for RED resembles + AMBER only, spec text verbatim; toggle with English one tap away; other verdicts stay English; 4 tests. ⏸ until a native speaker checks: steps in `docs/lanes/LANE_B_claude2.md` (H-T12). With the Guard inactive the 2nd RED sentence is English (no spec Hindi). On `main` ahead of T8 (see Decisions log). |
+| T12 | P1 | Hindi strings in the verdict | A native speaker has checked them | ⏸ | a41d5f9 | Claude Code (Lane B) | Hindi for RED resembles + AMBER only, spec text verbatim; toggle with English one tap away; on 6 Nov extended to every verdict and the Pay interface (`apps/pay/src/i18n.ts`, AI-written; technical errors and setup warnings stay English). ⏸ until a native speaker checks: steps in `docs/lanes/LANE_B_claude2.md` (H-T12). On `main` ahead of T8 (see Decisions log). |
 | T13 | P1 | ≥20 pairs + precision on 30 hand-labelled samples | The numbers are in the README | ⏸ | 4c631f1 | Claude Code | **≥20 pairs: done** (43,227 in the 24 h run, T3). **Precision:** `labels/h9-sample.csv` holds 30 records drawn at random (seed 4919) with Etherscan links; `pnpm --filter @hexfence/detector precision` scores it (yes / (yes + no)). **⏸ on H9** (hand labels). It's P1, so it doesn't block the gate. |
 | T14 | P2 | Chrome extension (Plan A). Scope override: see Decisions log | Human test on app.safe.global catches SafeTx | ⏸ | dc808a0 | Codex, reviewed by Claude Code | 22 unit tests and build pass. Interception on app.safe.global is untested: go/no-go needs MetaMask, steps in apps/extension/TESTING.md. |
 
@@ -53,7 +53,7 @@
   - **no** = something legitimate (e.g. `lookalike` is clearly a known counterparty of the victim, or the transfer is part of normal activity).
   - **unsure** = can't tell. Add a short note in `notes`.
   Then commit the CSV and run `pnpm --filter @hexfence/detector precision`; Lane A puts the result in the T13 row.
-- [ ] **H10 (T12):** a native Hindi speaker checks the two Hindi verdict lines in HexFence Pay and writes "checked by <name>" in the T12 row.
+- [ ] **H10 (T12):** a native Hindi speaker checks the Hindi in HexFence Pay (`docs/H10_HINDI_CHECK.md`) and writes "checked by <name>" in the T12 row.
 - [x] **H11 (hosting):** Pages workflow 42156170418 succeeded. Both public URLs below passed real-data browser checks. Explorer: 25 suspected records at the time (125 after the later expansion, see the T8 row) and mainnet receipt verification. Pay: actual Safe/Guard/payees through Nox, read-only scripted wallet; no hosted payment was sent.
 - [ ] **H12 (submission):** no per-account commit is required: ETHGlobal's rules have no per-member commit requirement, so spec §8's "from all four accounts" is not needed. Copy every GPT/Claude plan, prompt and report you used into `docs/planning/` (agent plans and reports are already in `docs/planning/agent-reports/`).
 
@@ -70,7 +70,7 @@
 | `setGuard` / `approvePayee(P)` | `0x2de356a6c196cb3f2040e3b8d4170ebe0cbc1b2684b0c05e26344756db6278e9` / `0x13baea5038b830810e1a9f68fbed3ae1069f981af4810cbd43c50f7b0d7d1af2` |
 | Removal drill `setGuard(0)` / re-enable | `0x5edf08eb6489d78c13f0748283e43bab8c015c851d0d40e86b030dd6794ad8e0` / `0xd1c7db48a18647713c34384afc51b116888546dd837359eecad0938a5ebe9743` |
 | L payment (reverted) / B payment / P payment | `0xa43b0eeef7253281a741deca144e5ddf0c465da9cc6f48d54673a9aa9c0f6d8f` / `0x2455ca8f1ce612149f15e80325f372202bffeb0258f808bd84acfb1f904de5ca` / `0xea209e9e3c5a9eed080e95dd0ca752b79686400da820ea67b87f98552d2992df` |
-| Arkiv publisher wallet + README query | `0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec`; public query returned 125 unique records (124 zero-value, 1 dust), only suspected |
+| Arkiv publisher wallet + README query | `0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec`; public query returned 173 unique records (147 zero-value, 26 dust), only suspected |
 | Explorer URL / HexFence Pay URL | https://deven1305.github.io/hexfence/explorer/ / https://deven1305.github.io/hexfence/pay/ |
 
 | Second L (direct script, not Safe{Wallet}; gas 200000) | `0xe77e6a7a8ba5b6f9742ec953826bc47c69ffffdced3a4d40b8fe3a220e1bb46f` |
@@ -89,6 +89,10 @@
 - 06 Nov 02:16 (Claude Code): added a **Guard ↔ client parity test**: `contracts/scripts/parity-vectors.js` records what the real `HexFenceGuard` does for 411 transactions; `packages/shared/test/parity.test.ts` checks that `verdictFor(decodeSafeCall(…))` predicts every one (RED resembles ⇔ `LookalikeOfApprovedPayee` with the same addresses; GREY delegatecall ⇔ `DelegateCallNotAllowed`; never RED when the Guard allows). A planted decoder bug made it fail, so it has teeth.
 
 - 06 Nov (Claude Code, Lane A): **independent read-only check of the live T8 values** (Sepolia publicnode + Arkiv, nothing sent). The runtime code at `0xA061…9748` is byte-for-byte our compiled `HexFenceGuard` (metadata included) and `supportsInterface(0xe6d7a83a)` is true. Demo Safe: `VERSION()` 1.4.1, active guard = that Guard, owners deployer + Dhruv, threshold 1, `payees` = [P]; `isApprovedPayee` P true, L and B false. Receipts: setGuard, approvePayee(P), setGuard(0), re-enable, B and P succeeded; both L payments reverted. The publisher holds 125 records, all `suspected` (124 zero-value, 1 dust).
+
+- 06 Nov (Dhruv): public pages lead with what HexFence does; the limits list left the landing page, and limits stay in README.md. Hard rules unchanged: status "suspected", no universal claims, pre-signing warnings stay.
+- 06 Nov (Dhruv, deviation from spec 3.4): Hindi now covers every verdict and the Pay interface, beyond the spec's two lines. Those two lines stay verbatim; the rest is AI-written and awaits H10.
+- 06 Nov (Dhruv): published 48 more records with existing publisher funds, one per equal slice of blocks 26345549-26352743, lowest evidenceId in each slice, excluding block 26352743. Txs 0x5a3c06f45380a75efaaf9989d8b33cf963ed17fe8ee4e4bcd97f0e060b040d36 and 0x0cc6e1053a87c84d370ad1fda375cb976a66643eb04c4759c4b7eac5bed42465. Total 173.
 
 ## Session log (append one line per task or stop)
 
