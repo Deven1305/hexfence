@@ -24,3 +24,5 @@ Explorer now bulk-loads all pages with progress and searches locally; Pay also b
 Typed defineSchema, creator filtering, expiry and executeBatch made static-client reads and idempotent publication straightforward. Our production writer batches 25 creates; a repeat skips existing IDs.
 
 We would value a prominent migration/pagination example, a manifest-size example distinguishing str from bytes, actionable insufficient-funds errors, and preflight batch-cost guidance. The query shape and SDK limits are documented; our earlier assumptions were wrong. Reproduce the working public read with [query.ts](query.ts), requiring no wallet, key or write. Do not generate or fund an account just to reproduce these observations.
+
+B7 follow-up: [the release encoder](../packages/arkiv/src/release.ts) now uses bytes and validates digest/size/path shape; tests reproduce the old str rejection and cover the corrected write/idempotence path. The prototype's earlier size defect is fixed in code. No live release record is claimed; [attestation guide](../docs/ATTESTATIONS.md).

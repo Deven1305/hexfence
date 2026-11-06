@@ -232,7 +232,7 @@ MIT, see [LICENSE](LICENSE).
 
 ## Check the client you are running
 
-Successful Pages builds from `main` publish `SHA256SUMS.txt` and create GitHub build attestations. A downloaded Pay index matched the manifest from [main run 42196792847](https://github.com/Deven1305/hexfence/actions/runs/42196792847). This machine's `gh attestation verify` could not initialize its Sigstore verifier, so independent cryptographic verification is still a reported gap. On a working verifier, download the actual file and run:
+Successful Pages builds from `main` publish `SHA256SUMS.txt` and create GitHub build attestations. A downloaded Pay index matched the manifest from [main run 42196792847](https://github.com/Deven1305/hexfence/actions/runs/42196792847). After selecting a writable Sigstore cache, this machine successfully checked that historical Pay index with the expected workflow/ref/commit and hosted-runner policy. See [actual verification and limits](docs/ATTESTATIONS.md). For a new download, pin its expected source commit and verify each relevant file; the minimal command is:
 
 ```bash
 gh attestation verify <file> -R Deven1305/hexfence
@@ -274,4 +274,6 @@ The Campaigns tab groups downloaded publisher records by attack transaction and 
 **Read real block times** reads each distinct recorded attack block by number, validates the mainnet chain ID, caches timestamps for the page session, and assigns records to exact UTC hours. It does not infer dates from block height or interpolate timestamps. The read can be stopped and retried; an incomplete read does not render a complete hourly series. No recipient address is included in these requests. See [viem getBlock](https://viem.sh/docs/actions/public/getBlock).
 
 The match-length chart compares observed full-address common prefix+suffix lengths with a stated model: the outer four hex digits at each end already match, and the remaining 32 digits are independent uniform hex digits, excluding identical addresses. For s extra matches below 31, the probability is `(s+1) * (15/16)^2 * (1/16)^s`; at s=31 the single mismatch is counted once. Expected counts are fractional and the ratio is computed from the downloaded corpus. This is not an estimate of attack prevalence, a confidence score, or proof of address ownership; selected publication, legitimate vanity addresses and correlated records affect the observed distribution.
-The optional `hexfence.release.v1` publisher is a prototype, not a proved live integration. Its current manifest field is `str`, but the measured manifest is 5,601 bytes and Arkiv's `str` limit is 128 bytes; it needs a `bytes` representation before publication. The publisher secret is also a human configuration step. Attestations establish build provenance, not an audit or protection against a compromised maintainer.
+
+The optional `hexfence.release.v1` publisher is a prototype, not a proved live integration. The B7 follow-up corrects the oversized manifest to tested `bytes` encoding with digest/size/path checks. No live publication has been performed; the inspected job skipped for a missing publisher secret. The publisher secret is also a human configuration step. Attestations establish build provenance, not an audit or protection against a compromised maintainer.
+
