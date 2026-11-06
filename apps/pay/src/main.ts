@@ -289,7 +289,7 @@ function compactSafe(s: HTMLElement, info: SafeInfo): HTMLElement {
   const change = el("button", { type: "button", class: "ghost" }, "Change");
   change.onclick = () => { state.editSafe = true; render(); };
   s.className = "safe-line";
-  s.append(el("div", { class: "row" }, el("span", {}, el("strong", {}, "Safe "), el("code", {}, `${a.slice(0, 6)}…${a.slice(-4)}`), ` · v${info.version} · threshold ${info.threshold}/${info.owners.length}`), change));
+  s.append(el("div", { class: "row" }, el("span", {}, el("strong", {}, "Safe "), el("code", {}, `${a.slice(0, 6)}…${a.slice(-4)}`), ` · v${info.version} · threshold ${info.threshold}/${info.owners.length}${info.v2 ? " · Auto-Fence V2" : ""}`), change));
   if (state.account && !info.owners.some((o) => o.toLowerCase() === state.account?.toLowerCase())) {
     s.append(el("div", { class: "error" }, "The connected account is not an owner of this Safe, so it cannot sign for it."));
   }
