@@ -1,0 +1,29 @@
+{
+  "observedAt": "2026-11-06T15:07:58.525Z",
+  "source": "production bulk reader; public Rabdi; read-only",
+  "publisher": "0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec",
+  "records": 1126,
+  "uniqueEvidenceIds": 1126,
+  "zeroValue": 651,
+  "dust": 475,
+  "statuses": [
+    "suspected"
+  ],
+  "representative": {
+    "evidenceId": "0x214c212602b5d7c38c89e194bd64f5207ce5588416001b36728d31136453cea4",
+    "chainId": 1,
+    "lookalike": "0x9c68624D2d4ae517531E7CBfa1ca21f226fAE020",
+    "impersonated": "0x9c68B05c57326B93F4C5725b5026D8934994E020",
+    "victim": "0xFe28BB0bdF8Cf4745e619DB784a7A3383922eA3d",
+    "variant": "zero-value",
+    "token": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+    "attackTx": "0x06624062d48e91c9e52d8ca39c90aeb708dcd6a49ebfd02bc9b1aa99c59cf611",
+    "attackBlock": 26352743,
+    "referenceTx": "0xf521432b732da74ce89cfc59a86f6541b117eab7b139114f451fde72f41f8106",
+    "referenceBlock": 26348646,
+    "prefixLen": 4,
+    "suffixLen": 4,
+    "detectorVersion": "0.1.0",
+    "status": "suspected"
+  }
+}

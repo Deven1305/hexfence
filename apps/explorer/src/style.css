@@ -1,7 +1,7 @@
 ﻿main.wrap { padding-top: var(--s7); padding-bottom: var(--s5); }
 h1 { margin: 0; font-size: clamp(30px, 4.2vw, 46px); letter-spacing: -.02em; }
 h2 { font-size: clamp(22px, 2.6vw, 28px); margin: 0 0 var(--s3); }
-h3 { margin: var(--s2) 0 var(--s4); font-size: 20px; text-transform: capitalize; }
+h3 { margin: var(--s2) 0 var(--s4); font-size: 20px; }
 p { margin: 0 0 var(--s3); }
 .label { display: inline-block; margin: 0 0 var(--s3); padding: 4px var(--s3); border: 1px solid var(--red); border-radius: 999px; color: var(--red); background: var(--red-bg); font: 700 12px/1.2 var(--body); letter-spacing: .05em; text-transform: uppercase; }
 .intro { margin: var(--s3) 0; color: var(--muted); max-width: 70ch; font-size: 18px; }
@@ -25,13 +25,15 @@ button.ghost, button.more { background: transparent; color: var(--brand); }
 button:disabled { cursor: not-allowed; background: var(--surface2); border-color: var(--line); color: var(--muted); }
 .hf-table button { min-height: 36px; padding: 0 var(--s4); font-size: 14px; background: transparent; color: var(--brand); }
 .search { display: flex; flex-wrap: wrap; gap: var(--s3); padding-block: var(--s4); margin: var(--s4) 0; }
-.address-check { display: grid; gap: var(--s3); max-width: 640px; margin: var(--s5) 0 0; padding: var(--s5); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); }
+.address-check { display: grid; gap: var(--s3); margin: var(--s5) 0 0; padding: var(--s5); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); }
 .address-check form { display: flex; flex-wrap: wrap; gap: var(--s3); }
 .address-check h2 { margin: 0; }
 
 /* Status and progress */
 .status { min-height: 1.4em; margin: var(--s3) 0; font-size: 14px; color: var(--muted); overflow-wrap: anywhere; }
+.status:empty { display: none; }
 .status.error { color: var(--red); border-left: 3px solid; padding-left: var(--s3); }
+.hf-detail-content { width: 100%; max-width: none; }
 .load-progress { display: block; width: 100%; max-width: 420px; height: 8px; margin: var(--s2) 0; accent-color: var(--brand); }
 .pager { display: flex; flex-wrap: wrap; gap: var(--s3); align-items: center; justify-content: space-between; margin: var(--s4) 0; font-size: 14px; color: var(--muted); }
 .pager div { display: flex; gap: var(--s2); }

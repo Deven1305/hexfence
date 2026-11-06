@@ -56,7 +56,7 @@ app.append(el("h1", undefined, "HexFence evidence explorer"), el("p", "label", E
 const explain = (...kids: (Node | string)[]) => el("p", "explain", ...kids);
 const explainEvidence = explain("Every record the detector published to Arkiv, each labelled suspected. Search by address, then choose ", el("b", undefined, "X-Ray"), " on a row to compare the addresses and re-check its Ethereum receipts.");
 const explainLosses = explain("Published records of payments that reached a lookalike after poisoning. Each one is an investigative lead, not a confirmed loss.");
-const explainCampaigns = explain("The same records grouped by the Ethereum transaction that planted them, with counts computed in your browser from the downloaded records.");
+const explainCampaigns = explain("The same records grouped by the Ethereum transaction that created them, with counts computed in your browser from the downloaded records.");
 
 if (!isAddress(publisherEnv, { strict: false })) {
   app.append(el("p", "status error", "VITE_ARKIV_PUBLISHER is not set to an address, so no evidence can be loaded."));
@@ -148,7 +148,7 @@ if (!isAddress(publisherEnv, { strict: false })) {
         dashboard.replaceChildren(campaignsPanel(downloaded, rpcUrl));
         updateSearch(false, added);
         updateOwnCheck();
-        progress.max = Number(page.total); progress.value = downloaded.length;
+        progress.max = Number(page.total); progress.value = downloaded.length; progress.hidden = complete;
         status.textContent = `Showing ${downloaded.length} of ${page.total.toString()} publisher records. ` +
           (complete ? "All records loaded." : "Loading next page…");
       } while (!complete);
