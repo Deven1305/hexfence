@@ -1,11 +1,12 @@
+import { campaignsPanel } from "./campaigns.js";
 import { lossesPanel } from "./losses.js";
 import { DataTable } from "@hexfence/ui";
 import "@hexfence/ui/style.css";
-﻿import { arkivReadClient } from "@hexfence/arkiv";
+import { arkivReadClient } from "@hexfence/arkiv";
 import type { PoisoningEvidence } from "@hexfence/shared";
 import { isAddress, type Address, type Hex } from "viem";
 import { fetchEvidencePage } from "./evidence.js";
-import { checkOwnAddress, renderDashboard } from "./dashboard.js";
+import { checkOwnAddress } from "./dashboard.js";
 import { EVIDENCE_LABEL, parseSearch } from "./format.js";
 import { el, recordCard } from "./render.js";
 import "./style.css";
@@ -121,7 +122,7 @@ if (!isAddress(publisherEnv, { strict: false })) {
         nextKey = page.nextKey;
         if (nextKey && previous === nextKey) throw new Error("Arkiv pagination did not advance.");
         complete = nextKey === undefined;
-        dashboard.replaceChildren(renderDashboard(downloaded));
+        dashboard.replaceChildren(campaignsPanel(downloaded, rpcUrl));
         updateSearch(false, added);
         updateOwnCheck();
         status.textContent = `Showing ${downloaded.length} of ${page.total.toString()} publisher records. ` +

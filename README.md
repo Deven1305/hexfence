@@ -266,4 +266,14 @@ Official references: [Arkiv column types](https://docs.arkiv.network/schemas/col
 
 The raw ≥1-token follow-up rule also matches automated contract movements: the first real run's largest candidates involved the PoolManager address in [Uniswap's official deployment list](https://developers.uniswap.org/docs/protocols/v4/deployments). The loss call-shape pass therefore fetches transactions by hash (never by recipient), retains explicit ERC-20 payments initiated by the recorded victim or encoded through `execTransaction`, and leaves unsupported calls unclassified. Only those supported payment shapes contribute to the loss headline or publisher input. Even a supported shape remains suspected and does not prove poisoning caused the payment. Raw candidate counts stay in the scan report separately. Five initial raw candidates were withdrawn from Arkiv before this feature was merged; the report records the retraction transaction.
 
+
+## Campaigns and time (B2)
+
+The Campaigns tab groups downloaded publisher records by attack transaction and counts distinct victims mentioned. These counts describe the downloaded, selected corpus, not every victim or attack on Ethereum. Expand a group to inspect its address comparisons.
+
+**Read real block times** reads each distinct recorded attack block by number, validates the mainnet chain ID, caches timestamps for the page session, and assigns records to exact UTC hours. It does not infer dates from block height or interpolate timestamps. The read can be stopped and retried; an incomplete read does not render a complete hourly series. No recipient address is included in these requests. See [viem getBlock](https://viem.sh/docs/actions/public/getBlock).
+
+The match-length chart compares observed full-address common prefix+suffix lengths with a stated model: the outer four hex digits at each end already match, and the remaining 32 digits are independent uniform hex digits, excluding identical addresses. For s extra matches below 31, the probability is `(s+1) * (15/16)^2 * (1/16)^s`; at s=31 the single mismatch is counted once. Expected counts are fractional and the ratio is computed from the downloaded corpus. This is not an estimate of attack prevalence, a confidence score, or proof of address ownership; selected publication, legitimate vanity addresses and correlated records affect the observed distribution.
+
 The optional `hexfence.release.v1` publisher is a prototype, not a proved live integration. The B7 follow-up corrects the oversized manifest to tested `bytes` encoding with digest/size/path checks. No live publication has been performed; the inspected job skipped for a missing publisher secret. The publisher secret is also a human configuration step. Attestations establish build provenance, not an audit or protection against a compromised maintainer.
+

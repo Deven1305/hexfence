@@ -91,6 +91,18 @@ try {
           }
         }
         await page.screenshot({ path: path.join(out, `losses-${width}-${colorScheme}.png`), fullPage: false });
+        await page.getByRole('button', { name: 'Campaigns', exact: true }).click();
+        const campaigns = page.locator('.campaigns-panel');
+        await expect(campaigns).toContainText('Counts refer to downloaded suspected records');
+        await campaigns.getByRole('button', { name: 'Read real block times', exact: true }).click();
+        await expect(campaigns).toContainText('actual block timestamps.', { timeout: 180000 });
+        const hourly = campaigns.locator('.hourly-chart');
+        const counted = await hourly.locator('[data-count]').evaluateAll(rows => rows.reduce((n, row) => n + Number(row.dataset.count), 0));
+        const expected = Number(await hourly.getAttribute('data-records'));
+        expect(counted).toBe(expected); expect(expected).toBeGreaterThan(0);
+        await hourly.screenshot({ path: path.join(out, `campaigns-time-${width}-${colorScheme}.png`) });
+        await campaigns.locator('.match-comparison').screenshot({ path: path.join(out, `campaigns-model-${width}-${colorScheme}.png`) });
+        await campaigns.locator('.campaign-stats').screenshot({ path: path.join(out, `campaigns-stats-${width}-${colorScheme}.png`) });
       }
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       expect(errors).toEqual([]);
