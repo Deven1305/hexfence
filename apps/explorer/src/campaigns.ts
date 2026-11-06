@@ -49,6 +49,14 @@ export function utcHourBins(rows: readonly PoisoningEvidence[], times: ReadonlyM
   for (const value of seconds) bins[Math.floor((value - first) / 3600)]!.count++;
   return bins;
 }
+/** The busiest UTC hour and how many distinct attack blocks fill it. A tall bar from very few blocks
+ * points at how records were picked for publishing, not at an hourly attack rate. */
+export function peakHour(rows: readonly PoisoningEvidence[], times: ReadonlyMap<number, number>) {
+  const bins = utcHourBins(rows, times); if (!bins.length) return null;
+  const peak = bins.reduce((a, b) => b.count > a.count ? b : a);
+  const inPeak = uniqueRecords(rows).filter(e => { const s = times.get(e.attackBlock)!; return s >= peak.from && s < peak.to; });
+  return { from: peak.from, count: peak.count, total: uniqueRecords(rows).length, blocks: new Set(inPeak.map(e => e.attackBlock)).size };
+}
 export function utcLabel(seconds: number): string { return new Date(seconds * 1000).toISOString().slice(0, 16).replace("T", " "); }
 
 function countBars(title: string, entries: { label: string; count: number }[]): HTMLElement {
@@ -99,7 +107,8 @@ export function campaignsPanel(input: readonly PoisoningEvidence[], rpcUrl?: str
     return [link, String(g.victims), String(g.records.length), String(g.lookalikes), String(g.block)];
   }), details, "Records"));
   root.append(countBars("Victims mentioned by campaign transaction", groups.slice(0, 12).map(g => ({ label: `${g.tx.slice(0, 10)}…${g.tx.slice(-6)}`, count: g.victims }))));
-  const timeSection = el("section", "hourly-panel", el("h3", undefined, "Recorded patterns per UTC hour"));
+  const timeSection = el("section", "hourly-panel", el("h3", undefined, "Published records per UTC hour"),
+    el("p", "dashboard-note", "This counts the records this publisher chose to publish, not how many attacks happened in each hour."));
   const blocks = [...new Set(records.map(e => e.attackBlock))].sort((a, b) => a - b);
   const load = el("button", undefined, "Read real block times") as HTMLButtonElement; load.type = "button"; load.disabled = !rpcUrl || !blocks.length;
   const status = el("p", "status", `${blocks.length} distinct recorded attack blocks. Timestamps are read by block number.`); status.setAttribute("role", "status");
@@ -124,6 +133,9 @@ export function campaignsPanel(input: readonly PoisoningEvidence[], rpcUrl?: str
       const bins = utcHourBins(records, blockTimes);
       chart.replaceChildren(countBars("Downloaded suspected records · UTC hours", bins.map(b => ({ label: `${utcLabel(b.from)}–${utcLabel(b.to).slice(11)} UTC`, count: b.count }))));
       status.textContent = `${records.length} downloaded records assigned to ${bins.length} UTC hours using ${blocks.length} actual block timestamps.`;
+      const peak = peakHour(records, blockTimes);
+      if (peak && bins.length > 1 && peak.count * 2 > peak.total) chart.append(el("p", "dashboard-note",
+        `${peak.count} of ${peak.total} records fall in ${utcLabel(peak.from)} UTC and come from ${peak.blocks} attack block${peak.blocks === 1 ? "" : "s"}. A spike like this shows which records were selected for publishing; it is not an hourly attack rate.`));
       chart.dataset.records = String(records.length); chart.dataset.blocks = String(blocks.length);
     })().catch(() => { status.textContent = "Could not finish reading block times. Retry to continue from loaded timestamps."; })
       .finally(() => { running = false; load.disabled = false; load.textContent = "Read real block times"; });
