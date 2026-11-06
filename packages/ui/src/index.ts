@@ -22,7 +22,6 @@ export function AddressXray(address: Address, compare?: Address, label = "Addres
   const title = document.createElement("div"); title.className = "hf-xray-label"; title.textContent = label;
   const code = document.createElement("code"); code.className = "hf-address";
   code.setAttribute("aria-label", `${label}: ${address}`);
-  const prefix = document.createElement("span"); prefix.textContent = "0x"; code.append(prefix);
   for (const group of addressGroups(address, compare)) {
     const span = document.createElement("span"); span.className = `hf-${group.state}`; span.textContent = group.text; code.append(span);
   }
@@ -33,7 +32,7 @@ export function AddressXray(address: Address, compare?: Address, label = "Addres
     const differences = [...address.slice(2).toLowerCase()].filter((c, i) => c !== compare.slice(2).toLowerCase()[i]).length;
     const count = document.createElement("p"); count.className = "hf-difference-count"; count.textContent = `${differences} of 40 characters differ`; root.append(count);
   }
-  if (compare) { const key = document.createElement("small"); key.textContent = "Amber: matching group · Red: different group. Compare the full address."; root.append(key); }
+  if (compare) { const key = document.createElement("small"); key.textContent = "Underlined: matching group · Red: different group. Compare the full address."; root.append(key); }
   return root;
 }
 
