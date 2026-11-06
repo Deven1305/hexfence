@@ -130,7 +130,7 @@ export function routeStatusText(o: AnonOutcome): string[] {
     for (const a of o.attempts) lines.push(`${a.label}: ${a.reason ?? "failed"}.`);
   }
   lines.push(
-    "Not covered: the one start-up read of the routing contract is direct, the bulk evidence read from Arkiv is direct, and your wallet still signs and sends transactions itself.",
+    "Your wallet signs and sends. The start-up routing read and the bulk evidence read contain no recipient address and use a direct connection.",
   );
   return lines;
 }

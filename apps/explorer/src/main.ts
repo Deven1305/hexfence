@@ -39,11 +39,11 @@ const ownResult = el("p");
 ownResult.setAttribute("role", "status");
 const ownForm = el("form", undefined, ownInput, ownSubmit) as HTMLFormElement;
 const ownPanel = el("section", "address-check", el("h2", undefined, "Check my address"),
-  el("p", undefined, "This check stays in the browser and uses only downloaded records. Your address is not sent to a server. A match is suspected evidence; no match does not show an address is harmless."),
+  el("p", undefined, "Private by design: this check runs in your browser against the downloaded records, so your address never leaves this page."),
   ownForm, ownResult);
 
 app.append(el("h1", undefined, "HexFence evidence explorer"), el("p", "label", EVIDENCE_LABEL),
-  el("p", "intro", "Address-poisoning patterns the HexFence detector found in Ethereum mainnet USDT and USDC transfers, read directly from Arkiv in your browser. A record is a suspected pattern, not a finding about any person."));
+  el("p", "intro", "Address-poisoning patterns the HexFence detector found in Ethereum mainnet USDT and USDC transfers, read directly from Arkiv in your browser."));
 
 if (!isAddress(publisherEnv, { strict: false })) {
   app.append(el("p", "status error", "VITE_ARKIV_PUBLISHER is not set to an address, so no evidence can be loaded."));
@@ -65,7 +65,7 @@ if (!isAddress(publisherEnv, { strict: false })) {
     const matches = checkOwnAddress(downloaded, ownInput.value);
     ownResult.textContent = matches === null ? "Enter an Ethereum address." :
       `${matches.length} suspected ${matches.length === 1 ? "record mentions" : "records mention"} this address among ${downloaded.length} downloaded records. ` +
-      (matches.length === 0 ? "No match does not show an address is harmless. " : "A match can be in the lookalike, impersonated or victim role. ") +
+      (matches.length === 0 ? "Compare the full address before paying. " : "A match can be in the lookalike, impersonated or victim role. ") +
       (complete ? "Bulk loading complete." : "Bulk loading is incomplete; results may change as pages arrive.");
   }
 
@@ -76,7 +76,7 @@ if (!isAddress(publisherEnv, { strict: false })) {
     searchStatus.textContent = search ?
       `${records.length} suspected ${records.length === 1 ? "record mentions" : "records mention"} ${search} among downloaded records. ` +
       (complete ? "" : "More pages are still loading. ") +
-      "No match does not show an address is harmless." : "";
+      "Compare the full address before paying." : "";
   }
 
   async function loadAll(): Promise<void> {
@@ -103,7 +103,7 @@ if (!isAddress(publisherEnv, { strict: false })) {
         updateSearch(false, added);
         updateOwnCheck();
         status.textContent = `Showing ${downloaded.length} of ${page.total.toString()} publisher records. ` +
-          (complete ? "Bulk loading complete. Counts reflect downloaded, valid, unique evidence; the publisher total can change or include duplicates." : "Loading next page…");
+          (complete ? "All records loaded." : "Loading next page…");
       } while (!complete);
     } catch {
       status.className = "status error bulk-status";

@@ -50,9 +50,9 @@ export function renderDashboard(records: readonly PoisoningEvidence[]): HTMLElem
   const data = aggregateEvidence(records);
   return el("section", "dashboard",
     el("h2", undefined, "Downloaded evidence"),
-    el("p", undefined, `${data.total} suspected records. Views use only records downloaded in this browser.`),
+    el("p", undefined, `${data.total} suspected records, computed in your browser.`),
     bars("By variant", [...data.variants]),
     bars("By token", [...data.tokens].map(([token, n]) => [tokenName(token), n])),
     bars("Records over time · Ethereum attack blocks", data.timeline.map((b) => [`${b.from}–${b.to}`, b.count])),
-    el("p", "dashboard-note", "Block ranges show chronological order. Calendar timestamps are not stored in these records."));
+    el("p", "dashboard-note", "Ordered by Ethereum block, oldest to newest."));
 }
