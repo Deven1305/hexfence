@@ -35,9 +35,12 @@
 
 | ID | Task | Status | Evidence / next step |
 |---|---|---|---|
+| A1 | Auto-Fence V2 | ⏸ | [PR #32](https://github.com/Deven1305/hexfence/pull/32), 59ea1fe: 32 Hardhat / 38 shared tests pass, 414 actual V2 parity vectors; full recursive tests/build pass in CI. Deployed 0x0adF080DE3DA9D672fDc7330B8750a0579A698c7 (Sourcify exact match 58609655). Isolated 1-of-1 Safe 0x5142C7E9DE82726CaCb847c5469D460508738214, learning on, empty list, zero balance; removal/restoration receipts in contracts/deployments/v2-safe-sepolia.json. Positive-value live P/L demo awaits human funding/authorization; no funds transferred by the agent. |
 | A2 | Sentinel + HexFenceAlerts | ⏸ | [PR #29](https://github.com/Deven1305/hexfence/pull/29), commit 290ba1d: all 3 required checks and WASM compile pass in CI. Consumer deployed at 0x97F6f25D51DD52565FF30D22286392686A1ED80F, tx 0x6fa36eef483077cfa825de7d5273484011e3c2b0c528d9e8bd2eec196ba4a8c9; Sourcify exact creation/runtime match 58607325. Real zero-value Sepolia demonstration tx 0x7494d97df9468b822e32aa7008e8f336979b584558053457a03ef32e00b9af15, event index 0. CRE simulation remains blocked by human login; Telegram token absent. Radar wiring follows A1. |
 
 ## Waiting on humans (tick the box when done; then the agent continues)
+- [ ] A1 positive-value Sepolia demo: a human funds the NEW isolated Safe 0x5142C7E9DE82726CaCb847c5469D460508738214 with at least two Sepolia wei from existing funds. From contracts, with the existing owner key in ignored root .env, run `node scripts/demo-v2-payments.js 0x4E185e251Ac7fB83E9DE10723EAda46cadE74120 0x4E185a3FC4B530244aB9ed0dE38167b403344120`. It sends one wei to P and broadcasts a forced-gas L transaction. Record actual generated receipts; this is scripted execution, not H6 or a human wallet test. The agent has not run this script.
+
 - [ ] A2 CRE: a human creates the Chainlink account and runs `cre login`. From `sentinel`, after creating the ignored config and supplying an actual Sepolia event: `cre workflow simulate hexfence-sentinel --target staging-settings --env ../.env --non-interactive --trigger-index 0 --evm-tx-hash 0x7494d97df9468b822e32aa7008e8f336979b584558053457a03ef32e00b9af15 --evm-event-index 0 --broadcast`. Save actual output and consumer receipt/hash to `sentinel/SIMULATION.md` only after success. CLI init also requires login; project files were prepared directly. No successful simulation is claimed.
 - [ ] A2 Telegram: human creates the bot, starts the intended chat, adds `TELEGRAM_BOT_TOKEN_ALL` to ignored root .env, enables Telegram and sets the opted-in chat ID in ignored `sentinel/hexfence-sentinel/config.json`. Agent does not create accounts, enter credentials, or send a message before that setup.
 
@@ -85,6 +88,8 @@
 | Second L (direct script, not Safe{Wallet}; gas 200000) | `0xe77e6a7a8ba5b6f9742ec953826bc47c69ffffdced3a4d40b8fe3a220e1bb46f` |
 
 ## Decisions log
+- 06 Nov (Codex 2, A1): V2 uses transient storage keyed by Safe and execution depth (not a single global pending slot). Real Safe tests exercise nested same-Safe, administrative and different-Safe execution. Learning dates mean successful recognized Safe execution, not independently confirmed ERC-20 movement; zero-value and false-returning token-shaped calls are within that limitation. V2 compiler override is solc 0.8.28/Cancun; v1 stays 0.8.26.
+
 - 06 Nov (Codex 2, user-authorized upgrade): **v2 is a new contract; v1 unchanged**. The locked spec's **"No Chainlink" is superseded by the upgrade plan** for Sentinel. No changes to the locked planning files or H9 labels.
 - 06 Nov (Codex 2): official CRE SDK 1.23.0 types differ from older docs examples: NodeRuntime has no getSecret (retrieve through runtime.getSecret before node mode); HTTP cacheSettings uses store/maxAge, not readFromCache/maxAgeMs. Implemented the installed official types and bulk alertsOf reads. Mock forwarder alerts are simulation data, not DON-authenticated alerts.
 - 06 Nov (Codex 2): original and relocated Git metadata have deny ACLs. User authorized an in-sandbox alternative: fresh checkout C:/hexfence-work/research/codex2-work with separate metadata C:/hexfence-work/research/codex2-gitdata. All feature commits/PRs use that checkout.
