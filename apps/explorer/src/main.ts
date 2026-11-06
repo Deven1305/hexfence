@@ -17,6 +17,8 @@ const app = document.querySelector<HTMLElement>("#app")!;
 const publisherEnv = (import.meta.env.VITE_ARKIV_PUBLISHER as string | undefined)?.trim() ?? "";
 const extraPublishersEnv = (import.meta.env.VITE_ARKIV_EXTRA_PUBLISHERS as string | undefined)?.trim() ?? "";
 const rpcUrl = (import.meta.env.VITE_MAINNET_RPC_URL as string | undefined)?.trim() || undefined;
+const progress = el("progress", "load-progress") as HTMLProgressElement;
+progress.setAttribute("aria-label", "Records downloaded from Arkiv");
 const status = el("p", "status bulk-status");
 status.setAttribute("role", "status");
 const searchStatus = el("p", "status");
@@ -51,6 +53,10 @@ const ownPanel = el("section", "address-check", el("h2", undefined, "Check my ad
 
 app.append(el("h1", undefined, "HexFence evidence explorer"), el("p", "label", EVIDENCE_LABEL),
   el("p", "intro", "Address-poisoning patterns the HexFence detector found in Ethereum mainnet USDT and USDC transfers, read directly from Arkiv in your browser."));
+const explain = (...kids: (Node | string)[]) => el("p", "explain", ...kids);
+const explainEvidence = explain("Every record the detector published to Arkiv, each labelled suspected. Search by address, then choose ", el("b", undefined, "X-Ray"), " on a row to compare the addresses and re-check its Ethereum receipts.");
+const explainLosses = explain("Published records of payments that reached a lookalike after poisoning. Each one is an investigative lead, not a confirmed loss.");
+const explainCampaigns = explain("The same records grouped by the Ethereum transaction that planted them, with counts computed in your browser from the downloaded records.");
 
 if (!isAddress(publisherEnv, { strict: false })) {
   app.append(el("p", "status error", "VITE_ARKIV_PUBLISHER is not set to an address, so no evidence can be loaded."));
@@ -62,7 +68,7 @@ if (!isAddress(publisherEnv, { strict: false })) {
   const tablePanel = el("section");
   const lossPanel = lossesPanel(client, publisher, rpcUrl);
   let view = "Evidence";
-  const panels = { Evidence: [form, searchStatus, tablePanel, results], Losses: [lossPanel], Campaigns: [dashboard], "Check my address": [ownPanel] };
+  const panels = { Evidence: [explainEvidence, form, searchStatus, tablePanel, results], Losses: [explainLosses, lossPanel], Campaigns: [explainCampaigns, dashboard], "Check my address": [ownPanel] };
   const choose = (name: string) => {
     view = name;
     for (const [label, nodes] of Object.entries(panels)) for (const node of nodes) node.hidden = label !== name;
@@ -72,7 +78,7 @@ if (!isAddress(publisherEnv, { strict: false })) {
     const b = el("button", undefined, name) as HTMLButtonElement; b.type = "button"; b.onclick = () => choose(name); tabs.append(b);
   }
   app.append(tabs);
-  app.append(el("p", "publisher", `Publisher ${publisher}`), publishersNote, status, retry, dashboard, ownPanel, form, searchStatus, tablePanel, results, lossPanel);
+  app.append(el("p", "publisher", `Publisher ${publisher}`), publishersNote, status, progress, retry, explainEvidence, form, searchStatus, tablePanel, results, explainLosses, lossPanel, explainCampaigns, dashboard, ownPanel);
   choose(view);
   const downloaded: PoisoningEvidence[] = [];
   const seen = new Set<string>();
@@ -80,6 +86,8 @@ if (!isAddress(publisherEnv, { strict: false })) {
   let complete = false;
   let loading = false;
   let search: Address | undefined;
+  let pageIndex = 0;
+  const PAGE_SIZE = 50;
   let ownChecked = false;
   const extra = parsePublishers(publisher, extraPublishersEnv);
   const others = new Map<string, PoisoningEvidence[]>(); // extra publishers read completely
@@ -96,11 +104,20 @@ if (!isAddress(publisherEnv, { strict: false })) {
   function updateSearch(replace = true, added: PoisoningEvidence[] = []): void {
     const records = search ? checkOwnAddress(downloaded, search)! : downloaded;
     const counts = agreement(new Map([[publisher.toLowerCase(), downloaded], ...others]));
-    tablePanel.replaceChildren(DataTable(["Block", "Pattern", "Token", "Lookalike", "Status"], records.map(e => {
+    const pages = Math.max(1, Math.ceil(records.length / PAGE_SIZE));
+    pageIndex = Math.min(pageIndex, pages - 1);
+    const shown = records.slice(pageIndex * PAGE_SIZE, (pageIndex + 1) * PAGE_SIZE);
+    const prev = el("button", "ghost", "Previous") as HTMLButtonElement; prev.type = "button"; prev.disabled = pageIndex === 0;
+    const next = el("button", "ghost", "Next") as HTMLButtonElement; next.type = "button"; next.disabled = pageIndex >= pages - 1;
+    prev.onclick = () => { pageIndex--; updateSearch(false); tablePanel.scrollIntoView({ block: "start" }); };
+    next.onclick = () => { pageIndex++; updateSearch(false); tablePanel.scrollIntoView({ block: "start" }); };
+    const first = records.length ? pageIndex * PAGE_SIZE + 1 : 0;
+    const pager = el("div", "pager", el("span", undefined, `Rows ${first}–${pageIndex * PAGE_SIZE + shown.length} of ${records.length} · page ${pageIndex + 1} of ${pages}`), el("div", undefined, prev, next));
+    tablePanel.replaceChildren(DataTable(["Block", "Pattern", "Token", "Lookalike", "Status"], shown.map(e => {
       const address = el("a", undefined, `${e.lookalike.slice(0, 6)}…${e.lookalike.slice(-4)}`) as HTMLAnchorElement;
       address.href = `https://etherscan.io/address/${e.lookalike}`; address.target = "_blank"; address.rel = "noreferrer";
       return [String(e.attackBlock), e.variant, e.token.toLowerCase().startsWith("0xdac1") ? "USDT" : "USDC", address, e.status];
-    }), records.map(e => recordCard(e, rpcUrl, agreementText(counts.get(e.evidenceId.toLowerCase()) ?? 1, 1 + others.size)))));
+    }), shown.map(e => recordCard(e, rpcUrl, agreementText(counts.get(e.evidenceId.toLowerCase()) ?? 1, 1 + others.size)))), pager);
     results.replaceChildren();
     searchStatus.textContent = search ?
       `${records.length} suspected ${records.length === 1 ? "record mentions" : "records mention"} ${search} among downloaded records. ` +
@@ -131,6 +148,7 @@ if (!isAddress(publisherEnv, { strict: false })) {
         dashboard.replaceChildren(campaignsPanel(downloaded, rpcUrl));
         updateSearch(false, added);
         updateOwnCheck();
+        progress.max = Number(page.total); progress.value = downloaded.length;
         status.textContent = `Showing ${downloaded.length} of ${page.total.toString()} publisher records. ` +
           (complete ? "All records loaded." : "Loading next page…");
       } while (!complete);
@@ -151,13 +169,13 @@ if (!isAddress(publisherEnv, { strict: false })) {
   ownInput.addEventListener("input", () => { ownChecked = false; ownResult.textContent = ""; });
   form.addEventListener("submit", (ev) => {
     ev.preventDefault();
-    if (!input.value.trim()) { search = undefined; updateSearch(); return; }
+    if (!input.value.trim()) { search = undefined; pageIndex = 0; updateSearch(); return; }
     const address = parseSearch(input.value);
     if (!address) { searchStatus.textContent = "That is not an Ethereum address."; return; }
-    search = address;
+    search = address; pageIndex = 0;
     updateSearch();
   });
-  clear.addEventListener("click", () => { input.value = ""; search = undefined; updateSearch(); });
+  clear.addEventListener("click", () => { input.value = ""; search = undefined; pageIndex = 0; updateSearch(); });
   retry.addEventListener("click", () => void loadAll());
   void loadAll();
   void (async () => {
