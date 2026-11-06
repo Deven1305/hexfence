@@ -1,4 +1,4 @@
-.dashboard, .address-check { margin: 1.5rem 0; padding: 1rem; border: 1px solid currentColor; border-radius: .5rem; }
+.dashboard { margin: 1.5rem 0; padding: 1rem; border: 1px solid var(--line); border-radius: var(--rb); }
 .dashboard-chart { margin-block: 1.25rem; }
 .dashboard-row { display: grid; grid-template-columns: minmax(9rem, 1fr) 2fr 3rem; gap: .75rem; align-items: center; margin-block: .4rem; overflow-wrap: anywhere; }
 .dashboard-track { background: #80808026; height: .8rem; border-radius: .2rem; overflow: hidden; }
@@ -10,9 +10,8 @@
 
 .campaigns-panel { margin:1.5rem 0; }
 .campaigns-panel h3 { text-transform:none; }
-.campaign-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:.8rem; margin:1.2rem 0; }
 .campaign-detail .hf-xray { min-width:16rem; }
-.hourly-panel, .match-comparison { padding:1rem; border:1px solid var(--line); margin:1.5rem 0; }
+.hourly-panel, .match-comparison { padding:1rem; border:1px solid var(--line); border-radius:var(--r); background:var(--surface); margin:1.5rem 0; }
 .dashboard-fill { background:var(--accent); }
 .comparison-row { margin:1rem 0; padding-top:.7rem; border-top:1px solid var(--line); }
 .comparison-series { display:grid; grid-template-columns:minmax(10rem,1fr) 2fr; align-items:center; gap:1rem; margin:.4rem 0; font-size:.8rem; }
