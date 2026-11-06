@@ -10,6 +10,7 @@
   "dependencies": {
     "@hexfence/ui": "workspace:*",
     "@hexfence/arkiv": "workspace:*",
+    "@hexfence/shared": "workspace:*",
     "viem": "2.57.16"
   },
   "devDependencies": {
