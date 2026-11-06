@@ -1,0 +1,8 @@
+{
+  "chainId": 11155111,
+  "contract": "HexFenceGovernanceGuardV2",
+  "guard": "0x108ea016F84d9817364b65Df6A133afe9CA33855",
+  "transactionHash": "0x8d274c070f3a387e3c473be449a516eb6bc22342f64ec88bc60714969e744018",
+  "blockNumber": 12077102,
+  "runtimeCodeHash": "0x9eab6ac2ce5b53c3511bea1386007fb8e4cffef52beec24ee2d09db8786b5f58"
+}

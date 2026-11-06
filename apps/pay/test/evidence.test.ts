@@ -56,5 +56,10 @@ describe("T10 listed signal", () => {
     expect(bad).toEqual({ status: "unavailable", reason: "rate limited" });
     expect(listedStatusText(bad)).toMatch(/^Evidence unavailable/);
     expect((await loadListed(false, async () => records)).status).toBe("off");
+    const saved = await loadListed(true, async () => ({ evidence: records, source: "saved", readAt: Date.UTC(2026, 10, 6, 16, 28) }));
+    expect(saved.status === "ok" && saved.map.size).toBe(listedMap(records).size);
+    expect(listedStatusText(saved)).toContain("copy read from Arkiv at 2026-11-06 16:28:00.000 UTC");
+    const live = await loadListed(true, async () => ({ evidence: records, source: "live", readAt: 1 }));
+    expect(listedStatusText(live)).toContain("loaded once from Arkiv");
   });
 });

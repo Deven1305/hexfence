@@ -27,6 +27,18 @@ H10 stays open until a native speaker writes "checked by <name>, <date>".
 3. Is "सुरक्षित Safe" clear as "your protected Safe" (not read as "a safe/secure thing" in general)?
 4. Is "आख़िरी 4 अक्षर" clear for the last 4 characters of an address?
 
+## Interface labels added in the redesign (AI-written, unreviewed)
+
+These are `i18n.ts` labels, not spec lines. Please check each reads naturally:
+
+| English | Hindi in the app |
+|---|---|
+| Wallet | वॉलेट |
+| Payment | भुगतान |
+| ⚙ Fence settings | ⚙ फ़ेंस सेटिंग |
+| Change | बदलें |
+| Keep this Safe | यही Safe रखें |
+
 ## What the reviewer writes
 
 - Fine as is: tell Dhruv "checked by <name>, <date>". Dhruv then sets the **T12** row in `docs/PROGRESS.md` to ✔ and adds "checked by <name>" in its notes cell, and ticks H10.

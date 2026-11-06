@@ -22,7 +22,6 @@ export function AddressXray(address: Address, compare?: Address, label = "Addres
   const title = document.createElement("div"); title.className = "hf-xray-label"; title.textContent = label;
   const code = document.createElement("code"); code.className = "hf-address";
   code.setAttribute("aria-label", `${label}: ${address}`);
-  const prefix = document.createElement("span"); prefix.textContent = "0x"; code.append(prefix);
   for (const group of addressGroups(address, compare)) {
     const span = document.createElement("span"); span.className = `hf-${group.state}`; span.textContent = group.text; code.append(span);
   }
@@ -33,7 +32,7 @@ export function AddressXray(address: Address, compare?: Address, label = "Addres
     const differences = [...address.slice(2).toLowerCase()].filter((c, i) => c !== compare.slice(2).toLowerCase()[i]).length;
     const count = document.createElement("p"); count.className = "hf-difference-count"; count.textContent = `${differences} of 40 characters differ`; root.append(count);
   }
-  if (compare) { const key = document.createElement("small"); key.textContent = "Amber: matching group · Red: different group. Compare the full address."; root.append(key); }
+  if (compare) { const key = document.createElement("small"); key.textContent = "Underlined: matching group · Red: different group. Compare the full address."; root.append(key); }
   return root;
 }
 
@@ -54,11 +53,11 @@ export function DataTable(headers: string[], rows: (string | Node)[][], details:
   const head = table.createTHead().insertRow(); for (const label of headers) { const th = document.createElement("th"); th.scope = "col"; th.textContent = label; head.append(th); }
   if (details.length) { const th = document.createElement("th"); th.scope = "col"; th.textContent = "Inspect"; head.append(th); }
   const body = table.createTBody(); rows.forEach((row, i) => {
-    const tr = body.insertRow(); for (const value of row) tr.insertCell().append(value);
+    const tr = body.insertRow(); row.forEach((value, c) => { const td = tr.insertCell(); td.dataset.label = headers[c] ?? ""; td.append(value); });
     const detail = details[i];
     if (detail) {
       const button = document.createElement("button"); button.type = "button"; button.textContent = detailLabel; button.setAttribute("aria-expanded", "false");
-      tr.insertCell().append(button);
+      const action = tr.insertCell(); action.className = "hf-action"; action.append(button);
       const expansion = body.insertRow(); expansion.hidden = true;
       const cell = expansion.insertCell(); cell.colSpan = headers.length + 1;
       const content = document.createElement("div"); content.className = "hf-detail-content"; content.append(detail); cell.append(content);

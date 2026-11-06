@@ -8,7 +8,7 @@
 - **Current task:** scope additions merged (PRs #21–#24). Human checks and the open decisions in the handoff remain.
 - **Agent working:** none running; Claude Code organiser (Dhruv's laptop) last.
 - **Last updated:** 06 Nov, after the Hindi and copy pass
-- **Tests:** contracts 14; workspace 169 passed, 4 skipped; recursive build passed. Hosted landing, explorer (173 of 173 after the spread publish) and read-only Pay (L RED, P GREEN, through Nox) checked in headless Chrome.
+- **Tests:** contracts 14; workspace 169 passed, 4 skipped; recursive build passed. Hosted landing, explorer (1126 of 1126 after the second publish) and read-only Pay (L RED, P GREEN, through Nox) checked in headless Chrome.
 - **Next step for whoever comes next:** T14 go/no-go, Pay setup with a real wallet on an isolated Safe, then H6, H9, H10, Guard review. No more tGLM transfer without Dhruv's explicit approval.
 
 ## Tasks (strict order)
@@ -83,7 +83,7 @@
 | `setGuard` / `approvePayee(P)` | `0x2de356a6c196cb3f2040e3b8d4170ebe0cbc1b2684b0c05e26344756db6278e9` / `0x13baea5038b830810e1a9f68fbed3ae1069f981af4810cbd43c50f7b0d7d1af2` |
 | Removal drill `setGuard(0)` / re-enable | `0x5edf08eb6489d78c13f0748283e43bab8c015c851d0d40e86b030dd6794ad8e0` / `0xd1c7db48a18647713c34384afc51b116888546dd837359eecad0938a5ebe9743` |
 | L payment (reverted) / B payment / P payment | `0xa43b0eeef7253281a741deca144e5ddf0c465da9cc6f48d54673a9aa9c0f6d8f` / `0x2455ca8f1ce612149f15e80325f372202bffeb0258f808bd84acfb1f904de5ca` / `0xea209e9e3c5a9eed080e95dd0ca752b79686400da820ea67b87f98552d2992df` |
-| Arkiv publisher wallet + README query | `0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec`; public query returned 173 unique records (147 zero-value, 26 dust), only suspected |
+| Arkiv publisher wallet + README query | `0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec`; public query returned 1,126 unique records (651 zero-value, 475 dust), only suspected |
 | Explorer URL / HexFence Pay URL | https://deven1305.github.io/hexfence/explorer/ / https://deven1305.github.io/hexfence/pay/ |
 
 | Second L (direct script, not Safe{Wallet}; gas 200000) | `0xe77e6a7a8ba5b6f9742ec953826bc47c69ffffdced3a4d40b8fe3a220e1bb46f` |
@@ -116,6 +116,8 @@
 - 06 Nov (Dhruv): public pages lead with what HexFence does; the limits list left the landing page, and limits stay in README.md. Hard rules unchanged: status "suspected", no universal claims, pre-signing warnings stay.
 - 06 Nov (Dhruv, deviation from spec 3.4): Hindi now covers every verdict and the Pay interface, beyond the spec's two lines. Those two lines stay verbatim; the rest is AI-written and awaits H10.
 - 06 Nov (Dhruv): published 48 more records with existing publisher funds, one per equal slice of blocks 26345549-26352743, lowest evidenceId in each slice, excluding block 26352743. Txs 0x5a3c06f45380a75efaaf9989d8b33cf963ed17fe8ee4e4bcd97f0e060b040d36 and 0x0cc6e1053a87c84d370ad1fda375cb976a66643eb04c4759c4b7eac5bed42465. Total 173.
+- 06 Nov (Dhruv): published 953 more records from a fresh scan (blocks 26349302-26356501, 58,739 suspected pairs), funded by a 10 tGLM faucet claim to the publisher. Selection: one per equal block slice plus up to 20 from each of the 10 largest attack transactions. 60 of 60 sampled records matched mainnet receipts before writing. Hosted explorer: 1126 of 1126; hosted Pay read all pages through Nox and gave L a RED verdict. Scheduled publishing remains off because the repository secret is not set.
+- 06 Nov (Dhruv): allowed funding the V2 Safe and running its demo with Sepolia ETH. Scripted run: funding 0x0368f00e, P 0xfc93f063 status 1, L 0x2585f5ce status 0, known recipients = P only.
 
 ## Session log (append one line per task or stop)
 
@@ -205,3 +207,11 @@ Waiting on humans: optional release publication requires an existing testnet pub
 |---|---|---|
 | SYNC | PRs open | [#46](https://github.com/Deven1305/hexfence/pull/46) docs synced with main 8c3c175 (handoff, readiness, submission, 3:00 demo, README); [#44](https://github.com/Deven1305/hexfence/pull/44) Campaigns hourly chart: 125 of 173 records share attack block 26352743 (2 attack transactions) because the first publish took the most recent records, so the chart now says it counts published records and names the spike; [#45](https://github.com/Deven1305/hexfence/pull/45) guided demo page `/hexfence/demo.html`, every status read live (both L receipts decode to LookalikeOfApprovedPayee(L, P) by replay). Live checks 6 Nov ~18:00 IST: landing 173, explorer 173 of 173, Pay preview Nox active + Guard active + L RED. The public Arkiv endpoint was rate-limited on repeat loads; with the Node access key the same read took about 1 s. MCP `hexfence_check` on L returned RED resembles. CRE CLI is not installed here and nobody has run `cre login`, so no simulation output exists. Next: a person creates an origin-restricted Arkiv access key and sets the `VITE_ARKIV_ACCESS_KEY` repo variable (pages.yml already passes it). |
 
+
+## Codex 2 B4 governance fence
+
+| ID | Status | Evidence / next step |
+|---|---|---|
+| B4 | ? | [PR #47](https://github.com/Deven1305/hexfence/pull/47), implementation 985e9ec. Full checks passed in CI 42233393884; Pages/v1 browser regression passed in 42233404026. New HexFenceGovernanceGuardV2, separate from immutable deployed V2; 68 contract tests passed, including 14 copied V2 cases and 14 governance cases, owner-signed exact add-owner and removal/restoration. Exact-owner and all-owner traversal coverage passes. Sepolia deployment 0x108ea016F84d9817364b65Df6A133afe9CA33855, tx 0x8d274c070f3a387e3c473be449a516eb6bc22342f64ec88bc60714969e744018, exact Sourcify match 58635387. No Safe switched, no funds/tGLM transfers. All required checks green; merge after final documentation check. |
+
+06 Nov, Codex 2 decision: B3 is cut by the resumed brief; its unfinished work is retained only in a local stash and is not part of this branch. B5 #41 already exists and is not reimplemented. B4 copies V2 into a new named contract to preserve the deployed source match; it adds only the three specified self-call checks. setGuard is never inspected. Read contracts/README_GOVERNANCE.md before installing: only Safes selecting this new guard get the feature, lists are separate and the current module guard remains bound to original V2.

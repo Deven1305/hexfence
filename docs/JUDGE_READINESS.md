@@ -1,6 +1,6 @@
 # Judge readiness: evidence and gaps
 
-Checked **6 Nov 2026** against main **8c3c175** (after PRs #34, #36, #38, #39, #40, #41, #42). It describes merged code and recorded observations only. Sources: the [official prize page](https://ethglobal.com/events/mumbai/prizes) and [submission rules](https://ethglobal.com/events/mumbai/details). Chosen partners: **Arkiv, EF CROPS, Chainlink CRE**. Final eligibility is the organisers' decision.
+Checked **6 Nov 2026** against main **2fa725b**. It describes merged code and recorded observations only. Sources: the [official prize page](https://ethglobal.com/events/mumbai/prizes) and [ETHGlobal rules](https://ethglobal.com/rules). Chosen partners: **Arkiv, EF CROPS, Chainlink CRE**. Final eligibility is the organisers' decision.
 
 ## General rules
 
@@ -18,15 +18,15 @@ Checked **6 Nov 2026** against main **8c3c175** (after PRs #34, #36, #38, #39, #
 
 | Requirement | State | Evidence |
 |---|---|---|
-| Writes to the Arkiv testnet with the SDK | Met | [Writer](../packages/arkiv/src/write.ts). 173 `hexfence.poisoning.v1` records and 1 `hexfence.loss.v1` record by publisher `0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec`, Rabdi chain 7794095. Re-runs write 0. |
-| A user-visible feature reads it | Met | [Live explorer](https://deven1305.github.io/hexfence/explorer/) loads 173 of 173 (checked 6 Nov); Losses and Campaigns tabs; Pay's bulk evidence read. |
+| Writes to the Arkiv testnet with the SDK | Met | [Writer](../packages/arkiv/src/write.ts). 1,126 `hexfence.poisoning.v1` records and 1 `hexfence.loss.v1` record by publisher `0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec`, Rabdi chain 7794095. Re-runs write 0. |
+| A user-visible feature reads it | Met | [Live explorer](https://deven1305.github.io/hexfence/explorer/) loads 1126 of 1126 (checked 6 Nov); Losses and Campaigns tabs; Pay's bulk evidence read. |
 | README names the publisher and gives a query | Met | [README query](../README.md#arkiv-publisher--query), [query.ts](../arkiv/query.ts). |
 | schema, friction, reach, why-arkiv, how-you-use-arkiv | Present | [arkiv/](../arkiv/). Reach: no measured external users; post-Mumbai plan unconfirmed. |
 | Licence and AI statement | Present | [LICENSE](../LICENSE), [AI_USAGE](AI_USAGE.md). |
 | Multi-publisher reading (C3) | Code only | The explorer can read extra publishers from `VITE_ARKIV_EXTRA_PUBLISHERS`, but **no second publisher with records exists and `pages.yml` does not pass the variable**. The live explorer reads one publisher. |
 | Release records (B7) | Not live | Code and tests only; no release record on Arkiv. |
 
-Data note: the 173 records are a chosen subset of a 47,694-pair detector run. 125 of them come from one attack block (26352743), so the Campaigns hourly chart is about publication, not attack rate (fix in PR `fix/campaign-timeline`).
+Data note: the 1,126 records are a chosen subset of two 24-hour detector runs (47,694 and 58,739 pairs). 125 of them come from one attack block (26352743), so the Campaigns hourly chart is about publication, not attack rate (title "Published records per UTC hour" merged in PR #44, `apps/explorer/src/campaigns.ts`).
 
 ## Ethereum Foundation: Best CROPS App
 
@@ -55,18 +55,18 @@ Data note: the 173 records are a chosen subset of a 47,694-pair detector run. 12
 | Item | On main | Not proven |
 |---|---|---|
 | v1 Guard | 14 tests; Etherscan and Sourcify verified; live L revert, B/P success, removal drill | No person-run wallet payment (H6) |
-| A1 V2 Guard | Deployed, isolated Safe, removal/restore receipts, local Safe 1.4.1 tests | No funded positive-value Sepolia payment |
+| A1 V2 Guard | Deployed, isolated Safe, removal/restore receipts, local Safe 1.4.1 tests, [scripted P](https://sepolia.etherscan.io/tx/0xfc93f06334211546d1371ed3b2b5fbafc77842a03e227f7197a2e50680d866a5) and [refused L](https://sepolia.etherscan.io/tx/0x2585f5ce7bce79a6c139d19f56e4f125f8c84a7c09fe59d27d2598eb83c328ff) on Sepolia | No human wallet run on V2 |
 | A2 Sentinel | Source, WASM, consumer, real zero-value trigger tx | No CRE run, no Telegram, no alert |
 | A4 Rescue | One supported suspected follow-up payment, 303.635007 USDT, on Arkiv; downloadable pack | A lead, not a confirmed loss or cause |
 | B2 Campaigns | Grouping, real block-time hourly chart, match model | Counts describe published records only |
-| B5 Module guard | Safe 1.5.0 module guard, 8 tests, deployed 0xa7Dc…546B | **No live Safe uses it; no live module payment** |
+| B5 Module guard | Safe 1.5.0 module guard, 8 tests, deployed 0xa7Dc…546B | Scripted drill only, on isolated Safe 0x36cc…77b2: [recorded recipient paid](https://sepolia.etherscan.io/tx/0x1b981af2679ec1e035b53ebe3950cf2c892416fb12f9826e406c02297529471d), [lookalike refused](https://sepolia.etherscan.io/tx/0x3f9035a29f220fe23995444a72d3821a8be34c4bc50b328ee3d9755df64bd935). Native ETH; no human wallet |
 | B6 Explain layer | ERC-7730 panel in Pay; verdict unchanged | Pasted descriptors only; no registry |
 | B7 Attestation | Build attestations and `SHA256SUMS.txt` | No Arkiv release record |
 | B8 Safe App | Pay runs in Safe{Wallet} through the SDK, tested with a stand-in parent | **Not tested by a person in Safe{Wallet}** |
 | C1 Check SDK and MCP | `@hexfence/check`, `@hexfence/mcp` with `hexfence_check` | Offline comparison only |
 | C3 Multi-publisher | Explorer agreement counts | One publisher live |
 | T14 Extension | Builds, unit tests | Not tested on app.safe.global |
-| Not built | B3 batch protection was cut; C2 and C4 were scrapped; B1 needs approval to spend tGLM; B4 governance guard is on another branch | |
+| Not built | B3 batch protection was cut; C2 and C4 were scrapped; B1 needs approval to spend tGLM | |
 
 ## Claim rules for the submission
 
@@ -75,3 +75,7 @@ Data note: the 173 records are a chosen subset of a 47,694-pair detector run. 12
 - AI-assigned H9 labels are not human precision.
 - Never describe a scripted payment as a Safe{Wallet} or human test.
 - Human work left: H6, H9, H10, Guard sign-off, CRE login and run, T14, B8, video, submission.
+
+## B4 governance follow-up
+
+[PR #47](https://github.com/Deven1305/hexfence/pull/47) adds the separately deployed HexFenceGovernanceGuardV2 at 0x108ea016F84d9817364b65Df6A133afe9CA33855, exact Sourcify match 58635387. It refuses lookalike new owner/module addresses in three specified self-calls, while leaving setGuard unchecked. [Scope, receipts and limits](../contracts/README_GOVERNANCE.md). Only Safes that install this new transaction guard get these checks; no pre-existing Safe was switched and Pay remains pinned to original V2. Local contract tests: 68 passing; full workspace checks and the v1 browser regression passed in CI. A scripted drill on new isolated Safe 0xb619…44ac [refused a lookalike owner](https://sepolia.etherscan.io/tx/0xfb0d8a277cb22620e07897b642b7fdf86a05f83fd8bafde37b6241d7747ea860) and [added a non-lookalike owner](https://sepolia.etherscan.io/tx/0xdb4af2e80f174712f060c263479ec9ee6c81eaad46be1d26668b578af5c09594). No human wallet flow, live swapOwner or live enableModule check is claimed.

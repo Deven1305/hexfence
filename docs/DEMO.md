@@ -6,10 +6,10 @@ Checked against the live pages on 6 Nov 2026 (about 18:00 IST, main 8c3c175). Ru
 
 ## Before recording (10 min)
 
-1. Open these tabs and let each one finish loading. The public Arkiv endpoint is rate-limited: load the explorer once, then don't reload it.
+1. Open these tabs and let each one finish loading. After a failed live Arkiv read, the site, guided demo and explorer use a dated `evidence-saved.json` copy when available and show its read time. Pay uses it too and says so.
    - Landing: https://deven1305.github.io/hexfence/
-   - Guided demo (after PR #45 merges): https://deven1305.github.io/hexfence/demo.html. Every status on it is read live; a good backup if Pay or Arkiv is slow, and a good closing shot.
-   - Explorer: https://deven1305.github.io/hexfence/explorer/ (wait for "Showing 173 of 173 publisher records. All records loaded.")
+   - Guided demo: https://deven1305.github.io/hexfence/demo.html. It reads live first; evidence counts fall back to the dated saved copy when available after a failed live read, with an on-page notice. A good closing shot.
+   - Explorer: https://deven1305.github.io/hexfence/explorer/ (wait for the loaded-record count; if it says "from the saved copy", show the dated notice and describe it as a saved Arkiv read)
    - Pay preview: https://deven1305.github.io/hexfence/pay/?safe=0x3BCc3969713778F3Ed26AE1490529eeBAD43FbD5 (wait 25–40 s for "Nox reads active" and "Guard active")
    - L revert on Blockscout (decodes the reason): https://eth-sepolia.blockscout.com/tx/0xa43b0eeef7253281a741deca144e5ddf0c465da9cc6f48d54673a9aa9c0f6d8f
    - Direct-script L revert: https://sepolia.etherscan.io/tx/0xe77e6a7a8ba5b6f9742ec953826bc47c69ffffdced3a4d40b8fe3a220e1bb46f
@@ -26,7 +26,7 @@ Checked against the live pages on 6 Nov 2026 (about 18:00 IST, main 8c3c175). Ru
 | Time | Screen and action | Say (in your own words) |
 |---|---|---|
 | 0:00–0:15 🟢 | Landing hero and the X-Ray of P against L | "Address poisoning puts a lookalike in your history. These two addresses share the first 4 and last 4 characters. 31 of 40 differ. HexFence makes your Safe refuse the lookalike." |
-| 0:15–0:40 🟢 | Explorer, Evidence tab: "Showing 173 of 173", the "suspected" badge. Open one row's **X-Ray**, then **Verify on Ethereum** | "This is real Ethereum mainnet data, read from Arkiv in my browser. Our detector found 47,694 suspected pairs in one day of USDT and USDC transfers; we published 173. Each one is suspected, and anyone can re-check both transactions on Ethereum." |
+| 0:15–0:40 🟢 | Explorer, Evidence tab: loaded-record count, the "suspected" badge and any saved-copy notice. Open one row's **X-Ray**, then **Verify on Ethereum** | "This is real Ethereum mainnet data from Arkiv. If the page shows the saved-copy notice, these records come from the dated Arkiv read shown there. Our detector found 58,739 suspected pairs in one day of USDT and USDC transfers; we published a sample of 1,126 across two scans. Each one is suspected, and anyone can re-check both transactions on Ethereum." |
 | 0:40–0:55 🟢 | **Losses** tab: the one suspected follow-up payment, 303.635007 USDT. Then **Campaigns**: records grouped by attack transaction | "Losses shows a suspected payment that followed a planting, as a lead with a downloadable pack, not a confirmed loss. Campaigns groups records by attack transaction: one transaction here mentions dozens of victims." |
 | 0:55–1:00 | Cut to Pay | (no narration) |
 | 1:00–1:35 🟢 | Pay preview: point at "Nox reads active" and "v1.4.1 · 1/2 · Guard active". Paste **L**, amount 0.0001, **Check payment** → RED "Possible address poisoning". Then **B** → AMBER "New recipient". Then **P** → GREEN "Approved payee" | "Pay reads the Safe's approved payees once, through the Nox mixnet, and compares in the browser. L is a synthetic Sepolia address we made; it resembles our approved payee, so it's red. A new supplier is amber and still allowed. The approved payee is green." |
@@ -46,8 +46,8 @@ Only replace 2:20–2:40 if a person has run `cre login` and `sentinel/SIMULATIO
 
 - Pay inside Safe{Wallet} (B8): not tested by a person.
 - The Chrome extension on app.safe.global (T14): not tested.
-- The V2 learning Guard: deployed, but its Safe is unfunded, so no live payment.
-- The module guard (Safe 1.5.0): deployed, but no live Safe uses it.
+- The V2 learning Guard: its only live payments are one scripted P-then-L run, not a wallet test.
+- The module and governance guards: scripted Sepolia drills on new isolated Safes only (receipts in `contracts/README.md` and `contracts/README_GOVERNANCE.md`). No person has run them from a wallet.
 - A second Arkiv publisher: none exists; the live explorer reads one.
 - Hindi: you can show the हिन्दी button, but say it hasn't been checked by a native speaker yet.
 
@@ -68,9 +68,9 @@ Real output on 6 Nov: `{"level":"RED","reason":"resembles","recipient":"0x4E185a
 
 | Problem | Do this |
 |---|---|
-| Explorer stuck at "reading Arkiv…" | The public endpoint is rate-limited. Wait a minute and reload once. |
+| Explorer live read fails | It tries the dated `evidence-saved.json` copy and shows its read time. If no valid copy is available, retry or use the recorded query result; describe the source shown. |
 | Pay stuck on "Nox connecting · choose read route" | Wait up to 40 s, or click **Skip: read directly (not anonymous)** and say so. |
-| Pay stuck at "Checking…" | Reload the preview link; the evidence read goes to the same rate-limited Arkiv endpoint. |
+| Pay evidence read fails | Pay uses the dated saved copy and says so. With no valid copy it shows evidence unavailable and checks against approved payees only. |
 | The live L send doesn't revert | Stop. Use the 🟢 fallback receipts. |
 
 ## Hard judge questions
@@ -86,7 +86,7 @@ Real output on 6 Nov: `{"level":"RED","reason":"resembles","recipient":"0x4E185a
 | False positives? | Two random addresses share a 4+4 fingerprint with chance 1 in 2^32. A collision is resemblance, not intent; owners can approve the second address after removing the first. |
 | Is your precision 100%? | No human-checked precision yet. The 30 sample labels were assigned by AI. |
 | Gas? | Measured on a local Safe 1.4.1: 182,927 gas for a new V2 recipient, 72,839 for a repeat; whole Safe calls, not a universal quote. |
-| Modules, MultiSend, governance? | Module transactions bypass transaction guards; our module guard for Safe 1.5.0 is deployed but not used by a live Safe yet. MultiSend is a delegatecall and is refused. Owners can remove the Guard. |
+| Modules, MultiSend, governance? | Module transactions bypass transaction guards; our module guard for Safe 1.5.0 has one scripted Sepolia drill on an isolated Safe: a recorded-recipient payment succeeded and a lookalike payment reverted, both native ETH. MultiSend is a delegatecall and is refused. A separate governance guard checks new owner/module resemblance only for Safes that install it; a scripted drill on one isolated Safe refused a lookalike owner and added a non-lookalike one. No pre-existing Safe was switched. Pay still points to original V2. Owners can remove the Guard. |
 | Who uses it? | DAO treasuries and payment teams are the intended users. No pilots or paying users yet. |
 | Has a person checked it? | The Guard review in the repo is by AI. Human sign-off, a person-run wallet test and the Hindi check are still open, and we say so. |
-| Does the Campaigns hourly chart show attack rate? | No. 125 of the 173 records come from one block, because we published the most recent records first. The chart says so. |
+| Does the Campaigns hourly chart show attack rate? | No. It shows published records, which we selected: 125 of the 1,126 come from one block, and the rest were picked by block slice and largest attack transaction. The chart title says published. |
