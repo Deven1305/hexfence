@@ -82,6 +82,6 @@ A local test in `test/LossReplay.test.js` replays one recorded loss event agains
 - An attempted payment of the same amount to the lookalike address reverts with `LookalikeOfKnownRecipient`.
 
 **What this does not show:**
-- The victim was not a Safe and had no Guard.
+- The victim's account had no HexFence Guard; this test uses a separate local Safe instead.
 - This is a local counterfactual, not a mainnet action and not a claim that the loss would certainly have been prevented.
 
