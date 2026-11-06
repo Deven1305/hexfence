@@ -26,6 +26,6 @@ export type Plan = { send: false; info: RevertInfo } | { send: true; gasLimit?: 
  */
 export function planFromSimulation(sim: Simulation): Plan {
   if (sim.ok) return { send: true };
-  if (sim.info.kind === "lookalike") return { send: true, gasLimit: FORCED_GAS_LIMIT };
+  if (sim.info.kind === "lookalike" || sim.info.kind === "known-lookalike") return { send: true, gasLimit: FORCED_GAS_LIMIT };
   return { send: false, info: sim.info };
 }

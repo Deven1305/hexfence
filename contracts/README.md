@@ -47,7 +47,7 @@ A pair we found while testing the script (keys not kept, so use these only as **
 - **L** (lookalike): `0x4E185a3FC4B530244aB9ed0dE38167b403344120`
 
 ## Limits (put these in the README)
-- Module transactions bypass transaction guards.
+- Module transactions bypass transaction guards. `HexFenceModuleGuard` closes this for payments only on Safe 1.5.0 Safes that also call `setModuleGuard`. It reads the list in `HexFenceGuardV2`, does not learn from module payments, and refuses module delegatecalls. Calls to the Safe or V2 pass unchecked, so it does not contain a module acting against the Safe. The demo Safe is 1.4.1 and does not have it.
 - MultiSend is rejected (it's a delegatecall).
 - Only ETH, `transfer` and `transferFrom` are inspected.
 - A 4+4 fingerprint doesn't catch weaker lookalikes.

@@ -8,6 +8,7 @@ coverage/
 .env
 .env.*
 !.env.example
+!.env.public.example
 .pair.local.json
 
 # Detector output (published to Arkiv; regenerate with the detector)
@@ -17,3 +18,8 @@ apps/detector/out/
 .DS_Store
 .vscode/
 .idea/
+
+# Local upgrade tooling and visual QA output
+.upgrade-git/
+.pnpm-store/
+artifacts/

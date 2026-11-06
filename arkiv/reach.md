@@ -29,7 +29,7 @@ Observed output: **173 records, 173 uniqueEvidenceIds, 147 zeroValue, 26 dust, s
 | Additional publication | 100 created, 25 already present, 4 transactions; first [0xfadb29…efcca](https://rabdi.explorer.arkiv.network/tx/0xfadb29df57c9863d8b51433aa8f237001e0f78a16768da03c7fca66e647efcca) |
 | Rerun --limit 125 | **0 created, 125 already on Arkiv, 0 transactions** |
 | Additional publication cost | 0.026641686 tGLM; existing balance 0.092986528 → 0.066344842; no further transfer |
-| Human-labelled precision | Not measured; H9's 30 labels remain pending |
+| Human-labelled precision | Not established by human review; H9 labels were AI-assigned, not human precision |
 
 Run detect, then publish:arkiv --limit 125 twice using the same evidence.jsonl (commands in [README](../README.md)). Writes require a funded testnet publisher; public queries do not. [Live results](../docs/T8_LIVE_RESULTS.md) records the gate evidence and limits.
 
@@ -42,3 +42,7 @@ No production release, maintenance, funding or retention-renewal commitment is c
 ## Limits
 
 Only mainnet USDT/USDC and 4+4 resemblance are covered. The publication is a subset, not comprehensive threat coverage. Entities expire after 30 days unless independently republished. Rabdi is a testnet with public-RPC rate limits; we make no hosted availability promise. The Guard does not depend on Arkiv.
+
+## Upgrade checkpoint
+
+The read-only [6 Nov snapshot](../docs/research/arkiv-snapshot-2026-11-06.json) reproduced 173 unique records at 09:47:52 UTC. Pay's merged V2/Radar wiring reads the actual isolated V2 Safe and consumer; its four-layout browser run returned no Sentinel alerts. The new V2 Safe was unfunded, so no positive-value live V2 demo is claimed. [Requirements and gaps](../docs/JUDGE_READINESS.md) distinguishes local tests, public receipts and human work. No measured external use or maintenance commitment has appeared during this check.

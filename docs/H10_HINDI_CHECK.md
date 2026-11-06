@@ -13,6 +13,13 @@ Left: the text as the app uses it (`hindiText` in `apps/pay/src/verdictCopy.ts`)
 
 If the Guard is not active on the Safe, the last RED sentence comes from `apps/pay/src/i18n.ts` instead of the spec, because the spec has no line for that case.
 
+## AI pre-check (06 Nov 2026, Claude; not the native-speaker check)
+Both lines are grammatical and say the same as the English column. Notes for the reviewer, no change made:
+- "एड्रेस पॉइज़निंग" is English in Devanagari. Crypto users in India say it this way, so it is fine. "पता-धोखा" would be a pure-Hindi option, but it is less clear.
+- "आपका सुरक्षित Safe" can read as "your secure Safe" rather than "your Safe that HexFence protects". If the reviewer wants that meaning, one option is "HexFence से सुरक्षित आपका Safe यह भुगतान नहीं करेगा।"
+- "आख़िरी 4 अक्षर" is clear. "अंतिम 4 अक्षर" is more formal and means the same.
+H10 stays open until a native speaker writes "checked by <name>, <date>".
+
 ## Questions for the reviewer
 
 1. Does each line read naturally to an ordinary Hindi reader, and say the same as the English column?

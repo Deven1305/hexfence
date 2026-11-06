@@ -1,0 +1,19 @@
+{
+  "chainId": 11155111,
+  "guard": "0x0adF080DE3DA9D672fDc7330B8750a0579A698c7",
+  "safe": "0x5142C7E9DE82726CaCb847c5469D460508738214",
+  "version": "1.4.1",
+  "owner": "0xE89A9EF94dc4636394183d9bd1B4829043E35e98",
+  "autoLearn": true,
+  "known": [],
+  "transactions": {
+    "createSafe": "0xb9fe146165dc33b3bddc5d824357609a5b3413f339189c02ab8765cf5860f1ab",
+    "setGuard": "0x7fc8339ce5b187f4b1b6ee9fdd9a4f8a9c9566ed91151165f0644f72e9b3c920",
+    "enableAutoLearn": "0xfbeb16ff7486019c27d8f6baa3f15832d8d9b501cba1416c62e660e5cf5e1a4f",
+    "removeGuard": "0x267d7fb1721c2c2c909ace707aeb77d7da75bd13b0e9bf638e6d381277dfd500",
+    "restoreGuard": "0xa7a4afc8a75465d612c4615ec5acdd582d773dd18ed48898f0643d11142b330b"
+  },
+  "balanceWei": "0",
+  "fundingPerformed": false,
+  "paymentDemo": "not run; no fund transfers authorized"
+}

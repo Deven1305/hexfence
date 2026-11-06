@@ -1,0 +1,10 @@
+{
+  "chainSelectorName": "ethereum-testnet-sepolia",
+  "guardVersion": "v1",
+  "guard": "0xA061fB511D69e5c92E50E3BE5c789472d6f19748",
+  "alerts": "0x97F6f25D51DD52565FF30D22286392686A1ED80F",
+  "safes": ["0x3BCc3969713778F3Ed26AE1490529eeBAD43FbD5"],
+  "tokens": [{ "address": "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238", "decimals": 6 }],
+  "telegram": { "enabled": false, "chatId": "" },
+  "notificationGapBlocks": 300
+}

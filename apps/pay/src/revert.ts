@@ -1,8 +1,9 @@
 import { decodeErrorResult, isHex, type Address, type Hex } from "viem";
-import { hexFenceGuardAbi } from "@hexfence/shared";
+import { hexFenceGuardAbi, hexFenceGuardV2Abi } from "@hexfence/shared";
 
 export type RevertInfo =
   | { kind: "lookalike"; recipient: Address; approvedPayee: Address }
+  | { kind: "known-lookalike"; recipient: Address; holder: Address }
   | { kind: "guard"; name: string; text: string }
   | { kind: "reason"; text: string }
   | { kind: "unknown"; text: string };
@@ -27,10 +28,14 @@ export function interpretRevert(err: unknown): RevertInfo {
   const data = revertData(err);
   if (data) {
     try {
-      const d = decodeErrorResult({ abi: hexFenceGuardAbi, data });
+      const d = decodeErrorResult({ abi: [...hexFenceGuardAbi, ...hexFenceGuardV2Abi], data });
       if (d.errorName === "LookalikeOfApprovedPayee") {
         const [recipient, approvedPayee] = d.args as [Address, Address];
         return { kind: "lookalike", recipient, approvedPayee };
+      }
+      if (d.errorName === "LookalikeOfKnownRecipient") {
+        const [recipient, holder] = d.args as [Address, Address];
+        return { kind: "known-lookalike", recipient, holder };
       }
       const name: string = d.errorName;
       if (name === "Error" || name === "Panic") return { kind: "reason", text: `${name}: ${(d.args ?? []).join(", ")}` };
@@ -51,6 +56,8 @@ export function interpretRevert(err: unknown): RevertInfo {
 
 export function describeRevert(r: RevertInfo): string {
   switch (r.kind) {
+    case "known-lookalike":
+      return `Refused on-chain by HexFence Guard: LookalikeOfKnownRecipient(${r.recipient}, ${r.holder}).`;
     case "lookalike":
       return `Refused on-chain by HexFence Guard: LookalikeOfApprovedPayee(${r.recipient}, ${r.approvedPayee}).`;
     case "guard":

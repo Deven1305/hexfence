@@ -12,7 +12,10 @@
     "publish:arkiv": "tsx --env-file-if-exists=../../.env src/cli.ts publish",
     "labels": "tsx src/cli.ts labels",
     "precision": "tsx src/cli.ts precision",
-    "h9-evidence": "tsx src/cli.ts h9-evidence"
+    "h9-evidence": "tsx src/cli.ts h9-evidence",
+    "detect:losses": "tsx --env-file-if-exists=../../.env src/loss-cli.ts scan",
+    "publish:losses": "tsx --env-file-if-exists=../../.env src/loss-cli.ts publish",
+    "review:losses": "tsx --env-file-if-exists=../../.env src/loss-cli.ts review"
   },
   "dependencies": {
     "@hexfence/arkiv": "workspace:*",

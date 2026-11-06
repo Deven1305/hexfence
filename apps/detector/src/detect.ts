@@ -51,7 +51,7 @@ export class PoisoningDetector {
   private readonly found = new Map<Hex, PoisoningEvidence>();
   private lastBlock = -1;
 
-  constructor(private readonly detectorVersion = DETECTOR_VERSION) {}
+  constructor(private readonly detectorVersion = DETECTOR_VERSION, private readonly onAttack?: (e: PoisoningEvidence, log: TransferLog) => void) {}
 
   /** Add the logs of the next block range. Ranges must not go backwards. */
   add(logs: readonly TransferLog[]): void {
@@ -92,10 +92,7 @@ export class PoisoningDetector {
       if (log.blockNumber - ref.blockNumber > WINDOW_BLOCKS) break; // older ones are further out
       if (ref.recipient.toLowerCase() === lookalike.toLowerCase()) continue;
       const id = evidenceId(1, lookalike, ref.recipient, this.detectorVersion);
-      if (this.found.has(id)) return; // keep the earliest attack for this pair
-      this.found.set(
-        id,
-        PoisoningEvidenceSchema.parse({
+      const record = PoisoningEvidenceSchema.parse({
           evidenceId: id,
           chainId: 1,
           lookalike,
@@ -110,8 +107,9 @@ export class PoisoningDetector {
           ...matchLengths(lookalike, ref.recipient),
           detectorVersion: this.detectorVersion,
           status: "suspected",
-        }),
-      );
+        });
+      this.onAttack?.(record, log);
+      if (!this.found.has(id)) this.found.set(id, record);
       return;
     }
   }

@@ -60,3 +60,5 @@ mark { background: var(--amber-bg); color: var(--amber); padding-block: .12rem; 
   .key { flex-basis: 100%; font-size: .75rem; }
   .search button { flex: 1; }
 }
+
+.loss-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:.8rem; }

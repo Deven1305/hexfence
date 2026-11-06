@@ -1,0 +1,6 @@
+{
+  "name": "HexFence Pay",
+  "description": "Checks a payment against your approved payees before you sign, and shows a plain warning when the recipient resembles one of them. Sepolia test network.",
+  "iconPath": "icon.svg",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

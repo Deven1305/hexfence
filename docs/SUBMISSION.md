@@ -1,128 +1,115 @@
 # Submission pack: ETHGlobal Mumbai 2026
 
-Copy-paste text for the ETHGlobal project page and the partner prizes (Arkiv: Build on Arkiv; Ethereum Foundation: Best CROPS App, Best Use of Anon-RPC). Source: spec §0, §5, §6, §8 (`docs/planning/10_FINAL_What_To_Build_HexFence.md`) and the README. Submissions are due **Sat 7 Nov 2026, 09:00 IST** (spec aim: submit by 08:30).
+Copy-paste text for the ETHGlobal project page and three partner prizes: **Arkiv** (Build on Arkiv, from scratch), **Ethereum Foundation** (Best CROPS App) and **Chainlink** (Best workflow with CRE, only if the gate in §5.3 is met). Checked against `main` at 8c3c175 on 6 Nov 2026. Due **Sat 7 Nov 2026, 09:00 IST**; aim for 08:30.
 
-Values below come from the live T8 run (`docs/T8_LIVE_RESULTS.md`) unless the last column says a human still owes them. Anything still written as `‹NAME›` does not exist yet: fill it from the source named beside it, and do not publish text that still contains one.
+Three placeholders remain on purpose. Do not publish text that still contains one:
+- `‹VIDEO_URL›`: the uploaded video.
+- `‹GUARD_REVIEWER›`: the team member who read `docs/GUARD_REVIEW.md` and the contract and signed off.
+- `‹PRECISION›`: a human-checked precision from H9. The current 30 labels were assigned by AI. If no person checks them, delete the sentence that contains `‹PRECISION›`.
 
-| Name | Value | Source |
-|---|---|---|
-| GUARD_ADDRESS | 0xA061fB511D69e5c92E50E3BE5c789472d6f19748 | `docs/PROGRESS.md` (HexFenceGuard, Sepolia) |
-| SAFE_ADDRESS | 0x3BCc3969713778F3Ed26AE1490529eeBAD43FbD5 | same (demo Safe, `VERSION()` 1.4.1) |
-| TX_SETGUARD | 0x2de356a6c196cb3f2040e3b8d4170ebe0cbc1b2684b0c05e26344756db6278e9 | same |
-| TX_APPROVE_P | 0x13baea5038b830810e1a9f68fbed3ae1069f981af4810cbd43c50f7b0d7d1af2 | same |
-| TX_L_REVERT | 0xa43b0eeef7253281a741deca144e5ddf0c465da9cc6f48d54673a9aa9c0f6d8f | same (L payment, reverted) |
-| TX_B_OK | 0x2455ca8f1ce612149f15e80325f372202bffeb0258f808bd84acfb1f904de5ca | same (B payment, succeeded) |
-| TX_P_OK | 0xea209e9e3c5a9eed080e95dd0ca752b79686400da820ea67b87f98552d2992df | same (P payment, succeeded) |
-| TX_REMOVE | 0x5edf08eb6489d78c13f0748283e43bab8c015c851d0d40e86b030dd6794ad8e0 | same (removal drill, `setGuard(0)`) |
-| TX_REENABLE | 0xd1c7db48a18647713c34384afc51b116888546dd837359eecad0938a5ebe9743 | same (removal drill, re-enable) |
-| TX_L_REVERT_2 | 0xe77e6a7a8ba5b6f9742ec953826bc47c69ffffdced3a4d40b8fe3a220e1bb46f | `docs/T8_LIVE_RESULTS.md` (direct script transaction, not Safe{Wallet}) |
-| ARKIV_PUBLISHER | 0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec | README "Publisher wallet" |
-| RECORD_COUNT | 173 | Hosted explorer, 6 Nov (147 zero-value, 26 dust, all suspected): 125 from `docs/T8_LIVE_RESULTS.md` plus 48 spread across the scan |
-| SITE_URL | https://deven1305.github.io/hexfence/ | Pages workflow |
-| EXPLORER_URL | https://deven1305.github.io/hexfence/explorer/ | Pages workflow, PROGRESS H11 |
-| PAY_URL | https://deven1305.github.io/hexfence/pay/ | same |
-| REPO_URL | https://github.com/Deven1305/hexfence | the public repo |
-| ‹PRECISION› | still owed | printed by `pnpm --filter @hexfence/detector precision` after the H9 labels exist: "N of M labelled rows were poisoning". Leave the sentence out if H9 is not done |
-| ‹VIDEO_URL› | still owed | the uploaded video |
-| ‹GUARD_REVIEWER› | still owed | the team member who actually reviewed the Guard; `docs/AI_USAGE.md` still needs this name |
+## Values
 
-Decoded revert and verified Guard source are on Blockscout, not Etherscan (the Guard is not verified on Etherscan): [reverted L payment](https://eth-sepolia.blockscout.com/tx/0xa43b0eeef7253281a741deca144e5ddf0c465da9cc6f48d54673a9aa9c0f6d8f), [Guard source](https://eth-sepolia.blockscout.com/address/0xA061fB511D69e5c92E50E3BE5c789472d6f19748).
+| Name | Value |
+|---|---|
+| Repo | https://github.com/Deven1305/hexfence (MIT) |
+| Landing | https://deven1305.github.io/hexfence/ |
+| Explorer | https://deven1305.github.io/hexfence/explorer/ |
+| Pay (preview, no wallet) | https://deven1305.github.io/hexfence/pay/?safe=0x3BCc3969713778F3Ed26AE1490529eeBAD43FbD5 |
+| HexFenceGuard v1 (Sepolia) | 0xA061fB511D69e5c92E50E3BE5c789472d6f19748, verified on Etherscan and Sourcify |
+| Demo Safe (Safe 1.4.1) | 0x3BCc3969713778F3Ed26AE1490529eeBAD43FbD5 |
+| L payment, reverted | 0xa43b0eeef7253281a741deca144e5ddf0c465da9cc6f48d54673a9aa9c0f6d8f |
+| B payment, succeeded | 0x2455ca8f1ce612149f15e80325f372202bffeb0258f808bd84acfb1f904de5ca |
+| P payment, succeeded | 0xea209e9e3c5a9eed080e95dd0ca752b79686400da820ea67b87f98552d2992df |
+| L again, direct script without Pay, reverted | 0xe77e6a7a8ba5b6f9742ec953826bc47c69ffffdced3a4d40b8fe3a220e1bb46f |
+| Guard removed / restored | 0x5edf08eb6489d78c13f0748283e43bab8c015c851d0d40e86b030dd6794ad8e0 / 0xd1c7db48a18647713c34384afc51b116888546dd837359eecad0938a5ebe9743 |
+| HexFenceGuardV2 / isolated V2 Safe | 0x0adF080DE3DA9D672fDc7330B8750a0579A698c7 / 0x5142C7E9DE82726CaCb847c5469D460508738214 |
+| HexFenceModuleGuard (Safe 1.5.0) | 0xa7Dc08C6fb15fCdBF4De484FaE393fea052c546B (no live Safe uses it) |
+| HexFenceAlerts (CRE consumer) | 0x97F6f25D51DD52565FF30D22286392686A1ED80F |
+| Arkiv publisher (Rabdi, chain 7794095) | 0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec |
+| Records | 173 `hexfence.poisoning.v1` (147 zero-value, 26 dust, all suspected) + 1 `hexfence.loss.v1` |
 
-## 1. Project name and tagline
+All payments above were sent by a script wallet, not by a person in Safe{Wallet}.
+
+## 1. Name and tagline
 
 **HexFence**
 
-> A Safe Guard that refuses lookalike payments, with open address-poisoning evidence on Arkiv.
+> Your Safe refuses to pay a lookalike of a supplier you approved.
 
-## 2. Short description (about 100 characters)
+## 2. Short description
 
-HexFence makes a Safe refuse to pay a lookalike of an approved supplier, and publishes the evidence on Arkiv.
+HexFence makes a Safe refuse lookalike payments on-chain and publishes open address-poisoning evidence on Arkiv.
 
 ## 3. Description
 
-Address poisoning is when an attacker sends a tiny or zero-value transfer from an address that matches the first and last characters of one you pay, hoping you copy it from your history next time. Wallet warnings help, but they live in the interface and can be ignored. Blocklists only know attackers someone already reported.
+Address poisoning plants a lookalike address in your history: a zero-value or tiny transfer from an address with the same first and last characters as someone you pay. Next time you copy from history, you pay the attacker. Wallet warnings help, but you can click through them.
 
-HexFence detects address poisoning, publishes the evidence openly on Arkiv, warns you locally before you sign, and makes a protected Safe refuse to pay a lookalike of an approved supplier, even one nobody has ever reported, while new suppliers still work.
+HexFence puts the rule in the account. `HexFenceGuard` is a Safe transaction guard with no owner and no upgrade path. Owners approve payees with Safe transactions. If a payment goes to a different address with the same first 4 and last 4 hex characters as an approved payee, the Guard reverts with `LookalikeOfApprovedPayee`. New suppliers still go through, so it is not an allowlist, and it reads nothing off-chain.
 
-The core is `HexFenceGuard`, a Safe transaction guard with no owner and no upgrade path. The Safe's owners approve payees with owner-signed Safe transactions. If a payment's recipient has the same first 4 and last 4 hex characters as an approved payee but is a different address, the Guard reverts with `LookalikeOfApprovedPayee`. Anyone else still goes through, so this is not an allowlist. The Guard reads nothing off-chain, so it keeps working if every other part of HexFence disappears.
+Around the Guard:
+- **Detector:** reads Ethereum mainnet USDT and USDC transfer logs and finds lookalike pairs. One 7,200-block run found 47,694 suspected pairs.
+- **Arkiv evidence:** 173 of them are published as `hexfence.poisoning.v1` records with 30-day expiry, plus one suspected follow-up payment (303.635007 USDT) as `hexfence.loss.v1`. Every record is "suspected".
+- **Explorer:** reads Arkiv in the browser. Evidence, Losses (a downloadable rescue pack with a SHA-256), Campaigns (records grouped by attack transaction), and a private "Check my address" that runs on downloaded records.
+- **HexFence Pay:** loads a Safe, reads its approved payees once, and gives a verdict in the browser before signing: RED for a lookalike, AMBER for a new recipient, GREEN for an approved payee. Sending a RED payment needs 6 typed characters. Reads go through the Nox mixnet by default. Pay can also run as a Safe App (not yet tried by a person inside Safe{Wallet}) and has a Hindi mode (not yet checked by a native speaker).
+- **For agents:** `@hexfence/check` (offline check SDK) and `@hexfence/mcp` (an MCP tool, `hexfence_check`) give the same verdict to AI agents before they sign.
 
-Around it:
-- **Detector:** reads Ethereum mainnet USDT and USDC transfer logs and finds lookalike pairs. Every record is marked "suspected".
-- **Arkiv:** the pairs are written as `hexfence.poisoning.v1` records with 30-day expiry, idempotently (a re-run creates 0 duplicates).
-- **Explorer:** loads every Arkiv record, shows views by variant, token and attack block, checks an address inside the browser without sending it to a server, links both transactions on Etherscan, and re-checks the receipts with "Verify on Ethereum".
-- **HexFence Pay:** decodes a Safe payment, reads the Safe's payees once, and shows a verdict (red: resembles an approved payee; amber: new recipient; green: approved). To send a red payment anyway the user must type 6 characters. It has a हिन्दी button for the whole page and every verdict, and tries the Nox mixnet for its Sepolia reads. Without a wallet it gives a read-only preview with real verdicts.
+The demo has two clearly separate parts: real mainnet evidence read live from Arkiv, and a **synthetic re-enactment on Sepolia** with addresses we generated. Paying the lookalike reverted on-chain, paying a new supplier succeeded, paying the approved payee succeeded, and the lookalike still reverted with our client out of the path.
 
-The demo is in two clearly separate parts. Part 1 is real mainnet evidence read live from Arkiv. Part 2 is a **synthetic re-enactment on Sepolia** using a pair of addresses we generated ourselves, not a real attack: paying the lookalike reverts on-chain, paying a new supplier succeeds, paying the approved payee succeeds, and the lookalike still reverts with our client switched off.
-
-Limits (stated in the README): module transactions bypass guards; MultiSend is refused; only ETH, `transfer` and `transferFrom` are inspected; a 4+4 fingerprint does not catch weaker lookalikes; evidence covers only mainnet USDT and USDC and says "suspected", not a finding about any person.
+Also built and deployed, not yet shown live: an opt-in learning Guard (V2) and a module guard for Safe 1.5.0. Limits are in the README.
 
 ## 4. How it's made
 
-- **Guard:** Solidity, Hardhat, tested against the real Safe 1.4.1 contracts, including the removal of the Guard through a real Safe transaction and the rejection of a second payee with the same fingerprint. The reference Guard and its tests are AI-generated; an AI agent checked them against the spec and ‹GUARD_REVIEWER› reviewed them (`docs/AI_USAGE.md`).
-- **Shared logic:** TypeScript package with the fingerprint, the Safe payment decoder, the verdict logic and the evidence schema (zod). A parity test checks the TypeScript fingerprint rule against the real Guard on 411 transactions.
-- **Detector:** TypeScript and viem, reading Ethereum mainnet USDT/USDC `Transfer` logs through a public RPC. Read-only.
-- **Arkiv:** `@arkiv-network/sdk` on the Rabdi testnet. Records are bulk-read and written idempotently. One publisher wallet signs.
-- **Explorer:** static Vite app that bulk-reads Arkiv from the browser, computes its views and address checks locally, and verifies receipts against Ethereum mainnet in the browser.
-- **HexFence Pay:** Vite and TypeScript, Safe Protocol Kit 8, viem, a browser wallet on Sepolia. RPC reads can go through Anon-RPC's Nox route (Sphinx mixnet).
-- **Tooling:** static landing page; pnpm workspace, Node 22, vitest. Contracts are a standalone npm Hardhat project.
-- **AI:** we used Claude Code and Codex as coding agents under written rules (`AGENTS.md`, `docs/PARALLEL_PLAN.md`). All plans, prompts and reports are kept in `docs/planning/`; `docs/AI_USAGE.md` lists what was AI-generated.
-- **What's new vs reused:** built at this event: the detector, the Arkiv schema and publisher, the explorer, HexFence Pay and the shared logic. Reused: the reference Guard and its tests, Safe 1.4.1 contracts, Safe Protocol Kit, `@arkiv-network/sdk`, viem, zod, Hardhat, Vite, vitest. No code from any pre-event project.
+- **Contracts:** Solidity and Hardhat, tested against the real Safe 1.4.1 (and 1.5.0 for the module guard) contracts. The v1 Guard and its tests started from an AI-generated reference; an AI review is in `docs/GUARD_REVIEW.md`, and ‹GUARD_REVIEWER› reviewed it.
+- **Shared logic:** TypeScript fingerprint, Safe payment decoder, verdicts and zod schemas, with parity tests against the real Guard.
+- **Detector:** TypeScript and viem over a public mainnet RPC. Read-only.
+- **Arkiv:** `@arkiv-network/sdk` on Rabdi; idempotent batch writes; key-paged bulk reads filtered by publisher.
+- **Apps:** Vite and TypeScript, Safe Protocol Kit, Safe Apps SDK, viem, Anon-RPC's Nox route. Static pages on GitHub Pages with build attestations.
+- **Chainlink CRE:** a Sentinel workflow in TypeScript compiled to WASM, plus an on-chain consumer that Pay reads.
+- **AI:** Claude Code and Codex wrote most of the code under written rules (`AGENTS.md`). All plans, prompts and reports are in `docs/planning/`; `docs/AI_USAGE.md` says what AI generated and what people did.
 
-## 5. Prize tracks
+## 5. Partner prizes
 
-### 5.1 Arkiv: Build on Arkiv
+### 5.1 Arkiv: Build on Arkiv (from scratch)
 
-Paste:
+> HexFence uses Arkiv as the open evidence layer for address poisoning. Our detector reads Ethereum mainnet USDT/USDC logs and writes each suspected pair as a `hexfence.poisoning.v1` entity on Rabdi with a 30-day expiry, and suspected follow-up payments as `hexfence.loss.v1`. Writes are idempotent: re-runs create 0 duplicates. The explorer and HexFence Pay read records in bulk by publisher with key paging, and never look up one address on a server, so readers don't reveal which address they care about. The explorer re-checks any record against its Ethereum receipts in the browser. Today: 173 suspected poisoning records and 1 suspected loss record, published by 0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec. The explorer can already combine several publishers and show how many published each record; only one publisher exists today. Schema, friction, reach, why-Arkiv and how-we-use-it are in `/arkiv/`.
 
-> HexFence uses Arkiv as the open evidence layer for address poisoning. The detector reads Ethereum mainnet USDT/USDC logs and writes each suspected pair as a `hexfence.poisoning.v1` entity on the Rabdi testnet with a 30-day expiry. Each record carries the victim, the impersonated address, the lookalike and both transaction hashes, and is always marked "suspected". Writes are idempotent, so a re-run creates 0 duplicates. The explorer and HexFence Pay read the records in bulk and never look up one address at a time, so no reader tells a server which address they care about. The explorer can re-check any record against Ethereum receipts in the browser. We chose Arkiv because the evidence should be queryable by anyone, expire when it stops being useful, and not sit in a vendor's closed feed. Currently 173 records, published by 0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec. Schema, friction notes, reach, why-Arkiv and how-we-use-it are in `/arkiv/`.
-
-Links to give: https://github.com/Deven1305/hexfence/tree/main/arkiv, https://deven1305.github.io/hexfence/explorer/, and the publisher wallet 0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec. The one query judges can run is in the README ("Arkiv publisher + query").
+Links: https://github.com/Deven1305/hexfence/tree/main/arkiv, https://deven1305.github.io/hexfence/explorer/. The query is in the README ("Arkiv publisher + query").
 
 ### 5.2 Ethereum Foundation: Best CROPS App
 
-Paste the README CROPS section as it stands (kept true to what ships). Short form:
+> **Lead property: Security.** The rule lives in the account. HexFenceGuard refuses a lookalike of an approved payee even when our website, detector and Arkiv records are gone; our video shows a lookalike payment reverting with Pay out of the path.
+> **C:** the Guard has no owner and no upgrade path, and needs no HexFence service. Anyone can run the detector and publish under their own wallet.
+> **O:** MIT licence; everything builds from the repo; RPC endpoints are configurable.
+> **P:** recipients are compared in the browser against bulk reads; no per-recipient lookup, no trackers; Pay's Sepolia reads go through the Nox mixnet by default and the page says which route is active.
+> **S:** payees are approved only by Safe transactions; keys stay in the user's wallet; the demo Safe holds test funds only; limits are stated in the README.
 
-> **C (censorship resistance):** the Guard is non-upgradeable and has no owner. It keeps refusing lookalikes even if our detector, explorer, client and Arkiv records all disappear. The detector is open source, so anyone can run it and publish under their own wallet.
-> **O (open source):** MIT licence. Everything builds and runs from the repo; RPC endpoints are configurable.
-> **P (privacy):** the client checks recipients locally and sends no payment-specific threat lookup to a security provider. It reads the Safe's payees in bulk. No trackers. HexFence Pay tries Nox for its Sepolia RPC reads and shows which route is active. Not covered by Nox: the one bootstrap read of the routing contract, the Arkiv bulk reads, and your wallet's own signing and sending. Your wallet, Safe's transaction service (when you use the Safe UI) and the public chain still see the payment.
-> **S (security, our lead property):** the account enforces the rule; payees are approved only by owner-signed Safe transactions; duplicate fingerprints are rejected; delegatecall fails closed; removal of the Guard is tested through real Safe transactions but not guaranteed; the demo Safe is isolated and holds test funds only; the limits are stated.
+EF places a project in one EF prize. Enter Best CROPS App only.
 
-EF places a project in one track only, so the form may ask you to pick; the spec lists Best CROPS App as the main one.
+### 5.3 Chainlink: Best workflow with CRE
 
-### 5.3 Ethereum Foundation: Best Use of Anon-RPC
+**Gate: paste this only after `sentinel/SIMULATION.md` holds the real output of a successful `cre workflow simulate` run.** As of 8c3c175 that file does not exist, so do not select Chainlink yet.
 
-Enter this track only if the submission form offers it and the Nox route was actually shown working in the video. Paste:
-
-> HexFence Pay routes its Sepolia RPC reads (Safe data, payees, balances) through Anon-RPC's Nox route (Sphinx mixnet) by default. A route counts as active only after a real Sepolia `eth_chainId` read has gone through it and returned 11155111. The page names the active route and never calls the direct path anonymous. If start-up fails, the user sees a labelled, non-anonymous direct fallback; once Nox is active, later read failures surface as errors and do not silently switch to direct. We state what is not covered: the single start-up read of the routing contract and the Arkiv bulk reads are direct, and the wallet signs and sends itself. Hosted Nox and Guard or payee reads through Nox are untested.
-
-Do not claim a latency figure unless you measured one for the video. The README records about 9 seconds in one browser check and more than 20 seconds (not timed) in another; neither is a benchmark.
+> HexFence Sentinel is a CRE workflow that watches Sepolia token-transfer logs for Safes using HexFence. It flags a zero-value transfer or incoming dust from an address that shares the fingerprint of the Safe's approved payee, reads the Safe's payees from the Guard in bulk, writes a report to our HexFenceAlerts consumer (0x97F6f25D51DD52565FF30D22286392686A1ED80F) and can notify Telegram. HexFence Pay reads the consumer and shows the alert as advisory. The Guard never reads alerts, so a missing or wrong alert cannot change what the Safe allows. Our simulation run is recorded in `sentinel/SIMULATION.md`.
 
 ## 6. Demo video
 
-- 2:30 to 3:00, at least 720p. This meets ETHGlobal (2 to 4 minutes) and EF CROPS (3 minutes at most).
-- Narration script: `docs/DEMO.md`.
+- 2:30 to 3:00, at least 720p, a person's own voice (no text-to-speech or AI voiceover).
+- Script: `docs/DEMO.md`.
 - Link: ‹VIDEO_URL›
 
-## 7. Required links and items (tick before submitting)
+## 7. Optional precision sentence
 
-ETHGlobal and partner forms:
-- [ ] Public repo, created after kickoff, MIT licence: https://github.com/Deven1305/hexfence
-- [ ] No code from the pre-event Pramaan repo
-- [ ] Live explorer: https://deven1305.github.io/hexfence/explorer/
-- [ ] Live HexFence Pay (or install steps): https://deven1305.github.io/hexfence/pay/
-- [ ] Video 2:30 to 3:00, 720p or better: ‹VIDEO_URL›
-- [ ] No trackers; testnet keys only; no keys or seed phrases committed (`git log -p` search before submitting)
+> In a random sample of 30 published records, ‹PRECISION›.
 
-In the repo:
-- [ ] `docs/planning/`: the locked spec plus every plan, prompt and report
-- [ ] `docs/AI_USAGE.md` names the reference Guard as AI-generated and reviewed
-- [ ] README: run steps, architecture, new vs reused, CROPS section, limits
-- [ ] README table filled in: 0xA061fB511D69e5c92E50E3BE5c789472d6f19748, 0x3BCc3969713778F3Ed26AE1490529eeBAD43FbD5 (with `VERSION()`), 0x2de356a6c196cb3f2040e3b8d4170ebe0cbc1b2684b0c05e26344756db6278e9, 0x13baea5038b830810e1a9f68fbed3ae1069f981af4810cbd43c50f7b0d7d1af2, 0xa43b0eeef7253281a741deca144e5ddf0c465da9cc6f48d54673a9aa9c0f6d8f, 0x2455ca8f1ce612149f15e80325f372202bffeb0258f808bd84acfb1f904de5ca, 0xea209e9e3c5a9eed080e95dd0ca752b79686400da820ea67b87f98552d2992df, 0x5edf08eb6489d78c13f0748283e43bab8c015c851d0d40e86b030dd6794ad8e0, 0xd1c7db48a18647713c34384afc51b116888546dd837359eecad0938a5ebe9743
-- [ ] README: Arkiv publisher wallet 0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec and the query output
-- [ ] `arkiv/schema.md`, `friction.md`, `reach.md`, `why-arkiv.md`, `how-you-use-arkiv.md`
-- [ ] README and `docs/DEMO.md` contain no leftover `‹...›` or "(after ...)" placeholders
+Delete this if no person checked the H9 rows.
 
-Human boxes that change what you may claim:
-- [ ] H9 labels done: only then may the text state a precision (‹PRECISION›). Otherwise leave it out, as the README does
-- [ ] H10 Hindi check done (`docs/H10_HINDI_CHECK.md`): otherwise say the Hindi is "not yet reviewed by a native speaker"
-- [ ] Safe{Wallet} UI removal drill done by a person: otherwise say the removal drill was run by script only
+## 8. Checklist before submitting
+
+- [ ] No `‹…›` left in the text you paste
+- [ ] Video 2:30–3:00, ≥720p, human voice, uploaded
+- [ ] Partners: Arkiv + EF (CROPS) + Chainlink only if §5.3's gate is met
+- [ ] `git log -p` search shows no keys or seed phrases
+- [ ] `docs/planning/` holds every plan and prompt used
+- [ ] `docs/AI_USAGE.md` names the human Guard reviewer, or says no human review was done
+- [ ] Hindi described as "not yet reviewed by a native speaker" unless H10 is done
+- [ ] Scripted payments described as scripted

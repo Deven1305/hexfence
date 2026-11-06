@@ -1,8 +1,13 @@
-﻿import { arkivReadClient } from "@hexfence/arkiv";
+import { campaignsPanel } from "./campaigns.js";
+import { lossesPanel } from "./losses.js";
+import { DataTable } from "@hexfence/ui";
+import "@hexfence/ui/style.css";
+import { arkivReadClient, fetchAllEvidence } from "@hexfence/arkiv";
 import type { PoisoningEvidence } from "@hexfence/shared";
 import { isAddress, type Address, type Hex } from "viem";
 import { fetchEvidencePage } from "./evidence.js";
-import { checkOwnAddress, renderDashboard } from "./dashboard.js";
+import { agreement, agreementText, parsePublishers } from "./publishers.js";
+import { checkOwnAddress } from "./dashboard.js";
 import { EVIDENCE_LABEL, parseSearch } from "./format.js";
 import { el, recordCard } from "./render.js";
 import "./style.css";
@@ -10,10 +15,12 @@ import "./dashboard.css";
 
 const app = document.querySelector<HTMLElement>("#app")!;
 const publisherEnv = (import.meta.env.VITE_ARKIV_PUBLISHER as string | undefined)?.trim() ?? "";
+const extraPublishersEnv = (import.meta.env.VITE_ARKIV_EXTRA_PUBLISHERS as string | undefined)?.trim() ?? "";
 const rpcUrl = (import.meta.env.VITE_MAINNET_RPC_URL as string | undefined)?.trim() || undefined;
 const status = el("p", "status bulk-status");
 status.setAttribute("role", "status");
 const searchStatus = el("p", "status");
+const publishersNote = el("p", "status");
 const dashboard = el("div");
 const results = el("section", "results");
 const retry = el("button", "more", "Retry remaining pages") as HTMLButtonElement;
@@ -51,7 +58,22 @@ if (!isAddress(publisherEnv, { strict: false })) {
   const publisher = publisherEnv as Address;
   const accessKey = (import.meta.env.VITE_ARKIV_ACCESS_KEY as string | undefined)?.trim();
   const client = arkivReadClient(accessKey ? { accessKey } : undefined);
-  app.append(el("p", "publisher", `Publisher ${publisher}`), status, retry, dashboard, ownPanel, form, searchStatus, results);
+  const tabs = el("nav", "hf-tabs"); tabs.setAttribute("aria-label", "Explorer views");
+  const tablePanel = el("section");
+  const lossPanel = lossesPanel(client, publisher, rpcUrl);
+  let view = "Evidence";
+  const panels = { Evidence: [form, searchStatus, tablePanel, results], Losses: [lossPanel], Campaigns: [dashboard], "Check my address": [ownPanel] };
+  const choose = (name: string) => {
+    view = name;
+    for (const [label, nodes] of Object.entries(panels)) for (const node of nodes) node.hidden = label !== name;
+    for (const b of Array.from(tabs.querySelectorAll("button"))) b.setAttribute("aria-pressed", String(b.textContent === name));
+  };
+  for (const name of Object.keys(panels)) {
+    const b = el("button", undefined, name) as HTMLButtonElement; b.type = "button"; b.onclick = () => choose(name); tabs.append(b);
+  }
+  app.append(tabs);
+  app.append(el("p", "publisher", `Publisher ${publisher}`), publishersNote, status, retry, dashboard, ownPanel, form, searchStatus, tablePanel, results, lossPanel);
+  choose(view);
   const downloaded: PoisoningEvidence[] = [];
   const seen = new Set<string>();
   let nextKey: Hex | undefined;
@@ -59,6 +81,8 @@ if (!isAddress(publisherEnv, { strict: false })) {
   let loading = false;
   let search: Address | undefined;
   let ownChecked = false;
+  const extra = parsePublishers(publisher, extraPublishersEnv);
+  const others = new Map<string, PoisoningEvidence[]>(); // extra publishers read completely
 
   function updateOwnCheck(): void {
     if (!ownChecked) return;
@@ -71,8 +95,13 @@ if (!isAddress(publisherEnv, { strict: false })) {
 
   function updateSearch(replace = true, added: PoisoningEvidence[] = []): void {
     const records = search ? checkOwnAddress(downloaded, search)! : downloaded;
-    if (replace || search) results.replaceChildren(...records.map((e) => recordCard(e, rpcUrl)));
-    else results.append(...added.map((e) => recordCard(e, rpcUrl)));
+    const counts = agreement(new Map([[publisher.toLowerCase(), downloaded], ...others]));
+    tablePanel.replaceChildren(DataTable(["Block", "Pattern", "Token", "Lookalike", "Status"], records.map(e => {
+      const address = el("a", undefined, `${e.lookalike.slice(0, 6)}…${e.lookalike.slice(-4)}`) as HTMLAnchorElement;
+      address.href = `https://etherscan.io/address/${e.lookalike}`; address.target = "_blank"; address.rel = "noreferrer";
+      return [String(e.attackBlock), e.variant, e.token.toLowerCase().startsWith("0xdac1") ? "USDT" : "USDC", address, e.status];
+    }), records.map(e => recordCard(e, rpcUrl, agreementText(counts.get(e.evidenceId.toLowerCase()) ?? 1, 1 + others.size)))));
+    results.replaceChildren();
     searchStatus.textContent = search ?
       `${records.length} suspected ${records.length === 1 ? "record mentions" : "records mention"} ${search} among downloaded records. ` +
       (complete ? "" : "More pages are still loading. ") +
@@ -99,7 +128,7 @@ if (!isAddress(publisherEnv, { strict: false })) {
         nextKey = page.nextKey;
         if (nextKey && previous === nextKey) throw new Error("Arkiv pagination did not advance.");
         complete = nextKey === undefined;
-        dashboard.replaceChildren(renderDashboard(downloaded));
+        dashboard.replaceChildren(campaignsPanel(downloaded, rpcUrl));
         updateSearch(false, added);
         updateOwnCheck();
         status.textContent = `Showing ${downloaded.length} of ${page.total.toString()} publisher records. ` +
@@ -131,4 +160,12 @@ if (!isAddress(publisherEnv, { strict: false })) {
   clear.addEventListener("click", () => { input.value = ""; search = undefined; updateSearch(); });
   retry.addEventListener("click", () => void loadAll());
   void loadAll();
+  void (async () => {
+    for (const other of extra.publishers.slice(1)) {
+      try { others.set(other.toLowerCase(), await fetchAllEvidence(client, other)); }
+      catch { publishersNote.textContent += ` Could not read extra publisher ${other}; it is not counted.`; }
+      updateSearch(false);
+    }
+    if (extra.invalid.length) publishersNote.textContent += ` Ignored extra publishers that are not addresses: ${extra.invalid.join(", ")}.`;
+  })();
 }

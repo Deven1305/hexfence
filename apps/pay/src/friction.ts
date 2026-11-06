@@ -8,7 +8,7 @@ export function frictionSuffix(recipient: string): string {
 }
 
 /** RED (both reasons) asks the user to type the last 6 hex characters of the recipient. */
-export function requiresFriction(v: Verdict): boolean {
+export function requiresFriction(v: Pick<Verdict, "level">): boolean {
   return v.level === "RED";
 }
 

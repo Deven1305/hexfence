@@ -1,28 +1,28 @@
 # Arkiv: friction we hit
 
-What actually slowed us down building on `@arkiv-network/sdk` 1.0.1 and the Rabdi testnet. Every item comes from this repo's build.
+Measured against SDK 1.0.1 and Rabdi. [Official limits](https://docs.arkiv.network/docs/reference/limits) and [documentation index](https://docs.arkiv.network/llms.txt) were checked before this update.
 
-| What we expected | What we found | What we did |
+| Expectation | Observation | Response |
 |---|---|---|
-| Pages of 200 with `hasNextPage()`, as our spec said | A page holds at most 100 rows (`MAX_LIMIT`) and there is no `hasNextPage()` | Page by key: `orderBy(asc("$key"))` + `gt("$key", key(last))`. It also reads each row exactly once while the detector is still writing, which offset paging can't promise |
-| No `createdBy` on the builder (we misread this at first) | `createdBy(addr)` exists, as shorthand for `eq("$creator", …)` | Used it, and corrected our decisions log. Filtering by creator is the whole trust model here, so it deserves a prominent place in the docs |
-| Any recent Node works | The SDK asks for Node ≥ 22.10 | Pinned 22 in `.nvmrc` |
-| An unfunded publisher gets a clear error | A low-level execution error, not a plain "fund this wallet" message | The detector's `publish` command checks the tGLM balance first and names the faucet |
-| Reads work without an account | They do, but the SDK warns the public endpoint is "heavily rate limited" | Browser apps accept an optional `VITE_ARKIV_ACCESS_KEY`. A browser build exposes that key, so restrict it to your origins at hub.arkiv.network |
+| Spec assumed 200-row pages and hasNextPage | Pinned SDK caps pages at 100; no such helper | Production reader orders by entity key and continues after the last key. The 173-record public query needs two pages. This is not an atomic snapshot during concurrent writes. |
+| We initially misread creator filtering | createdBy(address) exists | Restrict reads to the selected publisher, revalidate returned records, and document that attribution is not truth. |
+| Any Node version | SDK requires >=22.10 | Node 22 run path. |
+| Clear insufficient-funds errors | Early writes reached low-level execution errors | Publisher preflights public balance and stops without dumping a signed request. No new faucet or funds transfer is part of this pass. |
+| Arbitrarily large string fields | The release-record prototype uses str for a 5,601-byte manifest; str is limited to 128 UTF-8 bytes | Reproduced rejection with pinned SDK str('x'.repeat(129)). Store long content as bytes (limit 128 KiB), retain short indexed hashes. This is our integration bug, not an Arkiv outage; no live release write is claimed. |
+| Free public reads imply an availability guarantee | Public RPC worked without an access key but is documented as heavily rate limited | Optional access key and explicit unavailable states. A browser key is public; restrict origins. |
 
-## Volume is the open question
-The detector found **43,227 suspected pairs in 24 hours**, far above what we planned for. At 25 creates per `executeBatch` that is about 1,730 transactions a day. That raises three questions we had to design for:
-- **Showing totals:** downloading everything to count it would mean about 430 page requests. `client.count()` with a `where` on the indexed `variant` answers in one call per variant. It is the most useful thing we found in the SDK, and it is what the explorer uses.
-- **First paint:** the explorer loads one page at a time and leaves narrowing down to indexed address search.
-- **What to publish:** the publish scope depends on the cost per batch, which we can only measure once the publisher wallet is funded. See the note in [reach.md](reach.md).
+## Actual scale and cost
 
-## What was easy
-`defineSchema` with `.indexed()` columns was a clean way to state which fields are queryable, and the same schema gave us typed reads and writes. Reading from a static page needed no backend and no proxy: the explorer's `count` and `select` calls worked from the browser straight away.
+Historical scan blocks 26345544–26352743 read 1,366,618 mainnet logs and produced 47,694 suspected pairs. Only a deliberate subset was published: [fresh read](../docs/research/arkiv-snapshot-2026-11-06.json) returned 173 unique records, 147 zero-value and 26 dust. These numbers do not establish precision or adoption.
 
-## From-scratch criteria: concrete improvements and reproduction
+The first 25 records cost 0.007013472 tGLM. An additional 100 cost 0.026641686 in four batches. The 125-record rerun created zero and sent zero transactions. These are historical measurements, not price estimates. [Live results](../docs/T8_LIVE_RESULTS.md), [reach](reach.md).
 
-For [Build on Arkiv](https://ethglobal.com/events/mumbai/prizes/arkiv), the improvements we would value today are a prominent pagination/migration example (100-row cap, key continuation, createdBy) and an actionable insufficient-funds error naming the public address and faucet without dumping a request object. A documented preflight batch-cost estimate would help budget large imports.
+Explorer now bulk-loads all pages with progress and searches locally; Pay also bulk-loads before local comparisons. Earlier first-page/indexed-search descriptions no longer match these clients. Bulk reads improve query privacy but grow with dataset size; there is no demonstrated full-dataset production scale benchmark. Indexed variant counts remain useful without downloading all content.
 
-The pagination issue was our original spec assumption, not a network outage: we expected a 200-row page and hasNextPage; the pinned SDK exposes a 100-row cap and key continuation. Reproduce by inspecting MAX_LIMIT in the pinned SDK query package, then running the public [query.ts](query.ts): the 173-record read needs two pages. The [production reader](../packages/arkiv/src/read.ts) shows the working continuation code. For the funding path, an unfunded testnet publisher running publish:arkiv --limit 1 now stops at our balance check with a faucet link; previously a submission reached a low-level execution error. Do not import a generated key into a browser for this check.
+## What worked and feedback
 
-Live update, 6 November: the first 25 records cost 0.007013472 tGLM. An additional 100 cost 0.026641686 across four batches, using existing funds only. Both succeeded without an access key. The 125-record rerun created 0 and sent 0 transactions. These are measurements, not a future price or availability guarantee. The publication remains a deliberate subset; [reach.md](reach.md) carries its real scope. This resolves the earlier cost-measurement question above; no full-dataset publication is promised.
+Typed defineSchema, creator filtering, expiry and executeBatch made static-client reads and idempotent publication straightforward. Our production writer batches 25 creates; a repeat skips existing IDs.
+
+We would value a prominent migration/pagination example, a manifest-size example distinguishing str from bytes, actionable insufficient-funds errors, and preflight batch-cost guidance. The query shape and SDK limits are documented; our earlier assumptions were wrong. Reproduce the working public read with [query.ts](query.ts), requiring no wallet, key or write. Do not generate or fund an account just to reproduce these observations.
+
+B7 follow-up: [the release encoder](../packages/arkiv/src/release.ts) now uses bytes and validates digest/size/path shape; tests reproduce the old str rejection and cover the corrected write/idempotence path. The prototype's earlier size defect is fixed in code. No live release record is claimed; [attestation guide](../docs/ATTESTATIONS.md).

@@ -24,3 +24,7 @@ Pay bulk-reads evidence and compares recipients locally, avoiding a per-recipien
 | Human labels and precision | Repository CSV after human review; no invented precision result. |
 
 No synthetic Sepolia L record is published as evidence. Source: [schema](schema.md), [reader](../packages/arkiv/src/read.ts), [writer](../packages/arkiv/src/write.ts). **post-Mumbai plan: team to confirm**.
+
+## V2 and Sentinel boundary
+
+V2 recorded recipients and learning settings also live in Sepolia Guard storage. Sentinel alerts live in a separate Sepolia consumer; optional Telegram messages expose their configured public Safe/pair/transaction and chat information. Neither is the Arkiv evidence schema. The release-record prototype is not proof of a working live publication: its full-manifest str field exceeds the SDK limit at this checkpoint. The later merged loss schema is separate; campaign features remain unclaimed. [Current main assessment](../docs/JUDGE_READINESS.md).

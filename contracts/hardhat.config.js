@@ -8,7 +8,13 @@ require("dotenv").config({ path: require("path").join(__dirname, "..", ".env") }
 const { SEPOLIA_RPC_URL, DEPLOYER_PRIVATE_KEY, ETHERSCAN_API_KEY } = process.env;
 
 module.exports = {
-  solidity: { version: "0.8.26", settings: { optimizer: { enabled: true, runs: 200 } } },
+  solidity: {
+    compilers: [{ version: "0.8.26", settings: { optimizer: { enabled: true, runs: 200 } } }],
+    overrides: {
+      "contracts/HexFenceGuardV2.sol": { version: "0.8.28", settings: { optimizer: { enabled: true, runs: 200 }, evmVersion: "cancun" } },
+      "contracts/test/V2Targets.sol": { version: "0.8.28", settings: { optimizer: { enabled: true, runs: 200 }, evmVersion: "cancun" } },
+    },
+  },
   etherscan: {
     enabled: Boolean(ETHERSCAN_API_KEY),
     apiKey: { sepolia: ETHERSCAN_API_KEY || "" },

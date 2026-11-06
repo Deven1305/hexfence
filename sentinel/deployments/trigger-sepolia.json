@@ -1,0 +1,12 @@
+{
+  "chainId": 11155111,
+  "syntheticDemonstration": true,
+  "safe": "0x3BCc3969713778F3Ed26AE1490529eeBAD43FbD5",
+  "lookalike": "0x4E185a3FC4B530244aB9ed0dE38167b403344120",
+  "resembles": "0x4E185e251Ac7fB83E9DE10723EAda46cadE74120",
+  "token": "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238",
+  "amount": "0",
+  "transactionHash": "0x7494d97df9468b822e32aa7008e8f336979b584558053457a03ef32e00b9af15",
+  "blockNumber": 12075412,
+  "eventIndex": 0
+}

@@ -58,3 +58,6 @@ code, .mono { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; f
   section { padding: 1.1rem; }
   .verdict { padding: .85rem; }
 }
+
+.route-status { padding:.6rem 1rem; border:1px solid var(--line); margin-bottom:1rem; }
+.route-status summary { cursor:pointer; font-size:.8rem; color:var(--muted); }
