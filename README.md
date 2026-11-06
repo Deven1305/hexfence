@@ -49,6 +49,7 @@ This build's distinction is an account-level resemblance rule plus open suspecte
 | Component | Actual state |
 |---|---|
 | V2 Guard | [0x0adF080DE3DA9D672fDc7330B8750a0579A698c7](https://sepolia.etherscan.io/address/0x0adF080DE3DA9D672fDc7330B8750a0579A698c7), Sourcify exact creation/runtime match 58609655 |
+| Module Guard (Safe 1.5.0) | [0xa7Dc08C6fb15fCdBF4De484FaE393fea052c546B](https://sepolia.etherscan.io/address/0xa7Dc08C6fb15fCdBF4De484FaE393fea052c546B), Sourcify exact creation/runtime match 58620524. Reads V2's list. No live Safe uses it yet |
 | New isolated V2 Safe | [0x5142C7E9DE82726CaCb847c5469D460508738214](https://sepolia.etherscan.io/address/0x5142C7E9DE82726CaCb847c5469D460508738214), 1-of-1 Safe 1.4.1, learning enabled, empty list and zero balance at setup |
 | V2 recovery drill | [Removal](https://sepolia.etherscan.io/tx/0x267d7fb1721c2c2c909ace707aeb77d7da75bd13b0e9bf638e6d381277dfd500) and [restoration](https://sepolia.etherscan.io/tx/0xa7a4afc8a75465d612c4615ec5acdd582d773dd18ed48898f0643d11142b330b) succeeded by script; positive-value live P/L remains human-run |
 | Alerts consumer | [0x97F6f25D51DD52565FF30D22286392686A1ED80F](https://sepolia.etherscan.io/address/0x97F6f25D51DD52565FF30D22286392686A1ED80F), simulation mode, Sourcify exact match 58607325 |
