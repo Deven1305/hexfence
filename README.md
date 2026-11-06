@@ -32,7 +32,7 @@ Sepolia Transfer log → Sentinel source/WASM [CRE login/run pending]
 - **Sentinel / Radar:** CRE source and WASM build, an on-chain consumer and a Pay bulk reader. **A successful CRE simulation and Telegram delivery are still missing.** The consumer trusts the public mock forwarder; banners say simulation/advisory. See [CHAINLINK.md](CHAINLINK.md).
 - **`packages/arkiv/`:** the Arkiv schema, bulk readers and idempotent writer.
 - **`packages/check/` and `packages/mcp/`:** an offline check SDK (verdict plus an evidence Bloom filter) and an MCP stdio server with one tool, `hexfence_check`, so an AI agent can compare a recipient with its approved payees before it signs. Both are offline: they read no chain data.
-- **Module guard:** `HexFenceModuleGuard` applies V2's checks to Safe 1.5.0 module transactions. It is deployed, but no live Safe uses it and no live module payment has run.
+- **Module guard:** `HexFenceModuleGuard` applies V2's checks to Safe 1.5.0 module transactions. A scripted Sepolia drill on a new isolated Safe 1.5.0 paid one wei to the recorded recipient ([success](https://sepolia.etherscan.io/tx/0x1b981af2679ec1e035b53ebe3950cf2c892416fb12f9826e406c02297529471d)) and refused one wei to the synthetic lookalike ([mined revert](https://sepolia.etherscan.io/tx/0x3f9035a29f220fe23995444a72d3821a8be34c4bc50b328ee3d9755df64bd935)). No person has run it from a wallet.
 - **`apps/site/`:** the static landing page, deployed with the two apps.
 - **`apps/explorer/`:** Evidence, Losses (A4 Rescue), Campaigns (B2) and Check my address tabs. It can read extra publishers (C3), but none exist yet, so the live explorer reads one.
 - **`apps/pay/`:** HexFence Pay, with the ERC-7730 explain panel (B6) and a Safe App mode (B8, not yet tried by a person inside Safe{Wallet}).
@@ -227,7 +227,7 @@ Pay waits for route selection before Safe/history/alert reads. Explicit **Skip: 
 - The Chrome extension's interception on `app.safe.global` has not been tested with a real wallet, so its go/no-go is open.
 - Pay's owner setup panel is unit-tested but has not been used with a real wallet.
 - 1,126 records are published: 125 from one Ethereum attack block (26352743), 48 taken one per equal slice of the first roughly 24-hour scan (47,694 pairs), and 953 from a second scan (58,739 pairs, blocks 26349302-26356501), selected as one per equal block slice plus up to 20 from each of the 10 largest attack transactions. They are a sample, not all detections. The scheduled publisher has not run with a key.
-- Module transactions bypass transaction guards. `HexFenceModuleGuard` covers Safe 1.5.0 modules, but no live Safe uses it and no live module payment has run.
+- Module transactions bypass transaction guards. `HexFenceModuleGuard` covers Safe 1.5.0 modules. Its only live use is a scripted drill on one isolated Safe, with native ETH payments ([details](contracts/README.md#module-guard-scripted-live-receipts)).
 - MultiSend is refused (it's a delegatecall).
 - Only ETH, `transfer` and `transferFrom` are inspected; other calls are allowed and clients show "cannot verify".
 - A 4+4 fingerprint doesn't catch weaker lookalikes.
@@ -299,4 +299,4 @@ The optional `hexfence.release.v1` publisher is a prototype, not a proved live i
 
 ## Optional governance guard
 
-A separate [HexFenceGovernanceGuardV2](contracts/README_GOVERNANCE.md) adds 4+4 checks for new owner/module addresses in three named Safe self-calls. It is deployed on Sepolia, with no live Safe switched to it. **Only Safes that set this new transaction guard get these checks.** Its recipient state is separate; Pay and the existing demo still point to V2. setGuard remains unchecked and the real Safe removal drill passes. This is not a retrofit to the deployed V2, a state migration, batch support or protection from existing modules bypassing transaction guards.
+A separate [HexFenceGovernanceGuardV2](contracts/README_GOVERNANCE.md) adds 4+4 checks for new owner/module addresses in three named Safe self-calls. It is deployed on Sepolia. A scripted drill on one new isolated Safe [refused the synthetic lookalike as a new owner](https://sepolia.etherscan.io/tx/0xfb0d8a277cb22620e07897b642b7fdf86a05f83fd8bafde37b6241d7747ea860) and [added a non-lookalike owner](https://sepolia.etherscan.io/tx/0xdb4af2e80f174712f060c263479ec9ee6c81eaad46be1d26668b578af5c09594); no pre-existing Safe was switched. **Only Safes that set this new transaction guard get these checks.** Its recipient state is separate; Pay and the existing demo still point to V2. setGuard remains unchecked and the real Safe removal drill passes. This is not a retrofit to the deployed V2, a state migration, batch support or protection from existing modules bypassing transaction guards.

@@ -23,7 +23,7 @@ Three placeholders remain on purpose. Do not publish text that still contains on
 | L again, direct script without Pay, reverted | 0xe77e6a7a8ba5b6f9742ec953826bc47c69ffffdced3a4d40b8fe3a220e1bb46f |
 | Guard removed / restored | 0x5edf08eb6489d78c13f0748283e43bab8c015c851d0d40e86b030dd6794ad8e0 / 0xd1c7db48a18647713c34384afc51b116888546dd837359eecad0938a5ebe9743 |
 | HexFenceGuardV2 / isolated V2 Safe | 0x0adF080DE3DA9D672fDc7330B8750a0579A698c7 / 0x5142C7E9DE82726CaCb847c5469D460508738214 |
-| HexFenceModuleGuard (Safe 1.5.0) | 0xa7Dc08C6fb15fCdBF4De484FaE393fea052c546B (no live Safe uses it) |
+| HexFenceModuleGuard (Safe 1.5.0) | 0xa7Dc08C6fb15fCdBF4De484FaE393fea052c546B (scripted drill on isolated Safe 0x36cc3F281129C6375B8057faB536caDD83C577b2) |
 | HexFenceAlerts (CRE consumer) | 0x97F6f25D51DD52565FF30D22286392686A1ED80F |
 | Arkiv publisher (Rabdi, chain 7794095) | 0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec |
 | Records | 1,126 `hexfence.poisoning.v1` (651 zero-value, 475 dust, all suspected) + 1 `hexfence.loss.v1` |
@@ -55,7 +55,7 @@ Around the Guard:
 
 The demo has two clearly separate parts: real mainnet evidence read live from Arkiv, and a **synthetic re-enactment on Sepolia** with addresses we generated. Paying the lookalike reverted on-chain, paying a new supplier succeeded, paying the approved payee succeeded, and the lookalike still reverted with our client out of the path.
 
-An opt-in learning Guard (V2) has a scripted Sepolia run: it learned the first recipient, then refused the lookalike. Also built and deployed, not yet shown live: a module guard for Safe 1.5.0. Limits are in the README.
+An opt-in learning Guard (V2) has a scripted Sepolia run: it learned the first recipient, then refused the lookalike. A module guard for Safe 1.5.0 and a governance guard also have scripted Sepolia drills on new isolated Safes: each refused the synthetic lookalike in a mined revert and allowed the non-lookalike case. No person has run these from a wallet. Limits are in the README.
 
 ## 4. How it's made
 

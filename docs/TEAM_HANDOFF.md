@@ -32,7 +32,7 @@ Checked in headless Chrome on 6 Nov at about 18:00 IST: the landing page showed 
 | A3 UI | #28 | Shared UI package, Address X-Ray, step navigation | |
 | A4 Rescue | #36 | Explorer **Losses** tab: one supported suspected follow-up payment, 303.635007 USDT, published as `hexfence.loss.v1`; downloadable pack with SHA-256 | It is an investigative lead, not a confirmed loss |
 | B2 Campaigns | #38 | Explorer **Campaigns** tab: groups records by attack transaction, hourly chart from real block times, match-length model | The hourly chart counts published records, not attacks (see below) |
-| B5 Module guard | #41 | `HexFenceModuleGuard` for Safe 1.5.0 at 0xa7Dc…546B, reads V2's list; 8 tests on a real 1.5.0 Safe | **No live Safe uses it; no live module payment has run** |
+| B5 Module guard | #41 | `HexFenceModuleGuard` for Safe 1.5.0 at 0xa7Dc…546B, reads V2's list; 8 tests on a real 1.5.0 Safe | Scripted drill only, on isolated Safe 0x36cc…77b2: [recorded recipient paid](https://sepolia.etherscan.io/tx/0x1b981af2679ec1e035b53ebe3950cf2c892416fb12f9826e406c02297529471d), [lookalike refused](https://sepolia.etherscan.io/tx/0x3f9035a29f220fe23995444a72d3821a8be34c4bc50b328ee3d9755df64bd935). Native ETH; no human wallet |
 | B6 Explain layer | #40 | Pay panel "Explain another call (ERC-7730)": shows a pasted descriptor's intent and fields; the verdict stays CANNOT VERIFY | Nothing is fetched; the Guard still does not check those calls |
 | B7 Client attestation | #39 | Pages builds publish `SHA256SUMS.txt` and GitHub build attestations | No live Arkiv release record |
 | B8 Pay as a Safe App | #31 | Pay runs inside Safe{Wallet} via the Safe Apps SDK | **Not tested by a person inside Safe{Wallet}** |
@@ -40,7 +40,7 @@ Checked in headless Chrome on 6 Nov at about 18:00 IST: the landing page showed 
 | C3 Multi-publisher | #42 | Explorer can read extra publishers from `VITE_ARKIV_EXTRA_PUBLISHERS`; cards say "Published by N of M publishers read" | **No second publisher with records exists, and `pages.yml` does not pass that variable, so the live explorer reads one publisher** |
 | T14 Chrome extension | #24 | `apps/extension` builds and has unit tests | Not tested on app.safe.global with a real wallet |
 
-**Not built:** B3 (batch protection) was cut. C2 and C4 were scrapped. B1 was not built because it needs approval to spend tGLM. The separately deployed governance guard (B4) is described in the follow-up below; no live Safe is configured with it.
+**Not built:** B3 (batch protection) was cut. C2 and C4 were scrapped. B1 was not built because it needs approval to spend tGLM. The separately deployed governance guard (B4) is described in the follow-up below; only one isolated drill Safe uses it.
 
 ## Why the Campaigns hourly chart has one tall bar
 
@@ -99,4 +99,4 @@ cd contracts && npm install --legacy-peer-deps && npx hardhat test
 
 ## B4 governance guard follow-up
 
-Codex 2 added a separately deployed HexFenceGovernanceGuardV2; [installation scope, separate state, tests and public receipts](../contracts/README_GOVERNANCE.md). No live Safe was switched and Pay remains pinned to original V2. Only Safes selecting the new guard receive its three governance checks. B3 stays cut; B5 is not reimplemented. Source match 58635387 is for this new contract, leaving original V2 unchanged.
+Codex 2 added a separately deployed HexFenceGovernanceGuardV2; [installation scope, separate state, tests and public receipts](../contracts/README_GOVERNANCE.md). Only a new isolated drill Safe uses it, from a script; Pay remains pinned to original V2. Only Safes selecting the new guard receive its three governance checks. B3 stays cut; B5 is not reimplemented. Source match 58635387 is for this new contract, leaving original V2 unchanged.
