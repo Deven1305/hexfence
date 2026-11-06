@@ -86,7 +86,7 @@ Real output on 6 Nov: `{"level":"RED","reason":"resembles","recipient":"0x4E185a
 | False positives? | Two random addresses share a 4+4 fingerprint with chance 1 in 2^32. A collision is resemblance, not intent; owners can approve the second address after removing the first. |
 | Is your precision 100%? | No human-checked precision yet. The 30 sample labels were assigned by AI. |
 | Gas? | Measured on a local Safe 1.4.1: 182,927 gas for a new V2 recipient, 72,839 for a repeat; whole Safe calls, not a universal quote. |
-| Modules, MultiSend, governance? | Module transactions bypass transaction guards; our module guard for Safe 1.5.0 is deployed but not used by a live Safe yet. MultiSend is a delegatecall and is refused. Owners can remove the Guard. |
+| Modules, MultiSend, governance? | Module transactions bypass transaction guards; our module guard for Safe 1.5.0 is deployed but not used by a live Safe yet. MultiSend is a delegatecall and is refused. A separate governance guard checks new owner/module resemblance only for Safes that install it; no live Safe was switched. Pay still points to original V2. Owners can remove the Guard. |
 | Who uses it? | DAO treasuries and payment teams are the intended users. No pilots or paying users yet. |
 | Has a person checked it? | The Guard review in the repo is by AI. Human sign-off, a person-run wallet test and the Hindi check are still open, and we say so. |
 | Does the Campaigns hourly chart show attack rate? | No. 125 of the 173 records come from one block, because we published the most recent records first. The chart says so. |

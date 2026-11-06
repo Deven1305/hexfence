@@ -40,7 +40,7 @@ Checked in headless Chrome on 6 Nov at about 18:00 IST: the landing page showed 
 | C3 Multi-publisher | #42 | Explorer can read extra publishers from `VITE_ARKIV_EXTRA_PUBLISHERS`; cards say "Published by N of M publishers read" | **No second publisher with records exists, and `pages.yml` does not pass that variable, so the live explorer reads one publisher** |
 | T14 Chrome extension | #24 | `apps/extension` builds and has unit tests | Not tested on app.safe.global with a real wallet |
 
-**Not built:** B3 (batch protection) was cut. C2 and C4 were scrapped. B1 was not built because it needs approval to spend tGLM. A governance guard (B4) is on `feat/governance-fence` with another agent and is not on main.
+**Not built:** B3 (batch protection) was cut. C2 and C4 were scrapped. B1 was not built because it needs approval to spend tGLM. The separately deployed governance guard (B4) is described in the follow-up below; no live Safe is configured with it.
 
 ## Why the Campaigns hourly chart has one tall bar
 
@@ -97,3 +97,7 @@ cd contracts && npm install --legacy-peer-deps && npx hardhat test
 - Pay's Nox route takes 25–40 s to start on the hosted site. **Skip: read directly (not anonymous)** loads the Safe in a few seconds.
 - The public Arkiv endpoint is rate-limited. A second explorer load within a minute can sit at "reading Arkiv…"; wait or reload.
 - Etherscan shows the Guard's verified source; Blockscout also decodes the `LookalikeOfApprovedPayee` revert reason on the L payment.
+
+## B4 governance guard follow-up
+
+Codex 2 added a separately deployed HexFenceGovernanceGuardV2; [installation scope, separate state, tests and public receipts](../contracts/README_GOVERNANCE.md). No live Safe was switched and Pay remains pinned to original V2. Only Safes selecting the new guard receive its three governance checks. B3 stays cut; B5 is not reimplemented. Source match 58635387 is for this new contract, leaving original V2 unchanged.
