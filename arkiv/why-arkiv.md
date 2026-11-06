@@ -8,7 +8,7 @@ Users would lose this deployment's shared, wallet-attributed data source indepen
 
 Postgres could implement bulk downloads, filters, authentication and expiry too, but we would need to operate or delegate that API. Users would depend on its operator for access and attribution. This is an architectural tradeoff, not a claim that SQL cannot provide these functions. Arkiv still has RPC availability/rate-limit dependencies, and the selected publisher remains a trust choice.
 
-The derived dataset connects victim, impersonated payee and lookalike to two Ethereum transactions. Raw Ethereum logs supply the transfers; our detector supplies the suspected relationship. Users can search those address fields and independently re-check receipts. The hosted browser displayed 125 records and verified the first record's receipts. Receipt verification does not prove malicious intent: status stays **suspected**.
+The derived dataset connects victim, impersonated payee and lookalike to two Ethereum transactions. Raw Ethereum logs supply the transfers; our detector supplies the suspected relationship. Users can search those address fields and independently re-check receipts. The hosted browser displayed 173 records and verified the first record's receipts. Receipt verification does not prove malicious intent: status stays **suspected**.
 
 Pay bulk-reads evidence and compares recipients locally, avoiding a per-recipient request. That privacy property comes from the client design; another database could also support bulk reads. Explorer's address search and check also run on bulk-downloaded records, so the address is not sent to the Arkiv RPC.
 

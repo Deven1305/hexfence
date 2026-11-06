@@ -10,10 +10,10 @@ Answers for [Build on Arkiv (from scratch)](https://ethglobal.com/events/mumbai/
 | Schema tag and createdBy(publisher) | Readers choose whose claims to display; another writer's same-schema entities do not silently enter the dataset. |
 | Indexed variant | Explorer totals distinguish zero-value from dust. Live: 173 = 147 zero-value + 26 dust. |
 | Stable evidenceId | Writer bulk-reads existing IDs and skips them. Rerun: 0 created, 125 already present; no duplicate cards from that run. |
-| Key ordering, at most 100 rows/page | Explorer walks all pages automatically and shows progress; the hosted browser reached 125 of 125. Pay walks all pages before comparing locally. |
+| Key ordering, at most 100 rows/page | Explorer walks all pages automatically and shows progress; the hosted browser reached 173 of 173. Pay walks all pages before comparing locally. |
 | Wallet ownership | Publisher 0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec owns its records. Network rules restrict mutations to the owner; our app exposes no editor, and the writer creates records rather than editing claims. Attribution does not establish truth. |
 | ExpirationTime.fromDays(30) | Old warnings age out instead of accumulating forever. Configured in the writer; a full 30-day cycle has not elapsed in our test. |
-| executeBatch of 25 creates | Additional 100 records used four transactions; explorer then showed 125. Batching bounds write cost/flow, not verdict severity. |
+| executeBatch of 25 creates | Additional 100 records used four transactions; the 48 after them used two; explorer then showed 173. Batching bounds write cost/flow, not verdict severity. |
 
 The complete indexed/plain split is in [schema.md](schema.md) and [schema.ts](../packages/arkiv/src/schema.ts). chainId, attackBlock and detectorVersion are indexed for dataset scoping/inspection; the current UI does not expose controls for every index. We do not claim each index creates a product feature.
 
@@ -31,7 +31,7 @@ From repo root, no key needed:
 corepack pnpm@10.34.9 --filter @hexfence/detector exec tsx ../../arkiv/query.ts
 ```
 
-Observed: 125 records, 125 unique IDs, 124 zero-value, 1 dust, only suspected. [query.ts](query.ts) imports the [production reader](../packages/arkiv/src/read.ts). Configure a testnet publisher in ignored root .env for writes, then:
+Observed: 173 records, 173 unique IDs, 147 zero-value, 26 dust, only suspected. [query.ts](query.ts) imports the [production reader](../packages/arkiv/src/read.ts). Configure a testnet publisher in ignored root .env for writes, then:
 
 ```powershell
 corepack pnpm@10.34.9 --filter @hexfence/detector publish:arkiv --limit 125
