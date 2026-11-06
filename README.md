@@ -295,3 +295,7 @@ The match-length chart compares observed full-address common prefix+suffix lengt
 
 The optional `hexfence.release.v1` publisher is a prototype, not a proved live integration. The B7 follow-up corrects the oversized manifest to tested `bytes` encoding with digest/size/path checks. No live publication has been performed; the inspected job skipped for a missing publisher secret. The publisher secret is also a human configuration step. Attestations establish build provenance, not an audit or protection against a compromised maintainer.
 
+
+## Optional governance guard
+
+A separate [HexFenceGovernanceGuardV2](contracts/README_GOVERNANCE.md) adds 4+4 checks for new owner/module addresses in three named Safe self-calls. It is deployed on Sepolia, with no live Safe switched to it. **Only Safes that set this new transaction guard get these checks.** Its recipient state is separate; Pay and the existing demo still point to V2. setGuard remains unchecked and the real Safe removal drill passes. This is not a retrofit to the deployed V2, a state migration, batch support or protection from existing modules bypassing transaction guards.
