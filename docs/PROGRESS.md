@@ -77,6 +77,8 @@
 
 ## Decisions log
 
+- 06 Nov (Rescue): the published `packHash` seals a reproducible UTF-8 core Markdown file. User-clicked current balance and receipt recheck results are a separately dated local supplement, because changing them cannot preserve the original digest. No self-referential hash is embedded in the core. Bounded outgoing transfers are investigative leads, with no inferred exchange ownership or fund attribution. Arkiv context uses `bytes` because the official SDK limits `str` to 128 UTF-8 bytes.
+
 - 06 Nov (upgrade, user-authorized): the upgrade plan supersedes the locked spec's "No Chainlink" restriction. Guard v1 and its tests stay unchanged. UI/Rescue builder owns A3, A4, B2 and extension UI; another Codex owns contracts, Sentinel, Radar data and V2 wiring.
 
 - 06 Nov (Dhruv, scope override): Dhruv approved work beyond the "P2 only if every P1 task is ✔" rule while T6, T12 and T13 wait on humans: a real landing page and UI pass (feat/site-ui), Pay self-serve setup plus a no-wallet read-only preview (feat/pay-setup), live evidence with explorer views (feat/live-evidence), and the Chrome extension with a go/no-go on `app.safe.global` (feat/extension, T14). Lane ownership stays lifted for this pass. No Guard contract change.
@@ -121,8 +123,8 @@
 
 | ID | Status | Commit | Notes | Next step |
 |---|---|---|---|---|
-| A3 | In progress | See feature branch feat/xray-ui | Shared UI exports including unwired RadarBanner; grouped address comparison and hash colour strip; paste verdict; Pay step navigation; dynamic Protocol Kit/Nox/Arkiv; self-hosted fonts; landing live counters; explorer tabs/table. Local direct TypeScript and worker-thread tests pass (173 tests, 4 skipped, including 3 new UI tests). Required recursive commands fail at Windows child-process spawn EPERM; direct Pay build passes, entry 137 KB before final stepper change. Browser tool denied Edge access; CI captures 375/1440 light/dark screenshots for inspection before merge. | CI full checks and screenshot review; merge A3, then begin A4. |
-| A4 | Todo | ? | Rescue loss pass, schema/publisher, explorer and pack. | After A3 merge. |
+| A3 | ? Merged [PR #28](https://github.com/Deven1305/hexfence/pull/28) | 73e8939 | Shared UI exports including unwired RadarBanner; grouped address comparison and hash colour strip; paste verdict; Pay step navigation; dynamic Protocol Kit/Nox/Arkiv; self-hosted fonts; landing live counters; explorer tabs/table. Local direct TypeScript and worker-thread tests pass (173 tests, 4 skipped, including 3 new UI tests). Required recursive commands fail at Windows child-process spawn EPERM; direct Pay build passes, entry 137 KB before final stepper change. Browser tool denied Edge access; CI captures 375/1440 light/dark screenshots for inspection before merge. | CI full checks and screenshot review; merge A3, then begin A4. |
+| A4 | In progress | feat/rescue-v0 | Loss fixtures green; schema, idempotent writer, local pack and explorer tools implemented. Real 7,200-block scan running; no publication claimed. | Finish tests, scan/publication, UI checks and PR. |
 | B2 | Todo | ? | Campaign grouping, timestamp axis and match-length comparison. | After A4. |
 | Extension UI | Todo | ? | Use AddressXray/VerdictCard in review window. | After B2. |
 | UI polish | Todo | ? | Complete section 7 refinements within freeze. | After extension. |
@@ -134,3 +136,7 @@
 - 06 Nov 13:44 IST: first A3 CI run passed all 14 v1 contract tests, then exposed an existing unquoted shell glob in Pay's Vitest command on Linux. Quoted the exclude pattern; adjusted the scripted v1 browser regression for step navigation, and added it to CI before real-data captures.
 
 - 06 Nov 13:49 IST: A3 CI passed (14 v1 contract tests, workspace tests/build, local scripted-wallet P/B success and L refusal, real-data light/dark captures). Found initial entry plus static preloads totalled over 400 KB despite the 137 KB entry; deferred the RPC/Anon modules after first paint too. Rebuilt locally: initial entry plus all static preloads = 309,207 bytes, enforced in visual CI. Review and final-head CI remain before merge.
+
+- 06 Nov 14:10 IST: A3 merged as 73e8939 / PR #28, final CI green and 12 captures inspected. A4 streaming fixtures (5), shared schema/hash tests (3), and Arkiv codec/idempotency tests (3) pass. A real 7,200-block scan started through an in-process Vite SSR bundle because tsx subprocess spawning is blocked locally. No scan result or Arkiv write claimed yet.
+
+- 06 Nov 14:22 IST: A4 working checkpoint: shared 35, Arkiv 15, detector 25 and explorer 39 tests pass (existing opt-in skips remain). First live scan failed before a final summary; a retry is underway. GitHub fetch/API and mainnet RPC have intermittent connection failures. No loss totals or publication are claimed. Next: finish real scan, seal normalized records, publish with existing testnet balance, then review Losses screenshots and PR.

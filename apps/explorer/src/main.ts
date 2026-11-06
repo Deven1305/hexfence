@@ -1,3 +1,4 @@
+import { lossesPanel } from "./losses.js";
 import { DataTable } from "@hexfence/ui";
 import "@hexfence/ui/style.css";
 ﻿import { arkivReadClient } from "@hexfence/arkiv";
@@ -55,8 +56,9 @@ if (!isAddress(publisherEnv, { strict: false })) {
   const client = arkivReadClient(accessKey ? { accessKey } : undefined);
   const tabs = el("nav", "hf-tabs"); tabs.setAttribute("aria-label", "Explorer views");
   const tablePanel = el("section");
+  const lossPanel = lossesPanel(client, publisher, rpcUrl);
   let view = "Evidence";
-  const panels = { Evidence: [form, searchStatus, tablePanel, results], Campaigns: [dashboard], "Check my address": [ownPanel] };
+  const panels = { Evidence: [form, searchStatus, tablePanel, results], Losses: [lossPanel], Campaigns: [dashboard], "Check my address": [ownPanel] };
   const choose = (name: string) => {
     view = name;
     for (const [label, nodes] of Object.entries(panels)) for (const node of nodes) node.hidden = label !== name;
@@ -66,7 +68,7 @@ if (!isAddress(publisherEnv, { strict: false })) {
     const b = el("button", undefined, name) as HTMLButtonElement; b.type = "button"; b.onclick = () => choose(name); tabs.append(b);
   }
   app.append(tabs);
-  app.append(el("p", "publisher", `Publisher ${publisher}`), status, retry, dashboard, ownPanel, form, searchStatus, tablePanel, results);
+  app.append(el("p", "publisher", `Publisher ${publisher}`), status, retry, dashboard, ownPanel, form, searchStatus, tablePanel, results, lossPanel);
   choose(view);
   const downloaded: PoisoningEvidence[] = [];
   const seen = new Set<string>();
