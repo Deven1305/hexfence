@@ -31,7 +31,11 @@ Sepolia Transfer log → Sentinel source/WASM [CRE login/run pending]
 - **Auto-Fence V2:** a separate non-upgradeable Guard with opt-in learning after successful recognized Safe execution, one holder per fingerprint, `forget`/`approve` correction and an ETH-with-calldata check. Real Safe 1.4.1 tests and 414 V2 parity vectors are in [contracts](contracts/README_V2.md). V1 code and its 14 tests are unchanged.
 - **Sentinel / Radar:** CRE source and WASM build, an on-chain consumer and a Pay bulk reader. **A successful CRE simulation and Telegram delivery are still missing.** The consumer trusts the public mock forwarder; banners say simulation/advisory. See [CHAINLINK.md](CHAINLINK.md).
 - **`packages/arkiv/`:** the Arkiv schema, bulk readers and idempotent writer.
+- **`packages/check/` and `packages/mcp/`:** an offline check SDK (verdict plus an evidence Bloom filter) and an MCP stdio server with one tool, `hexfence_check`, so an AI agent can compare a recipient with its approved payees before it signs. Both are offline: they read no chain data.
+- **Module guard:** `HexFenceModuleGuard` applies V2's checks to Safe 1.5.0 module transactions. It is deployed, but no live Safe uses it and no live module payment has run.
 - **`apps/site/`:** the static landing page, deployed with the two apps.
+- **`apps/explorer/`:** Evidence, Losses (A4 Rescue), Campaigns (B2) and Check my address tabs. It can read extra publishers (C3), but none exist yet, so the live explorer reads one.
+- **`apps/pay/`:** HexFence Pay, with the ERC-7730 explain panel (B6) and a Safe App mode (B8, not yet tried by a person inside Safe{Wallet}).
 - **`apps/extension/`:** a Chrome extension that reviews Safe payments on `app.safe.global`. Its interception has not yet been tested on the real site; see Limits.
 - **Real evidence and the synthetic test are separate.** Mainnet records are always status "suspected". The synthetic Sepolia L only ever gets "resembles your approved payee".
 
@@ -43,6 +47,10 @@ Sepolia Transfer log → Sentinel source/WASM [CRE login/run pending]
 - Safe 1.4.1 contracts, Safe Protocol Kit, `@arkiv-network/sdk`, viem, zod, Hardhat, Vite, vitest.
 
 This build's distinction is an account-level resemblance rule plus open suspected-pattern data and local comparisons. It is not a claim that MetaMask or Safe{Wallet} lack warnings, nor that every other evidence feed is closed. New fingerprints pass the Guard; unsupported call semantics and first-use mistakes remain limits.
+
+## What is on main, and what is not shown live
+
+Full table with evidence: [docs/JUDGE_READINESS.md](docs/JUDGE_READINESS.md#every-feature-on-main-and-what-it-does-not-prove). Not built: B3 (batch protection) was cut; C2 and C4 were scrapped; B1 needs approval to spend tGLM.
 
 ## Auto-Fence and Sentinel status
 
@@ -192,10 +200,12 @@ Fresh observation, 6 Nov 2026 at 09:47:52 UTC: **173 records, 173 unique IDs, 14
 
 ## CROPS
 
-- **C:** Installed Guard rules do not depend on HexFence's domain, detector, Arkiv feed or Sentinel. Losing the hosted client still leaves owner-signed Safe transactions and configurable RPC/static-client alternatives; chain/RPC availability remains a dependency.
-- **O:** HexFence source is MIT; the core apps and contracts build from the repo and locked dependencies. Dependencies retain their licenses, including the optional CRE SDK's BUSL-1.1; CRE simulation additionally requires human authentication.
-- **P:** Comparisons run locally on bulk payee/history/alert/evidence reads, without per-recipient threat queries or analytics. The table below states what RPCs, routing/resolver services, hosting, wallets and optional Telegram can learn.
-- **S (lead):** For supported calls, the account's Guard enforces the resemblance rule; V2 optionally learns successful recognized executions. Signing keys stay in wallets or ignored Node configuration, while first use, owner authority, module bypass, unsupported semantics and unaudited testnet scope remain explicit limits.
+Lead property: **Security**.
+
+- **C:** The Guard has no owner and no upgrade path, and needs no HexFence service: it keeps refusing lookalikes if our site, detector, Arkiv records and Sentinel are gone. Anyone can run the detector and publish under their own wallet.
+- **O:** MIT licence; the apps and contracts build from this repo with locked dependencies, and RPC endpoints are configurable. The optional CRE SDK is BUSL-1.1.
+- **P:** Recipients are compared in the browser against bulk reads, with no per-recipient lookup and no trackers. Pay's Sepolia reads go through the Nox mixnet by default; the table below says what each service can still see.
+- **S (lead):** Payees are approved only by Safe transactions and keys stay in the user's wallet (or git-ignored `.env` for scripts). The demo Safe holds test funds only; first use, owner authority, modules and unsupported calls are stated limits.
 
 ## Privacy and trust
 
@@ -216,7 +226,7 @@ Pay waits for route selection before Safe/history/alert reads. Explicit **Skip: 
 - The Chrome extension's interception on `app.safe.global` has not been tested with a real wallet, so its go/no-go is open.
 - Pay's owner setup panel is unit-tested but has not been used with a real wallet.
 - 173 records are published: 125 from one Ethereum attack block (26352743) and 48 taken one per equal slice of the roughly 24-hour scan, so they are a sample of the detector's 47,694 records, not all of them. The scheduled publisher has not run with a key.
-- Module transactions bypass transaction guards.
+- Module transactions bypass transaction guards. `HexFenceModuleGuard` covers Safe 1.5.0 modules, but no live Safe uses it and no live module payment has run.
 - MultiSend is refused (it's a delegatecall).
 - Only ETH, `transfer` and `transferFrom` are inspected; other calls are allowed and clients show "cannot verify".
 - A 4+4 fingerprint doesn't catch weaker lookalikes.
@@ -225,7 +235,12 @@ Pay waits for route selection before Safe/history/alert reads. Explicit **Skip: 
 - V1 does not inspect ETH attached to unsupported calldata; V2 separately checks the ETH destination. V2 still has the recognized-call/EVM-success limits in [README_V2](contracts/README_V2.md).
 - A first-use mistake can become a V2 holder. The deployed V2 Safe is unfunded; positive-value behavior is locally tested, not yet demonstrated by a funded Sepolia P/L run.
 - Sentinel is not an always-on DON deployment, and no successful CLI simulation or Telegram receipt exists yet. The simulation consumer accepts the public mock forwarder, so its reports are advisory and not authenticated poisoning findings.
-- A4 merged after the initial research checkpoint; its current scope is described below. Campaign metrics and optional follow-up Guard protections remain outside these claims. See [readiness](docs/JUDGE_READINESS.md) before presenting new work.
+- Rescue (A4) shows one supported suspected follow-up payment; it is a lead, not a confirmed loss or cause. Campaign counts (B2) describe the published records only; the hourly chart is not an attack rate.
+- The explorer can read several publishers (C3), but no second publisher with records exists and `pages.yml` does not pass `VITE_ARKIV_EXTRA_PUBLISHERS`, so the live explorer reads one publisher.
+- Pay as a Safe App (B8) has not been tested by a person inside Safe{Wallet}.
+- The ERC-7730 explain panel (B6) uses only descriptors you paste; an explained call still gets CANNOT VERIFY and the Guard does not check it.
+- `@hexfence/check` and `@hexfence/mcp` (C1) compare addresses offline; they do not read the Safe or the evidence set from the chain.
+- The live site reads Arkiv without an access key, through a rate-limited public endpoint; repeated loads can stall at "reading Arkiv…".
 - Safe warns that a broken guard can lock a Safe: the demo Safe is isolated, holds test funds only, and the removal drill is tested.
 
 ## Licence
@@ -239,7 +254,7 @@ Successful Pages builds from `main` publish `SHA256SUMS.txt` and create GitHub b
 gh attestation verify <file> -R Deven1305/hexfence
 ```
 
-The optional release writer needs the manifest representation fix described below before a working publication can be claimed.
+No live release record has been written to Arkiv.
 
 
 ## Rescue: suspected follow-up payments
@@ -271,6 +286,8 @@ The raw ≥1-token follow-up rule also matches automated contract movements: the
 ## Campaigns and time (B2)
 
 The Campaigns tab groups downloaded publisher records by attack transaction and counts distinct victims mentioned. These counts describe the downloaded, selected corpus, not every victim or attack on Ethereum. Expand a group to inspect its address comparisons.
+
+**Why one hour has most records:** 125 of the 173 published records come from one attack block (26352743, two attack transactions), because the first publication took the most recent records. The other 48 are spread evenly over the scan. So the hourly chart is titled "Published records per UTC hour" and, when one hour holds most records, it says how many attack blocks fill it. It shows what was published, not how many attacks happened each hour.
 
 **Read real block times** reads each distinct recorded attack block by number, validates the mainnet chain ID, caches timestamps for the page session, and assigns records to exact UTC hours. It does not infer dates from block height or interpolate timestamps. The read can be stopped and retried; an incomplete read does not render a complete hourly series. No recipient address is included in these requests. See [viem getBlock](https://viem.sh/docs/actions/public/getBlock).
 
