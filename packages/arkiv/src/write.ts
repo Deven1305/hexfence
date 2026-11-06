@@ -51,6 +51,7 @@ export interface PublishReport {
   alreadyThere: number;
   created: number;
   txHashes: Hex[];
+  stoppedForFunds: boolean;
 }
 
 /**
@@ -58,10 +59,21 @@ export interface PublishReport {
  * ones in `executeBatch` transactions of `batchSize` creates. A re-run creates 0 duplicates.
  */
 export async function publishEvidence(
-  opts: WriterOptions & { batchSize?: number; onBatch?: (done: number, total: number, txHash: Hex) => void },
+  opts: WriterOptions & {
+    batchSize?: number;
+    maxRecords?: number;
+    /** Conservative funding allowance per record, plus a reserve threshold (not a fee estimate). */
+    budget?: { perRecord: bigint; reserve: bigint };
+    onBatch?: (done: number, total: number, txHash: Hex) => void;
+  },
   records: readonly PoisoningEvidence[],
   reader: ArkivReadClient = arkivReadClient(opts.accessKey === undefined ? {} : { accessKey: opts.accessKey }),
 ): Promise<PublishReport> {
+  const size = opts.batchSize ?? 25;
+  if (!Number.isSafeInteger(size) || size < 1 || size > 25) throw new Error("batchSize must be 1–25");
+  if (opts.maxRecords !== undefined && (!Number.isSafeInteger(opts.maxRecords) || opts.maxRecords < 1))
+    throw new Error("maxRecords must be a positive integer");
+  if (opts.budget && (opts.budget.perRecord <= 0n || opts.budget.reserve < 0n)) throw new Error("Invalid budget");
   const wallet = arkivWalletClient(opts);
   const publisher = privateKeyToAccount(opts.privateKey).address;
   const have = new Set((await fetchAllEvidence(reader, publisher)).map((e) => e.evidenceId));
@@ -74,15 +86,37 @@ export async function publishEvidence(
     todo.push(record);
   }
 
-  const size = opts.batchSize ?? 25;
+  const alreadyThere = records.length - todo.length;
+  const selected = todo.slice(0, opts.maxRecords);
   const txHashes: Hex[] = [];
-  for (let i = 0; i < todo.length; i += size) {
-    const chunk = todo.slice(i, i + size);
-    const { txHash } = await wallet.executeBatch({
-      creates: chunk.map((e) => ({ schema: PoisoningSchema, values: toArkivValues(e), expiration: expiration() })),
-    });
+  let created = 0;
+  let stoppedForFunds = false;
+  for (let i = 0; i < selected.length; i += size) {
+    const chunk = selected.slice(i, i + size);
+    if (opts.budget) {
+      const balance = await reader.getBalance({ address: publisher });
+      if (balance < opts.budget.reserve + opts.budget.perRecord * BigInt(chunk.length)) {
+        stoppedForFunds = true;
+        break;
+      }
+    }
+    let txHash: Hex;
+    try {
+      ({ txHash } = await wallet.executeBatch({
+        creates: chunk.map((e) => ({ schema: PoisoningSchema, values: toArkivValues(e), expiration: expiration() })),
+      }));
+    } catch (err) {
+      // The SDK wraps viem/RPC errors. Only a funding refusal is a clean budget stop;
+      // timeouts or ambiguous transaction outcomes must fail, with no automatic retry.
+      if (opts.budget && err instanceof Error && /insufficient funds|insufficient balance|funds for gas|not enough funds|doesn't have enough funds|total cost[\s\S]*exceeds[\s\S]*balance/i.test(err.message)) {
+        stoppedForFunds = true;
+        break;
+      }
+      throw err;
+    }
     txHashes.push(txHash);
-    opts.onBatch?.(i + chunk.length, todo.length, txHash);
+    created += chunk.length;
+    opts.onBatch?.(created, selected.length, txHash);
   }
-  return { publisher, alreadyThere: records.length - todo.length, created: todo.length, txHashes };
+  return { publisher, alreadyThere, created, txHashes, stoppedForFunds };
 }
