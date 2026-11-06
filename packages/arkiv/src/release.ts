@@ -1,4 +1,3 @@
-import { createHash } from "node:crypto";
 import { ExpirationTime } from "@arkiv-network/sdk";
 import { eq } from "@arkiv-network/sdk/query";
 import { defineSchema, str } from "@arkiv-network/sdk/schema";
@@ -14,10 +13,8 @@ export const ReleaseSchema = defineSchema("hexfence.release.v1", {
   sums: str(),
 });
 
-export const sha256Hex = (text: string): string => createHash("sha256").update(text).digest("hex");
-
 /** Node only. Idempotent per commit for this publisher. */
-export async function writeRelease(opts: WriterOptions, commit: string, sums: string): Promise<{ entityKey: Hex; created: boolean }> {
+export async function writeRelease(opts: WriterOptions, commit: string, sums: string, sumsSha256: string): Promise<{ entityKey: Hex; created: boolean }> {
   if (!/^[0-9a-f]{40}$/.test(commit)) throw new Error("commit must be a full lowercase sha");
   if (!sums.trim()) throw new Error("SHA256SUMS is empty");
   const reader = arkivReadClient(opts.accessKey === undefined ? {} : { accessKey: opts.accessKey });
@@ -27,7 +24,7 @@ export async function writeRelease(opts: WriterOptions, commit: string, sums: st
   if (found) return { entityKey: found.$key as Hex, created: false };
   const { entityKey } = await arkivWalletClient(opts).createEntity(
     ReleaseSchema,
-    { commit, sumsSha256: sha256Hex(sums), sums },
+    { commit, sumsSha256, sums },
     { expiration: ExpirationTime.fromDays(90) },
   );
   return { entityKey, created: true };
