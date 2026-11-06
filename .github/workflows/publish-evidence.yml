@@ -1,0 +1,53 @@
+name: Publish recent suspected evidence
+
+on:
+  schedule:
+    - cron: '23 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Serialize scheduled and manual publication, including runs on different refs.
+concurrency:
+  group: publish-evidence
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Check publisher configuration
+        id: config
+        env:
+          ARKIV_PRIVATE_KEY: ${{ secrets.ARKIV_PRIVATE_KEY }}
+        shell: bash
+        run: |
+          if [ -z "$ARKIV_PRIVATE_KEY" ]; then
+            echo 'ARKIV_PRIVATE_KEY repository secret is missing; skipping detector and publisher. Nothing written.'
+            echo 'enabled=false' >> "$GITHUB_OUTPUT"
+          else
+            echo 'enabled=true' >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.config.outputs.enabled == 'true'
+      - uses: actions/setup-node@v4
+        if: steps.config.outputs.enabled == 'true'
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        if: steps.config.outputs.enabled == 'true'
+        run: corepack pnpm@10.34.9 install --frozen-lockfile
+      - name: Detect recent mainnet USDT and USDC patterns
+        if: steps.config.outputs.enabled == 'true'
+        env:
+          MAINNET_RPC_URL: ${{ vars.MAINNET_RPC_URL || 'https://ethereum-rpc.publicnode.com' }}
+        run: corepack pnpm@10.34.9 --filter @hexfence/detector detect --blocks 7200 --window 100
+      - name: Publish a bounded subset of new records
+        if: steps.config.outputs.enabled == 'true'
+        env:
+          ARKIV_PRIVATE_KEY: ${{ secrets.ARKIV_PRIVATE_KEY }}
+          ARKIV_ACCESS_KEY: ${{ secrets.ARKIV_ACCESS_KEY }}
+          PUBLISH_MAX_RECORDS: ${{ vars.PUBLISH_MAX_RECORDS || '10' }}
+        run: corepack pnpm@10.34.9 --filter @hexfence/detector publish:arkiv --scheduled --batch 10
