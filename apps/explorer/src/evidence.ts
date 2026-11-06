@@ -6,7 +6,7 @@ import type { Address, Hex } from "viem";
 
 export interface EvidencePage {
   records: PoisoningEvidence[];
-  total: bigint;
+  total: bigint | undefined;
   /** Pass to the next call; undefined when this was the last page. */
   nextKey: Hex | undefined;
 }
@@ -24,8 +24,8 @@ export async function fetchEvidencePage(
     .orderBy(asc("$key"))
     .limit(PAGE_SIZE);
   if (afterKey) q = q.where(gt("$key", key(afterKey)));
-  // Count the full publisher query, not the remaining-key filter on later pages.
-  const total = await client.count().from(PoisoningSchema).createdBy(publisher).fetch();
+  // Count once, on the first page. Later pages do not spend another count query.
+  const total = afterKey ? undefined : await client.count().from(PoisoningSchema).createdBy(publisher).fetch();
   const page = await q.fetch();
   const records = page.entities
     .map((row) => fromArkivRow(row as unknown as Record<string, unknown>))
