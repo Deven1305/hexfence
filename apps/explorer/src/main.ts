@@ -2,10 +2,9 @@ import { campaignsPanel } from "./campaigns.js";
 import { lossesPanel } from "./losses.js";
 import { DataTable } from "@hexfence/ui";
 import "@hexfence/ui/style.css";
-import { arkivReadClient, fetchAllEvidence } from "@hexfence/arkiv";
+import { arkivReadClient, fetchAllEvidence, publishedRecordsWithSavedCopy, savedCopyNotice } from "@hexfence/arkiv";
 import type { PoisoningEvidence } from "@hexfence/shared";
-import { isAddress, type Address, type Hex } from "viem";
-import { fetchEvidencePage } from "./evidence.js";
+import { isAddress, type Address } from "viem";
 import { agreement, agreementText, parsePublishers } from "./publishers.js";
 import { checkOwnAddress } from "./dashboard.js";
 import { EVIDENCE_LABEL, parseSearch } from "./format.js";
@@ -25,7 +24,7 @@ const searchStatus = el("p", "status");
 const publishersNote = el("p", "status");
 const dashboard = el("div");
 const results = el("section", "results");
-const retry = el("button", "more", "Retry remaining pages") as HTMLButtonElement;
+const retry = el("button", "more", "Retry published records") as HTMLButtonElement;
 retry.type = "button";
 retry.hidden = true;
 const input = el("input") as HTMLInputElement;
@@ -66,7 +65,9 @@ if (!isAddress(publisherEnv, { strict: false })) {
   const client = arkivReadClient(accessKey ? { accessKey } : undefined);
   const tabs = el("nav", "hf-tabs"); tabs.setAttribute("aria-label", "Explorer views");
   const tablePanel = el("section");
-  const lossPanel = lossesPanel(client, publisher, rpcUrl);
+  let readPromise: ReturnType<typeof publishedRecordsWithSavedCopy> | undefined;
+  const readRecords = () => readPromise ??= publishedRecordsWithSavedCopy(client, publisher, "../evidence-saved.json");
+  const lossPanel = lossesPanel(client, publisher, rpcUrl, readRecords);
   let view = "Evidence";
   const panels = { Evidence: [explainEvidence, form, searchStatus, tablePanel, results], Losses: [explainLosses, lossPanel], Campaigns: [explainCampaigns, dashboard], "Check my address": [ownPanel] };
   const choose = (name: string) => {
@@ -81,8 +82,6 @@ if (!isAddress(publisherEnv, { strict: false })) {
   app.append(el("p", "publisher", `Publisher ${publisher}`), publishersNote, status, progress, retry, explainEvidence, form, searchStatus, tablePanel, results, explainLosses, lossPanel, explainCampaigns, dashboard, ownPanel);
   choose(view);
   const downloaded: PoisoningEvidence[] = [];
-  const seen = new Set<string>();
-  let nextKey: Hex | undefined;
   let complete = false;
   let loading = false;
   let search: Address | undefined;
@@ -132,29 +131,33 @@ if (!isAddress(publisherEnv, { strict: false })) {
     status.className = "status bulk-status";
     status.textContent = `Showing ${downloaded.length} records; reading Arkiv…`;
     try {
-      do {
-        const page = await fetchEvidencePage(client, publisher, nextKey);
-        const added = page.records.filter((e) => {
-          const id = e.evidenceId.toLowerCase();
-          if (seen.has(id)) return false;
-          seen.add(id);
-          return true;
-        });
-        downloaded.push(...added);
-        const previous = nextKey;
-        nextKey = page.nextKey;
-        if (nextKey && previous === nextKey) throw new Error("Arkiv pagination did not advance.");
-        complete = nextKey === undefined;
-        dashboard.replaceChildren(campaignsPanel(downloaded, rpcUrl));
-        updateSearch(false, added);
-        updateOwnCheck();
-        progress.max = Number(page.total); progress.value = downloaded.length; progress.hidden = complete;
-        status.textContent = `Showing ${downloaded.length} of ${page.total.toString()} publisher records. ` +
-          (complete ? "All records loaded." : "Loading next page…");
-      } while (!complete);
+      const read = await readRecords();
+      downloaded.splice(0, downloaded.length, ...read.evidence);
+      complete = true;
+      const intro = app.querySelector<HTMLElement>(".intro")!;
+      if (read.source === "saved") {
+        intro.textContent = savedCopyNotice(read.readAt);
+        intro.classList.add("saved-copy-notice");
+      }
+      dashboard.replaceChildren(campaignsPanel(downloaded, rpcUrl));
+      updateSearch();
+      updateOwnCheck();
+      progress.hidden = true;
+      status.textContent = read.source === "saved"
+        ? `Showing ${downloaded.length} publisher records from the saved copy.`
+        : `Showing ${downloaded.length} of ${downloaded.length} publisher records. All records loaded.`;
+      if (read.source === "live") {
+        for (const other of extra.publishers.slice(1)) {
+          try { others.set(other.toLowerCase(), await fetchAllEvidence(client, other)); }
+          catch { publishersNote.textContent += ` Could not read extra publisher ${other}; it is not counted.`; }
+          updateSearch(false);
+        }
+        if (extra.invalid.length) publishersNote.textContent += ` Ignored extra publishers that are not addresses: ${extra.invalid.join(", ")}.`;
+      }
     } catch {
       status.className = "status error bulk-status";
       status.textContent = `Showing ${downloaded.length} downloaded records. Could not finish reading Arkiv; results and views are incomplete.`;
+      readPromise = undefined;
       retry.hidden = false;
     } finally {
       loading = false;
@@ -178,12 +181,4 @@ if (!isAddress(publisherEnv, { strict: false })) {
   clear.addEventListener("click", () => { input.value = ""; search = undefined; pageIndex = 0; updateSearch(); });
   retry.addEventListener("click", () => void loadAll());
   void loadAll();
-  void (async () => {
-    for (const other of extra.publishers.slice(1)) {
-      try { others.set(other.toLowerCase(), await fetchAllEvidence(client, other)); }
-      catch { publishersNote.textContent += ` Could not read extra publisher ${other}; it is not counted.`; }
-      updateSearch(false);
-    }
-    if (extra.invalid.length) publishersNote.textContent += ` Ignored extra publishers that are not addresses: ${extra.invalid.join(", ")}.`;
-  })();
 }
