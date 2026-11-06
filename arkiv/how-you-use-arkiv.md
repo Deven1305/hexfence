@@ -41,3 +41,14 @@ corepack pnpm@10.34.9 --filter @hexfence/detector publish:arkiv --limit 125
 The recorded rerun sent 0 transactions. Public RPC worked without an access key but is rate limited. No more tGLM will be transferred for this pass without Dhruv's explicit approval.
 
 Off-Arkiv choices: [why-arkiv.md](why-arkiv.md). Measured reach: [reach.md](reach.md). Feedback: [friction.md](friction.md). **post-Mumbai plan: team to confirm**.
+
+## Distinguish live evidence from other schemas
+
+| Schema or state | Actual use at the research checkpoint |
+|---|---|
+| hexfence.poisoning.v1 | Live SDK writes, creator-filtered bulk reads, visible cards/counts and local comparisons. Fresh [machine-readable observation](../docs/research/arkiv-snapshot-2026-11-06.json). |
+| hexfence.release.v1 | Code-only prototype: optional CI writer, no proved live write or browser reader. The 5,601-byte manifest exceeds its str column limit; a separate follow-up must fix/test this before claiming it works. |
+| Loss data | Later merged A4 schema and publication, described in schema.md; distinct from poisoning records. Campaign features remain unclaimed. |
+| V2 learned recipients / Sentinel alerts | Sepolia contracts, not Arkiv records. Neither Guard depends on Arkiv. |
+
+Key continuation is not a fixed-block atomic snapshot during concurrent writes. Pair IDs exclude victim/transaction, so records preserve representative context, not every incident. Human precision is unestablished; AI-assigned labels are not a human result. See the [partner requirement table](../docs/JUDGE_READINESS.md) for all remaining gaps.

@@ -4,6 +4,8 @@
 
 **Start here:** [live site](https://deven1305.github.io/hexfence/). **Working on the code?** Read [docs/TEAM_HANDOFF.md](docs/TEAM_HANDOFF.md).
 
+**Judge-facing status:** [requirements and gaps](docs/JUDGE_READINESS.md), [submission text](docs/SUBMISSION.md), [3:00 demo and Q&A](docs/DEMO.md), [Chainlink CRE](CHAINLINK.md). These distinguish deployed code and real observations from human-blocked demonstrations. The v1 demo remains available.
+
 HexFence detects address poisoning, publishes the evidence openly on Arkiv, warns you locally before you sign, and makes a protected Safe refuse to pay a lookalike of an approved supplier, even one nobody has ever reported, while new suppliers still work.
 
 ## Architecture
@@ -16,31 +18,45 @@ Ethereum mainnet USDT/USDC logs
  Arkiv Rabdi testnet: hexfence.poisoning.v1 ──► apps/explorer (data views, local search, Verify on Ethereum)
         │ bulk read
         ▼
-   apps/pay (HexFence Pay): decode payment → read payees(safe) once → verdict → sign
+   apps/pay: bulk payees (v1) or recorded recipients (V2) → local verdict → sign
         │ Safe transaction
         ▼
-   HexFenceGuard on Sepolia: refuses a lookalike of an approved payee
+   Safe → HexFenceGuard v1 or separate HexFenceGuardV2 (opt-in learning)
+
+Sepolia Transfer log → Sentinel source/WASM [CRE login/run pending]
+        → HexFenceAlerts [deployed simulation consumer] → Pay Radar bulk read
 ```
 - **`contracts/`:** `HexFenceGuard`, a Safe transaction guard with no owner and no upgrade path. A recipient that shares a fingerprint (first 4 + last 4 hex characters) with an approved payee, but is a different address, reverts with `LookalikeOfApprovedPayee`. Anyone else still goes through. The Guard reads nothing off-chain.
 - **`packages/shared/`:** fingerprint, Safe payment decoder, verdict logic and evidence schema, with a parity test against the real Guard on 411 transactions.
+- **Auto-Fence V2:** a separate non-upgradeable Guard with opt-in learning after successful recognized Safe execution, one holder per fingerprint, `forget`/`approve` correction and an ETH-with-calldata check. Real Safe 1.4.1 tests and 414 V2 parity vectors are in [contracts](contracts/README_V2.md). V1 code and its 14 tests are unchanged.
+- **Sentinel / Radar:** CRE source and WASM build, an on-chain consumer and a Pay bulk reader. **A successful CRE simulation and Telegram delivery are still missing.** The consumer trusts the public mock forwarder; banners say simulation/advisory. See [CHAINLINK.md](CHAINLINK.md).
 - **`packages/arkiv/`:** the Arkiv schema, bulk readers and idempotent writer.
 - **`apps/site/`:** the static landing page, deployed with the two apps.
 - **`apps/extension/`:** a Chrome extension that reviews Safe payments on `app.safe.global`. Its interception has not yet been tested on the real site; see Limits.
 - **Real evidence and the synthetic test are separate.** Mainnet records are always status "suspected". The synthetic Sepolia L only ever gets "resembles your approved payee".
 
 ## What's new vs reused
-**Built at this event:** the detector, the Arkiv schema and publisher, the explorer, HexFence Pay, the landing page, the Chrome extension, and the shared decoder and verdict logic.
+**Built at this event, as recorded in the repo:** the detector, Arkiv schema/publisher, explorer, Pay, landing page, extension, shared decoder/verdicts, separate Guard V2, Sentinel/consumer and Radar. The team must confirm event provenance and meaningful human contributions before submitting; see [AI usage](docs/AI_USAGE.md).
 
 **Reused:**
-- the reference `HexFenceGuard` and its tests, which are AI-generated and reviewed (see [docs/AI_USAGE.md](docs/AI_USAGE.md));
+- the AI-generated reference `HexFenceGuard` and tests were imported within the event; [their record](contracts/README.md) dates generation after kickoff. AI review is not human sign-off;
 - Safe 1.4.1 contracts, Safe Protocol Kit, `@arkiv-network/sdk`, viem, zod, Hardhat, Vite, vitest.
 
-| | Wallet warnings | Allowlist guards | Blocklists | **HexFence** |
-|---|---|---|---|---|
-| Enforced by the account | ✗ (UI, can be overridden) | ✓ | ✓ | **✓** |
-| Stops a never-reported lookalike | ✓ in-app only | ✓ | ✗ | **✓** |
-| New suppliers still work | ✓ | ✗ | ✓ | **✓** |
-| Open evidence anyone can query | ✗ | n/a | ✗ (closed) | **✓ (Arkiv)** |
+This build's distinction is an account-level resemblance rule plus open suspected-pattern data and local comparisons. It is not a claim that MetaMask or Safe{Wallet} lack warnings, nor that every other evidence feed is closed. New fingerprints pass the Guard; unsupported call semantics and first-use mistakes remain limits.
+
+## Auto-Fence and Sentinel status
+
+| Component | Actual state |
+|---|---|
+| V2 Guard | [0x0adF080DE3DA9D672fDc7330B8750a0579A698c7](https://sepolia.etherscan.io/address/0x0adF080DE3DA9D672fDc7330B8750a0579A698c7), Sourcify exact creation/runtime match 58609655 |
+| New isolated V2 Safe | [0x5142C7E9DE82726CaCb847c5469D460508738214](https://sepolia.etherscan.io/address/0x5142C7E9DE82726CaCb847c5469D460508738214), 1-of-1 Safe 1.4.1, learning enabled, empty list and zero balance at setup |
+| V2 recovery drill | [Removal](https://sepolia.etherscan.io/tx/0x267d7fb1721c2c2c909ace707aeb77d7da75bd13b0e9bf638e6d381277dfd500) and [restoration](https://sepolia.etherscan.io/tx/0xa7a4afc8a75465d612c4615ec5acdd582d773dd18ed48898f0643d11142b330b) succeeded by script; positive-value live P/L remains human-run |
+| Alerts consumer | [0x97F6f25D51DD52565FF30D22286392686A1ED80F](https://sepolia.etherscan.io/address/0x97F6f25D51DD52565FF30D22286392686A1ED80F), simulation mode, Sourcify exact match 58607325 |
+| CRE input | [Real zero-value Sepolia USDC demonstration log](https://sepolia.etherscan.io/tx/0x7494d97df9468b822e32aa7008e8f336979b584558053457a03ef32e00b9af15), event index 0; no tokens moved |
+| Pay | [Read-only V2 preview](https://deven1305.github.io/hexfence/pay/?safe=0x5142C7E9DE82726CaCb847c5469D460508738214), [wiring/limits](apps/pay/UPGRADE.md); actual consumer read returned no alerts in four browser layouts |
+| Still missing | Successful CRE CLI run/report, Telegram notification, funded Sepolia V2 P/L demonstration, human wallet/Guard/Hindi review and uploaded final video |
+
+Use [V2 run/setup steps](contracts/README_V2.md) and the [exact human CRE steps](CHAINLINK.md#exact-human-steps-left). V2 timestamps mean successful recognized execution, not independently established token movement: zero-value or false-returning token-shaped calls can be learned. No on-chain loss-recovery service is claimed.
 
 ## Guard: deploy on Sepolia (test funds only)
 
@@ -49,7 +65,7 @@ The Guard is a Hardhat project in [contracts/](contracts/), tested against the r
 ```bash
 cd contracts
 npm install --legacy-peer-deps   # safe-contracts declares an old ethers peer; this is expected
-npx hardhat test                 # 14 passing
+npx hardhat test                 # 32 at the upgrade checkpoint: 14 v1 + 14 V2 + 4 Alerts
 ```
 
 1. Put a **testnet-only** key and a Sepolia RPC in the repo-root `.env` (git-ignored; names in [.env.example](.env.example)):
@@ -118,9 +134,13 @@ Decoded revert and Guard source: [reverted L payment](https://eth-sepolia.blocks
 Needs Node 22 and pnpm (`corepack enable`, or prefix commands with `corepack pnpm@10.34.9`). Copy [.env.example](.env.example) to `.env` in the repo root. It lists every name, and `.env` is git-ignored. Use testnet keys only.
 
 ```bash
-pnpm install
-pnpm -r test     # all workspace tests
-pnpm -r build    # type-check and build
+corepack pnpm@10.34.9 install --frozen-lockfile
+cd contracts
+npm install --legacy-peer-deps
+npx hardhat test
+cd ..
+corepack pnpm@10.34.9 -r test
+corepack pnpm@10.34.9 -r build
 ```
 
 **Detector** (read-only on mainnet; needs `MAINNET_RPC_URL`, and the public `https://ethereum-rpc.publicnode.com` works):
@@ -156,11 +176,12 @@ Schema: [arkiv/schema.md](arkiv/schema.md) (Rabdi testnet, chain 7794095, `hexfe
 
 - **Publisher wallet:** `0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec`
 
-One query judges can run, with `P` set to the publisher wallet:
-```bash
-cd packages/arkiv
-P=0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec pnpm exec tsx -e 'import("./src/index.ts").then(async ({ arkivReadClient, fetchAllEvidence }) => { const r = await fetchAllEvidence(arkivReadClient(), process.env.P); console.log(r.length, "records", r[0] ?? ""); })'
+One public read-only query judges can run from the repo root, without a wallet or key:
+```sh
+corepack pnpm@10.34.9 --filter @hexfence/detector exec tsx ../../arkiv/query.ts
 ```
+
+Fresh observation, 6 Nov 2026 at 09:47:52 UTC: **173 records, 173 unique IDs, 147 zero-value and 26 dust, all suspected**. [Recorded query result](docs/research/arkiv-snapshot-2026-11-06.json). This is a published subset of the historical 47,694-pair detector run, not comprehensive coverage or a user-adoption measure.
 
 ## Live links
 - Landing page: https://deven1305.github.io/hexfence/
@@ -169,20 +190,25 @@ P=0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec pnpm exec tsx -e 'import("./src/ind
 - HexFence Pay: https://deven1305.github.io/hexfence/pay/
 
 ## CROPS
-- **C:** The Guard is non-upgradeable and has no owner. It keeps refusing lookalikes even if our detector, explorer, client and Arkiv records all disappear. The detector is open source: anyone can run it and publish under their own wallet.
-- **O:** MIT licence. Everything builds and runs from the repo, and RPC endpoints are configurable.
-- **P:** The client checks recipients locally, without sending payment-specific threat lookups to a security provider. It reads the Safe's payees in bulk. There are no trackers.
-  - **RPC reads:** Pay tries Nox (Sphinx mixnet) for its Sepolia RPC reads and shows the active route. During start-up, Safe and payee reads wait: wait for the route status, or choose **Skip: read directly (not anonymous)**. A failed start-up uses a labelled direct fallback, which is not anonymous. Once Nox is active, later read failures surface as errors and do not silently switch to direct.
-  - **Not covered by Nox:** the one bootstrap read of the routing contract and the Arkiv bulk reads are direct, and signing and sending still go through the wallet.
-  - **Still visible:** your wallet, Safe's transaction service (when you use the Safe UI) and the public chain all see the payment.
-- **S (lead property):**
-  - the account enforces the rule;
-  - payees are approved only by owner-signed Safe transactions;
-  - duplicate fingerprints are rejected;
-  - delegatecall fails closed;
-  - removal is tested through real Safe transactions, but not guaranteed;
-  - the demo Safe is isolated and holds test funds only;
-  - the limits are stated.
+
+- **C:** Installed Guard rules do not depend on HexFence's domain, detector, Arkiv feed or Sentinel. Losing the hosted client still leaves owner-signed Safe transactions and configurable RPC/static-client alternatives; chain/RPC availability remains a dependency.
+- **O:** HexFence source is MIT; the core apps and contracts build from the repo and locked dependencies. Dependencies retain their licenses, including the optional CRE SDK's BUSL-1.1; CRE simulation additionally requires human authentication.
+- **P:** Comparisons run locally on bulk payee/history/alert/evidence reads, without per-recipient threat queries or analytics. The table below states what RPCs, routing/resolver services, hosting, wallets and optional Telegram can learn.
+- **S (lead):** For supported calls, the account's Guard enforces the resemblance rule; V2 optionally learns successful recognized executions. Signing keys stay in wallets or ignored Node configuration, while first use, owner authority, module bypass, unsupported semantics and unaudited testnet scope remain explicit limits.
+
+## Privacy and trust
+
+| Party / dependency | What it receives or controls |
+|---|---|
+| GitHub Pages / another static host | IP and asset requests. The UI and fonts are self-hosted; there are no client analytics. A user can build/host the source elsewhere. |
+| Arkiv RPC and selected publisher | Bulk schema/publisher/page queries and the reader's direct IP. The apps' searched/checked address stays local. The publisher controls its attributed records; attribution does not establish truth. |
+| Sepolia/mainnet RPC | Contract addresses, Safe state and receipt requests; signed-call simulation includes transaction calldata. Direct reads reveal the client IP. Pay's active Nox route aims to unlink that IP; it does not hide public transaction content. |
+| Anon-RPC specifier, resolver and Nox network | The bootstrap routing read and worker download are direct. The harness hash-checks the network worker and isolates it; the specifier/network remains a trust/dependency choice. No independent anonymity audit is claimed. |
+| Wallet / Safe{Wallet} services / public chain | Signing/proposal/broadcast data and eventual public transactions. These paths are not anonymized by Pay's read route. |
+| Optional Telegram / CRE runtime | When enabled: chat ID, public Safe/pair/transaction data and runtime access to the bot token. No notification has been demonstrated in this build. |
+| Node/CI publisher | Testnet keys are in ignored `.env`; a CI publisher, if enabled, uses GitHub Secrets/Actions. No signing key is placed in a `VITE_*` variable or browser bundle. |
+
+Pay waits for route selection before Safe/history/alert reads. Explicit **Skip: read directly (not anonymous)** or failed startup gives a labelled direct route; a later failure of an active Nox route is an error, not a silent fallback. Arkiv bulk reads remain direct. [Anon-RPC's documented model](https://ethereum.github.io/anon-rpc/) and [our routing code](apps/pay/src/anon.ts) explain the boundary.
 
 ## Limits
 - Nox covers the configured Sepolia RPC read route only (see CROPS, P). Guard and payee reads through Nox worked on the hosted site. Nox start-up took 26–38 seconds in hosted browser runs and timed out at 60 seconds during a network outage; these are single observations, not benchmarks.
@@ -194,7 +220,11 @@ P=0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec pnpm exec tsx -e 'import("./src/ind
 - Only ETH, `transfer` and `transferFrom` are inspected; other calls are allowed and clients show "cannot verify".
 - A 4+4 fingerprint doesn't catch weaker lookalikes.
 - Evidence covers only Ethereum mainnet USDT and USDC, and every record is "suspected", not a finding about any person.
-- Detector precision on 30 random records (seed 4919) is 30/30 = 100%. The labels were assigned by AI from public Etherscan tags and on-chain facts, not by hand (see docs/AI_USAGE.md). 30 is a small sample.
+- Human-labelled detector precision is not established. The 30-row H9 file was AI-assigned and awaits independent human review; it is not a validated human precision result. No H9 labels were changed in this pass.
+- V1 does not inspect ETH attached to unsupported calldata; V2 separately checks the ETH destination. V2 still has the recognized-call/EVM-success limits in [README_V2](contracts/README_V2.md).
+- A first-use mistake can become a V2 holder. The deployed V2 Safe is unfunded; positive-value behavior is locally tested, not yet demonstrated by a funded Sepolia P/L run.
+- Sentinel is not an always-on DON deployment, and no successful CLI simulation or Telegram receipt exists yet. The simulation consumer accepts the public mock forwarder, so its reports are advisory and not authenticated poisoning findings.
+- A4 merged after the initial research checkpoint; its current scope is described below. Campaign metrics and optional follow-up Guard protections remain outside these claims. See [readiness](docs/JUDGE_READINESS.md) before presenting new work.
 - Safe warns that a broken guard can lock a Safe: the demo Safe is isolated, holds test funds only, and the removal drill is tested.
 
 ## Licence
@@ -202,13 +232,13 @@ MIT, see [LICENSE](LICENSE).
 
 ## Check the client you are running
 
-Each Pages deploy from `main` publishes `SHA256SUMS.txt` beside the site and signs those files with a GitHub build attestation. Download a file from the site and run:
+Successful Pages builds from `main` publish `SHA256SUMS.txt` and create GitHub build attestations. A downloaded Pay index matched the manifest from [main run 42196792847](https://github.com/Deven1305/hexfence/actions/runs/42196792847). This machine's `gh attestation verify` could not initialize its Sigstore verifier, so independent cryptographic verification is still a reported gap. On a working verifier, download the actual file and run:
 
 ```bash
 gh attestation verify <file> -R Deven1305/hexfence
 ```
 
-When the publisher secret is set, the same hashes go to Arkiv as a `hexfence.release.v1` record. This shows which workflow run built a file. It does not audit the code, and it only helps if you run the check.
+The optional release writer needs the manifest representation fix described below before a working publication can be claimed.
 
 
 ## Rescue: suspected follow-up payments
@@ -244,3 +274,4 @@ The Campaigns tab groups downloaded publisher records by attack transaction and 
 **Read real block times** reads each distinct recorded attack block by number, validates the mainnet chain ID, caches timestamps for the page session, and assigns records to exact UTC hours. It does not infer dates from block height or interpolate timestamps. The read can be stopped and retried; an incomplete read does not render a complete hourly series. No recipient address is included in these requests. See [viem getBlock](https://viem.sh/docs/actions/public/getBlock).
 
 The match-length chart compares observed full-address common prefix+suffix lengths with a stated model: the outer four hex digits at each end already match, and the remaining 32 digits are independent uniform hex digits, excluding identical addresses. For s extra matches below 31, the probability is `(s+1) * (15/16)^2 * (1/16)^s`; at s=31 the single mismatch is counted once. Expected counts are fractional and the ratio is computed from the downloaded corpus. This is not an estimate of attack prevalence, a confidence score, or proof of address ownership; selected publication, legitimate vanity addresses and correlated records affect the observed distribution.
+The optional `hexfence.release.v1` publisher is a prototype, not a proved live integration. Its current manifest field is `str`, but the measured manifest is 5,601 bytes and Arkiv's `str` limit is 128 bytes; it needs a `bytes` representation before publication. The publisher secret is also a human configuration step. Attestations establish build provenance, not an audit or protection against a compromised maintainer.
