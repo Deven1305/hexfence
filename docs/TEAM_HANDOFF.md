@@ -2,7 +2,7 @@
 
 For teammates and their coding agents. Checked against `main` at **8c3c175** (6 Nov 2026, evening). Check `git log` and open PRs for anything newer.
 
-**Deadline:** submission Sat 7 Nov 2026, 09:00 IST (aim for 08:30). Stop new work at 21:30 IST on 6 Nov; freeze at 22:00. After the freeze: record the video, upload it and submit.
+**Deadline:** submission Sat 7 Nov 2026, 09:00 IST (aim for 08:30). Dhruv decides when work stops; there is no earlier freeze. Leave enough time to record the video, upload it and submit.
 
 **Read next, in this order:** `AGENTS.md`, `docs/PROGRESS.md`, `docs/JUDGE_READINESS.md`, then the files named in the section you work on. The locked spec is `docs/planning/10_FINAL_What_To_Build_HexFence.md`.
 
@@ -44,7 +44,7 @@ Checked in headless Chrome on 6 Nov at about 18:00 IST: the landing page showed 
 
 ## Why the Campaigns hourly chart has one tall bar
 
-The live chart shows about 126 records in the last UTC hour and 1–3 in every other hour. That comes from how the records were published, not from attack activity. Read from Arkiv on 6 Nov: of the 173 records, 125 were published with `publish:arkiv --limit 125`, which takes the most recent attacks, and they all share attack block 26352743. The other 48 were spread evenly across the scan (2 in every 300-block slice). The detector itself found 47,694 pairs over the same 7,200 blocks, roughly 2,000 an hour. PR `fix/campaign-timeline` retitles the chart "Published records per UTC hour" and adds a computed note when one hour holds most records.
+The live chart's hourly shape comes from how the records were published, not from attack activity. Read from Arkiv on 6 Nov: of the 1,126 records, 125 were published with `publish:arkiv --limit 125`, which takes the most recent attacks, and they all share attack block 26352743. Another 48 were spread evenly across that scan, and the last 953 were selected from a second scan. The detector itself found 47,694 pairs over the same 7,200 blocks, roughly 2,000 an hour. PR `fix/campaign-timeline` retitles the chart "Published records per UTC hour" and adds a computed note when one hour holds most records.
 
 ## Open work
 
@@ -63,7 +63,7 @@ The live chart shows about 126 records in the last UTC hour and 1–3 in every o
 
 ## Funds and addresses
 
-Publisher `0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec` published 173 poisoning records and 1 loss record. **Do not move tGLM without Dhruv's explicit approval.** Every public address and hash is in `docs/PROGRESS.md` and `docs/SUBMISSION.md`.
+Publisher `0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec` published 1,126 poisoning records and 1 loss record (it holds about 9.79 tGLM after a 10 tGLM faucet claim on 6 Nov). **Do not move tGLM without Dhruv's explicit approval.** Every public address and hash is in `docs/PROGRESS.md` and `docs/SUBMISSION.md`.
 
 ## Rules that are easy to break
 
