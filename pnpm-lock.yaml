@@ -131,6 +131,9 @@ importers:
       '@hexfence/arkiv':
         specifier: workspace:*
         version: link:../../packages/arkiv
+      '@hexfence/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@hexfence/ui':
         specifier: workspace:*
         version: link:../../packages/ui
