@@ -1,0 +1,23 @@
+name: Contracts and workspace checks
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --legacy-peer-deps
+        working-directory: contracts
+      - run: npx hardhat test
+        working-directory: contracts
+      - run: corepack pnpm@10.34.9 install --frozen-lockfile
+      - run: corepack pnpm@10.34.9 -r test
+      - run: corepack pnpm@10.34.9 -r build

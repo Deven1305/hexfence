@@ -31,7 +31,16 @@
 | T13 | P1 | ≥20 pairs + precision on 30 hand-labelled samples | The numbers are in the README | ⏸ | 4c631f1 | Claude Code | **≥20 pairs: done** (43,227 in the 24 h run, T3). **Precision:** `labels/h9-sample.csv` holds 30 records drawn at random (seed 4919) with Etherscan links; `pnpm --filter @hexfence/detector precision` scores it (yes / (yes + no)). **Result: 30 yes · 0 no · 0 unsure → precision 100%.** Labels assigned by AI (Claude, 06 Nov) from public evidence (27 attack senders carry their own Etherscan `Fake_Phishing` tag; rows 4, 5, 19 on pattern + funder), not by hand. ⏸ only for a human spot-check of a few rows. |
 | T14 | P2 | Chrome extension (Plan A). Scope override: see Decisions log | Human test on app.safe.global catches SafeTx | ⏸ | dc808a0 | Codex, reviewed by Claude Code | 22 unit tests and build pass. Interception on app.safe.global is untested: go/no-go needs MetaMask, steps in apps/extension/TESTING.md. |
 
+## Codex 2 upgrade tasks (06 Nov 2026)
+
+| ID | Task | Status | Evidence / next step |
+|---|---|---|---|
+| A2 | Sentinel + HexFenceAlerts | ? | Source, 4 classification tests and 4 consumer tests implemented; 14 v1 tests unchanged and passing. CRE CLI 1.39.0 init and simulate both stop at authentication. PR and deployment evidence follow after checks. |
+
 ## Waiting on humans (tick the box when done; then the agent continues)
+- [ ] A2 CRE: a human creates the Chainlink account and runs `cre login`. From `sentinel`, after creating the ignored config and supplying an actual Sepolia event: `cre workflow simulate hexfence-sentinel --target staging-settings --env ../.env --non-interactive --trigger-index 0 --evm-tx-hash <actual-tx-hash> --evm-event-index <event-index> --broadcast`. Save actual output and consumer receipt/hash to `sentinel/SIMULATION.md` only after success. CLI init also requires login; project files were prepared directly. No successful simulation is claimed.
+- [ ] A2 Telegram: human creates the bot, starts the intended chat, adds `TELEGRAM_BOT_TOKEN_ALL` to ignored root .env, enables Telegram and sets the opted-in chat ID in ignored `sentinel/hexfence-sentinel/config.json`. Agent does not create accounts, enter credentials, or send a message before that setup.
+
 - [ ] T14 go/no-go: follow apps/extension/TESTING.md with MetaMask on app.safe.global.
 - [ ] Scheduled publisher: add repository secret ARKIV_PRIVATE_KEY (Rabdi testnet publisher key). Until then the workflow writes nothing. See docs/LIVE_EVIDENCE.md.
 - [ ] Pay setup panel: try enable Guard and approve/remove payee with a real Sepolia wallet on an isolated Safe; only unit-tested so far.
@@ -76,6 +85,10 @@
 | Second L (direct script, not Safe{Wallet}; gas 200000) | `0xe77e6a7a8ba5b6f9742ec953826bc47c69ffffdced3a4d40b8fe3a220e1bb46f` |
 
 ## Decisions log
+- 06 Nov (Codex 2, user-authorized upgrade): **v2 is a new contract; v1 unchanged**. The locked spec's **"No Chainlink" is superseded by the upgrade plan** for Sentinel. No changes to the locked planning files or H9 labels.
+- 06 Nov (Codex 2): official CRE SDK 1.23.0 types differ from older docs examples: NodeRuntime has no getSecret (retrieve through runtime.getSecret before node mode); HTTP cacheSettings uses store/maxAge, not readFromCache/maxAgeMs. Implemented the installed official types and bulk alertsOf reads. Mock forwarder alerts are simulation data, not DON-authenticated alerts.
+- 06 Nov (Codex 2): original and relocated Git metadata have deny ACLs. User authorized an in-sandbox alternative: fresh checkout C:/hexfence-work/research/codex2-work with separate metadata C:/hexfence-work/research/codex2-gitdata. All feature commits/PRs use that checkout.
+
 - 06 Nov (Dhruv, scope override): Dhruv approved work beyond the "P2 only if every P1 task is ✔" rule while T6, T12 and T13 wait on humans: a real landing page and UI pass (feat/site-ui), Pay self-serve setup plus a no-wallet read-only preview (feat/pay-setup), live evidence with explorer views (feat/live-evidence), and the Chrome extension with a go/no-go on `app.safe.global` (feat/extension, T14). Lane ownership stays lifted for this pass. No Guard contract change.
 - 06 Nov (T8 live verification): the pinned Hardhat 2 verifier calls Sourcify API v1, retired July 2026 (live HTTP 404). Added scripts/verify-sourcify.js using the documented v2 standard-JSON API and unchanged build info. Live exact creation/runtime match obtained; repeat lookup passed. The existing Etherscan path remains enabled when ETHERSCAN_API_KEY is supplied. Etherscan itself still shows unverified.
 - 06 Nov (Dhruv, T8 live pass): Dhruv explicitly authorised agents to perform the testnet key generation, deployment and payment steps previously labelled human-only in AGENTS.md, and lifted lane ownership for this pass. Keys stay only in the ignored root `.env` of `C:/hexfence-work/live`; no key may enter a webpage or extension. No captcha, sign-in or wallet-connect is to be bypassed. The wallet test will be scripted and cannot tick H6 or claim a Safe{Wallet} test. Work is on `feat/t8-live`, via one PR to main, with no agent merge.
