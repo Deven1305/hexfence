@@ -21,6 +21,16 @@ export async function openSafe(provider: EIP1193Provider, signer: Address, safeA
   return Safe.init({ provider: provider as never, signer, safeAddress });
 }
 
+/** No wallet: Protocol Kit over the read client only (no signer). Enough for getOwners/getThreshold/getGuard; it cannot sign or send. */
+export async function openSafeReadOnly(reads: ReadClient, safeAddress: Address) {
+  const provider = {
+    request: (a: { method: string; params?: unknown }) => (reads.request as (x: typeof a) => Promise<unknown>)(a),
+    on: () => undefined,
+    removeListener: () => undefined,
+  } as unknown as EIP1193Provider;
+  return Safe.init({ provider: provider as never, safeAddress });
+}
+
 /** Active only if the Safe's guard slot holds the expected Guard. Safes too old for guards count as not active. */
 export async function guardState(safe: Safe, expected: Address): Promise<GuardState> {
   let current: string;

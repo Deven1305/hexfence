@@ -1,0 +1,9 @@
+.dashboard, .address-check { margin: 1.5rem 0; padding: 1rem; border: 1px solid currentColor; border-radius: .5rem; }
+.dashboard-chart { margin-block: 1.25rem; }
+.dashboard-row { display: grid; grid-template-columns: minmax(9rem, 1fr) 2fr 3rem; gap: .75rem; align-items: center; margin-block: .4rem; overflow-wrap: anywhere; }
+.dashboard-track { background: #80808026; height: .8rem; border-radius: .2rem; overflow: hidden; }
+.dashboard-fill { display: block; height: 100%; background: #508ca4; }
+.dashboard-note { font-size: .9rem; }
+.address-check input { width: min(100%, 32rem); box-sizing: border-box; }
+.bulk-status { margin-block: 1rem; }
+@media (max-width: 540px) { .dashboard-row { grid-template-columns: minmax(6rem, 1fr) 1fr 2rem; font-size: .8rem; gap: .4rem; } }
