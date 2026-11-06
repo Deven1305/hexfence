@@ -8,6 +8,7 @@ import { verdictText } from './verdictCopy';
 
 export interface Review {
   level: Verdict['level']; sentences: string[]; recipient?: string;
+  payee?: string; reason?: string;
   safe?: string; guard?: string; notice?: string; ready: boolean;
 }
 export function cannotVerify(notice: string): Review {
@@ -53,6 +54,8 @@ export async function check(request: Request, walletChain: unknown): Promise<Rev
     const verdict = verdictFor(payment, [...payees], listed);
     return { ...verdictText(verdict, { guardActive, publisher: config.publisher }),
       recipient: 'recipient' in verdict ? verdict.recipient : undefined,
+      payee: 'payee' in verdict ? verdict.payee : undefined,
+      reason: 'reason' in verdict ? verdict.reason : undefined,
       // Keep resemblance (including the synthetic demo) separate from public evidence.
       safe: capture.safe, guard: activeGuard,
       notice: verdict.level === 'RED' && verdict.reason === 'resembles' ? undefined : notice, ready: true };
