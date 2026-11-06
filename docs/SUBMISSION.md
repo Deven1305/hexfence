@@ -55,7 +55,7 @@ Around the Guard:
 
 The demo has two clearly separate parts: real mainnet evidence read live from Arkiv, and a **synthetic re-enactment on Sepolia** with addresses we generated. Paying the lookalike reverted on-chain, paying a new supplier succeeded, paying the approved payee succeeded, and the lookalike still reverted with our client out of the path.
 
-Also built and deployed, not yet shown live: an opt-in learning Guard (V2) and a module guard for Safe 1.5.0. Limits are in the README.
+An opt-in learning Guard (V2) has a scripted Sepolia run: it learned the first recipient, then refused the lookalike. Also built and deployed, not yet shown live: a module guard for Safe 1.5.0. Limits are in the README.
 
 ## 4. How it's made
 

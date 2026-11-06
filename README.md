@@ -59,11 +59,12 @@ Full table with evidence: [docs/JUDGE_READINESS.md](docs/JUDGE_READINESS.md#ever
 | V2 Guard | [0x0adF080DE3DA9D672fDc7330B8750a0579A698c7](https://sepolia.etherscan.io/address/0x0adF080DE3DA9D672fDc7330B8750a0579A698c7), Sourcify exact creation/runtime match 58609655 |
 | Module Guard (Safe 1.5.0) | [0xa7Dc08C6fb15fCdBF4De484FaE393fea052c546B](https://sepolia.etherscan.io/address/0xa7Dc08C6fb15fCdBF4De484FaE393fea052c546B), Sourcify exact creation/runtime match 58620524. Reads V2's list. No live Safe uses it yet |
 | New isolated V2 Safe | [0x5142C7E9DE82726CaCb847c5469D460508738214](https://sepolia.etherscan.io/address/0x5142C7E9DE82726CaCb847c5469D460508738214), 1-of-1 Safe 1.4.1, learning enabled, empty list and zero balance at setup |
+| V2 payment run (scripted, agent key, not a human wallet test) | [Funding](https://sepolia.etherscan.io/tx/0x0368f00e05359c607a03a7bdd501646458bc62b9bb20206e74ae6028c4593007), [1 wei to P, success](https://sepolia.etherscan.io/tx/0xfc93f06334211546d1371ed3b2b5fbafc77842a03e227f7197a2e50680d866a5), [same Safe to L, mined and reverted](https://sepolia.etherscan.io/tx/0x2585f5ce7bce79a6c139d19f56e4f125f8c84a7c09fe59d27d2598eb83c328ff) with `LookalikeOfKnownRecipient` in preflight. [Record](contracts/deployments/v2-payment-demo-sepolia.json) |
 | V2 recovery drill | [Removal](https://sepolia.etherscan.io/tx/0x267d7fb1721c2c2c909ace707aeb77d7da75bd13b0e9bf638e6d381277dfd500) and [restoration](https://sepolia.etherscan.io/tx/0xa7a4afc8a75465d612c4615ec5acdd582d773dd18ed48898f0643d11142b330b) succeeded by script; positive-value live P/L remains human-run |
 | Alerts consumer | [0x97F6f25D51DD52565FF30D22286392686A1ED80F](https://sepolia.etherscan.io/address/0x97F6f25D51DD52565FF30D22286392686A1ED80F), simulation mode, Sourcify exact match 58607325 |
 | CRE input | [Real zero-value Sepolia USDC demonstration log](https://sepolia.etherscan.io/tx/0x7494d97df9468b822e32aa7008e8f336979b584558053457a03ef32e00b9af15), event index 0; no tokens moved |
 | Pay | [Read-only V2 preview](https://deven1305.github.io/hexfence/pay/?safe=0x5142C7E9DE82726CaCb847c5469D460508738214), [wiring/limits](apps/pay/UPGRADE.md); actual consumer read returned no alerts in four browser layouts |
-| Still missing | Successful CRE CLI run/report, Telegram notification, funded Sepolia V2 P/L demonstration, human wallet/Guard/Hindi review and uploaded final video |
+| Still missing | Successful CRE CLI run/report, Telegram notification, human wallet/Guard/Hindi review and uploaded final video |
 
 Use [V2 run/setup steps](contracts/README_V2.md) and the [exact human CRE steps](CHAINLINK.md#exact-human-steps-left). V2 timestamps mean successful recognized execution, not independently established token movement: zero-value or false-returning token-shaped calls can be learned. No on-chain loss-recovery service is claimed.
 
@@ -233,7 +234,7 @@ Pay waits for route selection before Safe/history/alert reads. Explicit **Skip: 
 - Evidence covers only Ethereum mainnet USDT and USDC, and every record is "suspected", not a finding about any person.
 - Human-labelled detector precision is not established. The 30-row H9 file was AI-assigned and awaits independent human review; it is not a validated human precision result. No H9 labels were changed in this pass.
 - V1 does not inspect ETH attached to unsupported calldata; V2 separately checks the ETH destination. V2 still has the recognized-call/EVM-success limits in [README_V2](contracts/README_V2.md).
-- A first-use mistake can become a V2 holder. The deployed V2 Safe is unfunded; positive-value behavior is locally tested, not yet demonstrated by a funded Sepolia P/L run.
+- A first-use mistake can become a V2 holder. The funded Sepolia P/L run on the V2 Safe was scripted with a testnet key; it is not a human wallet test.
 - Sentinel is not an always-on DON deployment, and no successful CLI simulation or Telegram receipt exists yet. The simulation consumer accepts the public mock forwarder, so its reports are advisory and not authenticated poisoning findings.
 - Rescue (A4) shows one supported suspected follow-up payment; it is a lead, not a confirmed loss or cause. Campaign counts (B2) describe the published records only; the hourly chart is not an attack rate.
 - The explorer can read several publishers (C3), but no second publisher with records exists and `pages.yml` does not pass `VITE_ARKIV_EXTRA_PUBLISHERS`, so the live explorer reads one publisher.
