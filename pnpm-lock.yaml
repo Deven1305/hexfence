@@ -69,6 +69,9 @@ importers:
       '@hexfence/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@hexfence/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       viem:
         specifier: 2.57.16
         version: 2.57.16(typescript@5.9.3)(zod@4.6.7)
