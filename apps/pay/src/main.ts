@@ -1,6 +1,7 @@
+import { AddressXray, SafeHeader, VerdictCard } from "@hexfence/ui";
+import "@hexfence/ui/style.css";
 import { decodeSafeCall, verdictFor, type Verdict } from "@hexfence/shared";
 import { connectAnon, routeStatusText, type AnonOutcome } from "./anon";
-import { arkivReadClient, fetchAllEvidence } from "@hexfence/arkiv";
 import { getAddress, getContract, type Address, type EIP1193Provider, type Hex } from "viem";
 import type Safe from "@safe-global/protocol-kit";
 import { ConfigError, loadConfig, SEPOLIA_CHAIN_ID, SEPOLIA_EXPLORER, type Config } from "./config";
@@ -63,6 +64,7 @@ interface State {
   /** Last Safe loaded, kept so the address survives connecting a wallet. */
   lastSafe?: Address;
   lang: Lang;
+  step: number;
   shown?: { verdict: Verdict; box: HTMLElement };
 }
 
@@ -76,9 +78,9 @@ function boot(): void {
     app.replaceChildren(el("h1", {}, "HexFence Pay"), el("div", { class: "error" }, e instanceof ConfigError ? e.message : String(e)));
     return;
   }
-  state = { config, reads: createReadClient(config.sepoliaRpcUrl), route: Promise.resolve(), skip: new AbortController(), lang: "en" };
+  state = { config, reads: createReadClient(config.sepoliaRpcUrl), route: Promise.resolve(), skip: new AbortController(), lang: "en", step: 1 };
   state.pendingSafe = new URLSearchParams(window.location.search).get("safe")?.trim() || undefined;
-  state.route = startRoute();
+  state.route = new Promise((resolve, reject) => requestAnimationFrame(() => setTimeout(() => { startRoute().then(resolve, reject); }, 0)));
   new MutationObserver(applyLang).observe(app, { childList: true, subtree: true });
   render();
 }
@@ -88,12 +90,23 @@ function render(): void {
     el("h1", {}, "HexFence Pay"),
     el("p", { class: "sub" }, "Checks a payment against your approved payees before you sign. Sepolia test network."),
     langBar(),
+    stepper(),
     routeSection(),
-    walletSection(),
-    safeSection(),
-    paymentSection(),
-    setupSection(),
+    ...(state.info ? [SafeHeader(state.info.address, `v${state.info.version} ? ${state.info.threshold}/${state.info.owners.length} ? Guard ${state.info.guard.active ? "active" : "inactive"}`)] : []),
+    [walletSection, safeSection, paymentSection, setupSection][state.step]!(),
   );
+}
+
+function stepper(): HTMLElement {
+  const list = el("ol", { class: "hf-stepper", "aria-label": "Payment progress" });
+  ["Connect", "Safe", "Pay", "Fence settings"].forEach((label, i) => {
+    const button = el("button", { type: "button" }, `${i + 1}. ${label}`);
+    button.onclick = () => { state.step = i; render(); };
+    const item = el("li", {}, button);
+    if (i === state.step) button.setAttribute("aria-current", "step");
+    list.append(item);
+  });
+  return list;
 }
 
 // ---------- anonymous reads (T11) ----------
@@ -116,7 +129,7 @@ async function startRoute(): Promise<void> {
 }
 
 function routeSection(): HTMLElement {
-  routeEl = el("section");
+  routeEl = el("details", { class: "route-status" });
   fillRoute();
   return routeEl;
 }
@@ -124,7 +137,7 @@ function routeSection(): HTMLElement {
 function fillRoute(): void {
   const s = routeEl;
   if (!s) return;
-  s.replaceChildren(el("h2", {}, "Read route"));
+  s.replaceChildren(el("summary", {}, state.outcome?.active ? "Nox reads active" : state.outcome ? "Direct reads ? not anonymous" : "Nox connecting ? choose read route"));
   if (!state.outcome) {
     s.append(el("p", { class: "small" }, `Connecting to anonymous read routes (${state.trying ?? "starting"})… Safe and payee reads wait for this.`));
     const b = el("button", {}, "Skip: read directly (not anonymous)");
@@ -171,6 +184,7 @@ async function onConnect(w: WalletOption, section: HTMLElement): Promise<void> {
     state.provider = compositeProvider(w.provider, state.reads);
     state.safe = undefined;
     state.info = undefined;
+    state.step = 1;
     render();
   } catch (e) {
     showError(section, isUserRejection(e) ? "Connection cancelled in the wallet." : errText(e));
@@ -214,10 +228,12 @@ async function onLoadSafe(raw: string, out: HTMLElement): Promise<void> {
     state.safe = safe;
     state.info = info;
     state.lastSafe = info.address;
+    state.step = 2;
     const { publisher, arkivAccessKey } = state.config;
-    state.listed ??= loadListed(publisher !== undefined, () =>
-      fetchAllEvidence(arkivReadClient({ accessKey: arkivAccessKey }), publisher as Address),
-    );
+    state.listed ??= loadListed(publisher !== undefined, async () => {
+      const { arkivReadClient, fetchAllEvidence } = await import("@hexfence/arkiv");
+      return fetchAllEvidence(arkivReadClient({ accessKey: arkivAccessKey }), publisher as Address);
+    });
     render();
   } catch (e) {
     out.replaceChildren(el("div", { class: "error" }, errText(e)));
@@ -273,8 +289,29 @@ function paymentSection(): HTMLElement {
   const amount = el("input", { id: "amount", placeholder: "0.01", inputmode: "decimal" });
   const check = el("button", {}, "Check payment");
   const out = el("div");
+  const preview = el("div", { "aria-live": "polite" });
+  let revision = 0;
+  let debounce: ReturnType<typeof setTimeout> | undefined;
+  to.oninput = () => {
+    const version = ++revision;
+    out.replaceChildren(); preview.replaceChildren();
+    clearTimeout(debounce);
+    debounce = setTimeout(() => {
+    try {
+      const recipient = parseAddress(to.value, "Recipient");
+      const info = state.info!;
+      const paint = (listed?: ListedState) => {
+        if (version !== revision) return;
+        const v = verdictFor({ kind: "eth", recipient, amount: 0n }, info.payees, listed?.status === "ok" ? listed.map : undefined);
+        const box = VerdictCard(v.level); fillVerdictBox(box, v); preview.replaceChildren(box);
+      };
+      paint(); void state.listed?.then(paint);
+    } catch { /* Wait for a complete address. */ }
+    }, 120);
+  };
   check.onclick = () => void onCheck({ asset: asset.value, token: token.value, to: to.value, amount: amount.value }, out);
-  s.append(el("label", { for: "asset" }, "Asset"), asset, tokenWrap, el("label", { for: "to" }, "Recipient"), to, el("label", { for: "amount" }, "Amount"), amount, check, out);
+  s.append(el("label", { for: "asset" }, "Asset"), asset, tokenWrap, el("label", { for: "to" }, "Recipient"), to, el("label", { for: "amount" }, "Amount"), amount, preview, check, out);
+  for (const field of [asset, token, amount]) field.addEventListener("input", () => out.replaceChildren());
   return s;
 }
 
@@ -364,6 +401,10 @@ function fillVerdictBox(box: HTMLElement, verdict: Verdict): void {
     if (hindi && !(sentence === GUARD_INACTIVE_SENTENCE)) p.lang = "hi";
     box.append(p);
   });
+  if ("recipient" in verdict) {
+    if (verdict.reason === "resembles") box.append(AddressXray(verdict.payee, verdict.recipient, "Approved payee"));
+    box.append(AddressXray(verdict.recipient, verdict.reason === "resembles" ? verdict.payee : undefined, "Recipient"));
+  }
   if (verdict.level === "RED" && verdict.reason === "listed") {
     const url = state.config.explorerUrl;
     if (url) box.append(el("p", { class: "small" }, link(url, "Open the explorer")));
@@ -371,7 +412,7 @@ function fillVerdictBox(box: HTMLElement, verdict: Verdict): void {
 }
 
 function renderVerdict(out: HTMLElement, verdict: Verdict, recipient: Address, call: Call): void {
-  const box = el("div", { class: `verdict ${verdict.level}` });
+  const box = VerdictCard(verdict.level);
   fillVerdictBox(box, verdict);
   state.shown = { verdict, box };
   out.replaceChildren(box);
