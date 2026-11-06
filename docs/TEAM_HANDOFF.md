@@ -1,6 +1,6 @@
 # Team handoff: read this before working on HexFence
 
-For teammates and their coding agents. Checked against `main` at **8c3c175** (6 Nov 2026, evening). Check `git log` and open PRs for anything newer.
+For teammates and their coding agents. Checked against `main` at **2fa725b** (6 Nov 2026). Check `git log` and open PRs for anything newer.
 
 **Deadline:** submission Sat 7 Nov 2026, 09:00 IST (aim for 08:30). Dhruv decides when work stops; there is no earlier freeze. Leave enough time to record the video, upload it and submit.
 
@@ -20,7 +20,7 @@ The detector reads Ethereum mainnet USDT and USDC logs and publishes suspected a
 
 URLs are case-sensitive (`/Pay/` is a 404). Pages deploys from `main` through `.github/workflows/pages.yml`. Hard-refresh if you see an old page.
 
-Checked in headless Chrome on 6 Nov at about 18:00 IST: the landing page showed 173 published records; the explorer loaded 173 of 173; Pay on the demo Safe reached "Nox reads active", "v1.4.1 · 1/2 · Guard active" and "Sentinel simulation: no alerts returned for this Safe", and gave the synthetic L a RED "Possible address poisoning" verdict. No console errors on any of the three pages.
+Recorded counts: 1,126 suspected evidence records and 1 suspected loss record (read 6 Nov 2026 16:28 UTC). In the earlier headless Chrome check on 6 Nov at about 18:00 IST, Pay on the demo Safe reached "Nox reads active", "v1.4.1 · 1/2 · Guard active" and "Sentinel simulation: no alerts returned for this Safe", and gave the synthetic L a RED "Possible address poisoning" verdict. No console errors on any of the three pages in that earlier check.
 
 ## What is on main
 
@@ -44,7 +44,7 @@ Checked in headless Chrome on 6 Nov at about 18:00 IST: the landing page showed 
 
 ## Why the Campaigns hourly chart has one tall bar
 
-The live chart's hourly shape comes from how the records were published, not from attack activity. Read from Arkiv on 6 Nov: of the 1,126 records, 125 were published with `publish:arkiv --limit 125`, which takes the most recent attacks, and they all share attack block 26352743. Another 48 were spread evenly across that scan, and the last 953 were selected from a second scan. The detector itself found 47,694 pairs over the same 7,200 blocks, roughly 2,000 an hour. PR `fix/campaign-timeline` retitles the chart "Published records per UTC hour" and adds a computed note when one hour holds most records.
+The live chart's hourly shape comes from how the records were published, not from attack activity. Read from Arkiv on 6 Nov: of the 1,126 records, 125 were published with `publish:arkiv --limit 125`, which takes the most recent attacks, and they all share attack block 26352743. Another 48 were spread evenly across that scan, and the last 953 were selected from a second scan. The detector itself found 47,694 pairs over the same 7,200 blocks, roughly 2,000 an hour. Merged in PR #44 (`fix/campaign-timeline`): `apps/explorer/src/campaigns.ts` titles the chart "Published records per UTC hour" and adds a computed note when one hour holds most records.
 
 ## Open work
 
@@ -94,7 +94,7 @@ cd contracts && npm install --legacy-peer-deps && npx hardhat test
 ## Known behaviour that looks like a bug
 
 - Pay's Nox route takes 25–40 s to start on the hosted site. **Skip: read directly (not anonymous)** loads the Safe in a few seconds.
-- The public Arkiv endpoint is rate-limited. A second explorer load within a minute can sit at "reading Arkiv…"; wait or reload.
+- The public Arkiv endpoint is rate-limited. After a failed live read, the site, guided demo and explorer fall back to a dated saved copy (`evidence-saved.json`), when available, and show its Arkiv read time on the page. Pay does not use the saved copy yet; a failed evidence read is shown as unavailable.
 - Etherscan shows the Guard's verified source; Blockscout also decodes the `LookalikeOfApprovedPayee` revert reason on the L payment.
 
 ## B4 governance guard follow-up
