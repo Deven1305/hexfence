@@ -1,6 +1,6 @@
 # H10: Hindi check (one page)
 
-A native Hindi speaker reads two verdict lines that HexFence Pay shows in Hindi. Nothing else in the app is in Hindi. Time needed: about 5 minutes.
+A native Hindi speaker reads the two spec verdict lines below, then clicks हिन्दी on HexFence Pay and reads the rest of the page. Only the two lines below come from the spec; the other verdicts and the interface text (`apps/pay/src/i18n.ts`) were written by an AI on 6 Nov. Time needed: about 10 minutes.
 
 ## The two lines
 
@@ -11,7 +11,7 @@ Left: the text as the app uses it (`hindiText` in `apps/pay/src/verdictCopy.ts`)
 | RED: resembles an approved payee | संभावित एड्रेस पॉइज़निंग: यह प्राप्तकर्ता आपके स्वीकृत प्राप्तकर्ता {payee} जैसा दिखता है (पहले 4 और आख़िरी 4 अक्षर समान), लेकिन यह अलग पता है। आपका सुरक्षित Safe यह भुगतान नहीं करेगा। | संभावित एड्रेस पॉइज़निंग: यह प्राप्तकर्ता आपके स्वीकृत प्राप्तकर्ता {payee} जैसा दिखता है (पहले 4 और आख़िरी 4 अक्षर समान), लेकिन यह अलग पता है। आपका सुरक्षित Safe यह भुगतान नहीं करेगा। | Possible address poisoning. This recipient resembles your approved payee {payee} (same first 4 and last 4 characters) but is a different address. Your protected Safe will refuse this payment. |
 | AMBER: new recipient | नया प्राप्तकर्ता: यह आपके स्वीकृत प्राप्तकर्ताओं में नहीं है। HexFence इस भुगतान को नहीं रोकेगा। पूरा पता प्राप्तकर्ता से मिलाकर देखें। | नया प्राप्तकर्ता: यह आपके स्वीकृत प्राप्तकर्ताओं में नहीं है। HexFence इस भुगतान को नहीं रोकेगा। पूरा पता प्राप्तकर्ता से मिलाकर देखें। | New recipient: not one of your approved payees. HexFence will not block this payment. Check the full address with the recipient. |
 
-Known gap: if the Guard is not active on the Safe, the last RED sentence is shown in English ("HexFence Guard is not active on this Safe, so nothing on-chain will stop this payment."), because the spec has no Hindi for it and the Hindi "will not make this payment" line would be false. If the reviewer wants a Hindi line for that case, ask for one sentence and send it back.
+If the Guard is not active on the Safe, the last RED sentence comes from `apps/pay/src/i18n.ts` instead of the spec, because the spec has no line for that case.
 
 ## Questions for the reviewer
 

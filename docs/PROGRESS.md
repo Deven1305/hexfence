@@ -7,8 +7,8 @@
 - **Read first:** `docs/TEAM_HANDOFF.md` (current state, open work, rules for this pass).
 - **Current task:** scope additions merged (PRs #21–#24). Human checks and the open decisions in the handoff remain.
 - **Agent working:** none running; Claude Code organiser (Dhruv's laptop) last.
-- **Last updated:** 06 Nov 11:45 IST
-- **Tests:** contracts 14; workspace 169 passed, 4 skipped; recursive build passed. Hosted landing, explorer (125 of 125) and read-only Pay (L RED, P GREEN, through Nox) checked in headless Chrome.
+- **Last updated:** 06 Nov, after the Hindi and copy pass
+- **Tests:** contracts 14; workspace 169 passed, 4 skipped; recursive build passed. Hosted landing, explorer (173 of 173 after the spread publish) and read-only Pay (L RED, P GREEN, through Nox) checked in headless Chrome.
 - **Next step for whoever comes next:** T14 go/no-go, Pay setup with a real wallet on an isolated Safe, then H6, H9, H10, Guard review. No more tGLM transfer without Dhruv's explicit approval.
 
 ## Tasks (strict order)
@@ -89,6 +89,10 @@
 - 06 Nov 02:16 (Claude Code): added a **Guard ↔ client parity test**: `contracts/scripts/parity-vectors.js` records what the real `HexFenceGuard` does for 411 transactions; `packages/shared/test/parity.test.ts` checks that `verdictFor(decodeSafeCall(…))` predicts every one (RED resembles ⇔ `LookalikeOfApprovedPayee` with the same addresses; GREY delegatecall ⇔ `DelegateCallNotAllowed`; never RED when the Guard allows). A planted decoder bug made it fail, so it has teeth.
 
 - 06 Nov (Claude Code, Lane A): **independent read-only check of the live T8 values** (Sepolia publicnode + Arkiv, nothing sent). The runtime code at `0xA061…9748` is byte-for-byte our compiled `HexFenceGuard` (metadata included) and `supportsInterface(0xe6d7a83a)` is true. Demo Safe: `VERSION()` 1.4.1, active guard = that Guard, owners deployer + Dhruv, threshold 1, `payees` = [P]; `isApprovedPayee` P true, L and B false. Receipts: setGuard, approvePayee(P), setGuard(0), re-enable, B and P succeeded; both L payments reverted. The publisher holds 125 records, all `suspected` (124 zero-value, 1 dust).
+
+- 06 Nov (Dhruv): public pages lead with what HexFence does; the limits list left the landing page, and limits stay in README.md. Hard rules unchanged: status "suspected", no universal claims, pre-signing warnings stay.
+- 06 Nov (Dhruv, deviation from spec 3.4): Hindi now covers every verdict and the Pay interface, beyond the spec's two lines. Those two lines stay verbatim; the rest is AI-written and awaits H10.
+- 06 Nov (Dhruv): published 48 more records with existing publisher funds, one per equal slice of blocks 26345549-26352743, lowest evidenceId in each slice, excluding block 26352743. Txs 0x5a3c06f45380a75efaaf9989d8b33cf963ed17fe8ee4e4bcd97f0e060b040d36 and 0x0cc6e1053a87c84d370ad1fda375cb976a66643eb04c4759c4b7eac5bed42465. Total 173.
 
 ## Session log (append one line per task or stop)
 

@@ -188,7 +188,7 @@ P=0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec pnpm exec tsx -e 'import("./src/ind
 - Nox covers the configured Sepolia RPC read route only (see CROPS, P). Guard and payee reads through Nox worked on the hosted site. Nox start-up took 26–38 seconds in hosted browser runs and timed out at 60 seconds during a network outage; these are single observations, not benchmarks.
 - The Chrome extension's interception on `app.safe.global` has not been tested with a real wallet, so its go/no-go is open.
 - Pay's owner setup panel is unit-tested but has not been used with a real wallet.
-- All 125 published records currently share one Ethereum attack block (26352743), so they are a narrow sample of the detector's output. The scheduled publisher has not run with a key.
+- 173 records are published: 125 from one Ethereum attack block (26352743) and 48 taken one per equal slice of the roughly 24-hour scan, so they are a sample of the detector's 47,694 records, not all of them. The scheduled publisher has not run with a key.
 - Module transactions bypass transaction guards.
 - MultiSend is refused (it's a delegatecall).
 - Only ETH, `transfer` and `transferFrom` are inspected; other calls are allowed and clients show "cannot verify".

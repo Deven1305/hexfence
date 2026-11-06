@@ -53,13 +53,13 @@ Then state the limits: *"Modules bypass guards, MultiSend is refused, and a 4+4 
 ## Narration script for the video (2:30–3:00)
 Spoken text only, about 370 spoken words, which is about 2:30 at 2.5 words a second before pauses and clicks, so expect 2:40 to 2:55; rehearse it with a timer. Wording follows spec §3.4: the verdict is "resembles your approved payee", the evidence is "suspected", and the synthetic pair is never called verified or evidence. Square brackets are on-screen cues, not spoken.
 
-**Hashes and counts:** the transaction hashes shown in Part 2 and the record count in Part 1 are the values recorded in `docs/T8_LIVE_RESULTS.md` (record count 125). Read out only what is on screen. Do not read a hash aloud.
+**Hashes and counts:** the transaction hashes shown in Part 2 and the record count in Part 1 are the values recorded in `docs/T8_LIVE_RESULTS.md` (125 at T8; 173 after the 48 spread records published 6 Nov). Read out only what is on screen. Do not read a hash aloud.
 
 **0:00–0:15 · The problem**
 "Address poisoning: an attacker sends you a tiny transfer from an address that starts and ends like one you pay. Later you copy it from your history, and the money goes to them. HexFence makes a protected Safe refuse that payment."
 
 **0:15–0:50 · Part 1: real evidence** [explorer, label "Ethereum mainnet evidence · status: suspected"]
-"First, real data. This page has no backend. It reads Arkiv directly. Our detector reads Ethereum mainnet USDT and USDC transfers, and these 125 records are suspected poisonings it published. Every record is marked suspected. Here is one: the victim, the address they actually paid, and the lookalike. Same start, same end, different address. Both transactions open on Etherscan. And you do not have to trust us: Verify on Ethereum re-checks the receipts, from your browser." [click Verify, ✓ appears]
+"First, real data. This page has no backend. It reads Arkiv directly. Our detector reads Ethereum mainnet USDT and USDC transfers, and these 173 records are suspected poisonings it published. Every record is marked suspected. Here is one: the victim, the address they actually paid, and the lookalike. Same start, same end, different address. Both transactions open on Etherscan. And you do not have to trust us: Verify on Ethereum re-checks the receipts, from your browser." [click Verify, ✓ appears]
 
 **0:50–2:25 · Part 2: Sepolia re-enactment** [HexFence Pay, demo Safe loaded]
 1. "Now the Safe. This is a synthetic test pair on Sepolia, not a real attack." [pause]

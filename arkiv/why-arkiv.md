@@ -1,6 +1,6 @@
 # Why Arkiv
 
-Answers for [Build on Arkiv (from scratch)](https://ethglobal.com/events/mumbai/prizes/arkiv), checked 6 November 2026. The live dataset has **125 suspected records**. See [reach](reach.md) for the measured count and [query.ts](query.ts) for a runnable public read.
+Answers for [Build on Arkiv (from scratch)](https://ethglobal.com/events/mumbai/prizes/arkiv), checked 6 November 2026. The live dataset has **173 suspected records**. See [reach](reach.md) for the measured count and [query.ts](query.ts) for a runnable public read.
 
 ## What would users lose with Postgres or another database?
 

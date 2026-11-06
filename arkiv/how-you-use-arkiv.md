@@ -8,7 +8,7 @@ Answers for [Build on Arkiv (from scratch)](https://ethglobal.com/events/mumbai/
 |---|---|
 | Indexed lookalike, impersonated, victim | The fields stay indexed for other readers (`findEvidenceByAddress`, schema). Neither of our apps queries them today: explorer and Pay bulk-read and match addresses locally, so an address is not sent to the RPC. |
 | Schema tag and createdBy(publisher) | Readers choose whose claims to display; another writer's same-schema entities do not silently enter the dataset. |
-| Indexed variant | Explorer totals distinguish zero-value from dust. Live: 125 = 124 zero-value + 1 dust. |
+| Indexed variant | Explorer totals distinguish zero-value from dust. Live: 173 = 147 zero-value + 26 dust. |
 | Stable evidenceId | Writer bulk-reads existing IDs and skips them. Rerun: 0 created, 125 already present; no duplicate cards from that run. |
 | Key ordering, at most 100 rows/page | Explorer walks all pages automatically and shows progress; the hosted browser reached 125 of 125. Pay walks all pages before comparing locally. |
 | Wallet ownership | Publisher 0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec owns its records. Network rules restrict mutations to the owner; our app exposes no editor, and the writer creates records rather than editing claims. Attribution does not establish truth. |

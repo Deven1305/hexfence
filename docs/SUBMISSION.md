@@ -17,7 +17,7 @@ Values below come from the live T8 run (`docs/T8_LIVE_RESULTS.md`) unless the la
 | TX_REENABLE | 0xd1c7db48a18647713c34384afc51b116888546dd837359eecad0938a5ebe9743 | same (removal drill, re-enable) |
 | TX_L_REVERT_2 | 0xe77e6a7a8ba5b6f9742ec953826bc47c69ffffdced3a4d40b8fe3a220e1bb46f | `docs/T8_LIVE_RESULTS.md` (direct script transaction, not Safe{Wallet}) |
 | ARKIV_PUBLISHER | 0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec | README "Publisher wallet" |
-| RECORD_COUNT | 125 | `docs/T8_LIVE_RESULTS.md` (124 zero-value, 1 dust, all suspected) |
+| RECORD_COUNT | 173 | Hosted explorer, 6 Nov (147 zero-value, 26 dust, all suspected): 125 from `docs/T8_LIVE_RESULTS.md` plus 48 spread across the scan |
 | SITE_URL | https://deven1305.github.io/hexfence/ | Pages workflow |
 | EXPLORER_URL | https://deven1305.github.io/hexfence/explorer/ | Pages workflow, PROGRESS H11 |
 | PAY_URL | https://deven1305.github.io/hexfence/pay/ | same |
