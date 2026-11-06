@@ -199,3 +199,13 @@ P=0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec pnpm exec tsx -e 'import("./src/ind
 
 ## Licence
 MIT, see [LICENSE](LICENSE).
+
+## Check the client you are running
+
+Each Pages deploy from `main` publishes `SHA256SUMS.txt` beside the site and signs those files with a GitHub build attestation. Download a file from the site and run:
+
+```bash
+gh attestation verify <file> -R Deven1305/hexfence
+```
+
+When the publisher secret is set, the same hashes go to Arkiv as a `hexfence.release.v1` record. This shows which workflow run built a file. It does not audit the code, and it only helps if you run the check.
