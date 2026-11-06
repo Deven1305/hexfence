@@ -25,6 +25,7 @@ import {
   type SetupCall,
 } from "./setup";
 import "./setup.css";
+import { detectSafeApp, proposeInSafe, type SafeAppContext } from "./safeapp";
 import { toHindi } from "./i18n";
 import { GUARD_INACTIVE_SENTENCE, verdictText, type Lang } from "./verdictCopy";
 import { connect, discoverWallets, isUserRejection, switchToSepolia, walletChainId, type WalletOption } from "./wallet";
@@ -62,6 +63,8 @@ interface State {
   skip: AbortController;
   /** Safe address from `?safe=0x…`, loaded once when the Safe section first renders. */
   pendingSafe?: string;
+  /** Set when Pay runs inside Safe{Wallet} as a Safe App: the Safe session proposes transactions, no wallet is connected here. */
+  safeApp?: SafeAppContext;
   /** Last Safe loaded, kept so the address survives connecting a wallet. */
   lastSafe?: Address;
   lang: Lang;
@@ -87,6 +90,13 @@ async function boot(): Promise<void> {
   state.route = startRoute();
   new MutationObserver(applyLang).observe(app, { childList: true, subtree: true });
   render();
+  void detectSafeApp().then((ctx) => {
+    if (!ctx) return;
+    state.safeApp = ctx;
+    if (ctx.chainId === SEPOLIA_CHAIN_ID) state.pendingSafe = ctx.safeAddress;
+    state.step = 1;
+    render();
+  });
 }
 
 function render(): void {
@@ -166,6 +176,10 @@ function walletSection(): HTMLElement {
     status.textContent = `Connected: ${state.account} (${state.wallet?.name ?? "wallet"})`;
     return s;
   }
+  if (state.safeApp) {
+    status.textContent = "Running inside Safe{Wallet}. Payments are proposed in Safe{Wallet}, where you sign and confirm. No wallet connection is needed here.";
+    return s;
+  }
   status.textContent = "Looking for wallets…";
   void discoverWallets().then((wallets) => {
     if (wallets.length === 0) {
@@ -203,7 +217,11 @@ async function onConnect(w: WalletOption, section: HTMLElement): Promise<void> {
 function safeSection(): HTMLElement {
   const s = el("section");
   s.append(el("h2", {}, "2. Safe"));
-  if (!state.account) {
+  if (state.safeApp && state.safeApp.chainId !== SEPOLIA_CHAIN_ID) {
+    s.append(el("div", { class: "error" }, `This Safe is on chain ${state.safeApp.chainId}. HexFence Pay works on Sepolia only: open a Sepolia Safe in Safe{Wallet}.`));
+  } else if (state.safeApp) {
+    s.append(el("div", { class: "notice preview" }, `Safe App mode: checking payments for ${state.safeApp.safeAddress}. You sign and confirm in Safe{Wallet}.`));
+  } else if (!state.account) {
     s.append(el("div", { class: "notice preview" }, "Live preview: real Safe data and real verdicts, no wallet needed. Connect a Sepolia wallet to sign and send."));
   }
   const input = el("input", { id: "safe-address", placeholder: "Safe address (0x…)", spellcheck: "false" });
@@ -432,13 +450,13 @@ function renderVerdict(out: HTMLElement, verdict: Verdict, recipient: Address, c
   fillVerdictBox(box, verdict);
   state.shown = { verdict, box };
   out.replaceChildren(box);
-  if (!state.account) {
+  if (!state.account && !state.safeApp) {
     out.append(el("p", { class: "small" }, "Live preview: this is the real verdict. Connect a Sepolia wallet to sign and send."));
     return;
   }
 
   const friction = requiresFriction(verdict);
-  const go = el("button", {}, friction ? "Continue anyway" : "Sign and send");
+  const go = el("button", {}, friction ? "Continue anyway" : state.safeApp ? "Propose in Safe{Wallet}" : "Sign and send");
   const cancel = el("button", {}, friction ? "Reject" : "Cancel");
   cancel.onclick = () => out.replaceChildren(); // no wallet call
   const result = el("div");
@@ -451,9 +469,25 @@ function renderVerdict(out: HTMLElement, verdict: Verdict, recipient: Address, c
   go.onclick = () => {
     go.disabled = true;
     cancel.disabled = true;
-    void onExecute(call, result).finally(() => (cancel.disabled = false));
+    void (state.safeApp ? onPropose(call, result) : onExecute(call, result)).finally(() => (cancel.disabled = false));
   };
   out.append(go, cancel, result);
+}
+
+/** Safe App mode: hand the call to Safe{Wallet}. Safe{Wallet} collects signatures, simulates and sends; the Guard still decides on-chain. */
+async function onPropose(call: SetupCall, out: HTMLElement): Promise<boolean> {
+  out.replaceChildren(el("p", { class: "small" }, "Waiting for Safe{Wallet}…"));
+  try {
+    const { info, safeApp } = state;
+    if (!info || !safeApp) throw new InputError("Load a Safe first.");
+    if (info.address.toLowerCase() !== safeApp.safeAddress.toLowerCase()) throw new InputError("The checked Safe is not the Safe this app is open in. Reload the Safe from Safe{Wallet}.");
+    const safeTxHash = await proposeInSafe(call);
+    out.replaceChildren(el("div", { class: "notice" }, `Proposed in Safe{Wallet} (safeTxHash ${safeTxHash}). Confirm and execute it there.`));
+    return true;
+  } catch (e) {
+    out.replaceChildren(el("div", { class: "error" }, `Not proposed. ${errText(e)}`));
+    return false;
+  }
 }
 
 async function onExecute(call: SetupCall, out: HTMLElement): Promise<boolean> {
@@ -502,6 +536,10 @@ function setupSection(): HTMLElement {
   const { info, account } = state;
   if (!info) {
     s.append(el("p", { class: "small" }, "Load a Safe first."));
+    return s;
+  }
+  if (!account && state.safeApp) {
+    s.append(el("p", { class: "small" }, "Guard setup is not in the Safe App yet. Open HexFence Pay on its own page with a Sepolia wallet that owns this Safe."));
     return s;
   }
   if (!account) {

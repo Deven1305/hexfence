@@ -5,3 +5,4 @@ export * from "./verdict.js";
 export * from "./guardAbi.js";
 export * from "./evidence.js";
 export * from "./loss.js";
+export * from "./verdictV2.js";
