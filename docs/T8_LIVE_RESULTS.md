@@ -34,7 +34,7 @@ T8 passed with a **scripted EIP-1193 wallet**, not Safe{Wallet}. H6 remains unti
 
 ## Verification and limitations
 
-The pinned Hardhat verifier failed with HTTP 404: Sourcify API v1 removed. The new verify-sourcify.js submits the same compiler build info to documented v2, without keys. Live result: exact creation/runtime match, matchId 58580359; repeat lookup passed. Etherscan browser still displayed **Verify and Publish**, so Etherscan verification is not claimed. Etherscan-key configuration remains available.
+The pinned Hardhat verifier failed with HTTP 404: Sourcify API v1 removed. The new verify-sourcify.js submits the same compiler build info to documented v2, without keys. Live result: exact creation/runtime match, matchId 58580359; repeat lookup passed. Etherscan browser still displayed **Verify and Publish**, so Etherscan verification is not claimed. The Guard is verified on Blockscout, which decodes the reverted L payment as LookalikeOfApprovedPayee(recipient, approvedPayee): https://eth-sepolia.blockscout.com/tx/0xa43b0eeef7253281a741deca144e5ddf0c465da9cc6f48d54673a9aa9c0f6d8f and https://eth-sepolia.blockscout.com/address/0xA061fB511D69e5c92E50E3BE5c789472d6f19748. Etherscan-key configuration remains available.
 
 No product bug found in this run. No H6 or Safe{Wallet} test occurred. H8's final narrated 2:30–3:00 video, H9 labels, H10 Hindi review, human Guard review and H12 participant/submission requirements remain human work. README/DEMO/SUBMISSION changes fill public values only; their existing untested-route prose and Safe{Wallet} script are not rewritten, so consult this report for observed results. The second Safe{Wallet} placeholder remains unfilled deliberately.
 

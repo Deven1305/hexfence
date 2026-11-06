@@ -2,22 +2,30 @@
 
 Copy-paste text for the ETHGlobal project page and the partner prizes (Arkiv: Build on Arkiv; Ethereum Foundation: Best CROPS App, Best Use of Anon-RPC). Source: spec §0, §5, §6, §8 (`docs/planning/10_FINAL_What_To_Build_HexFence.md`) and the README. Submissions are due **Sat 7 Nov 2026, 09:00 IST** (spec aim: submit by 08:30).
 
-Anything in `‹DOUBLE_ANGLE_BRACKETS›` does not exist yet. Fill it from the source named beside it. Do not publish text that still contains one.
+Values below come from the live T8 run (`docs/T8_LIVE_RESULTS.md`) unless the last column says a human still owes them. Anything still written as `‹NAME›` does not exist yet: fill it from the source named beside it, and do not publish text that still contains one.
 
-| Placeholder | Fill from |
-|---|---|
-| 0xA061fB511D69e5c92E50E3BE5c789472d6f19748 | `docs/PROGRESS.md` addresses table (HexFenceGuard, Sepolia) |
-| 0x3BCc3969713778F3Ed26AE1490529eeBAD43FbD5 | same table (demo Safe) |
-| 0x2de356a6c196cb3f2040e3b8d4170ebe0cbc1b2684b0c05e26344756db6278e9, 0x13baea5038b830810e1a9f68fbed3ae1069f981af4810cbd43c50f7b0d7d1af2 | same table |
-| 0xa43b0eeef7253281a741deca144e5ddf0c465da9cc6f48d54673a9aa9c0f6d8f, 0x2455ca8f1ce612149f15e80325f372202bffeb0258f808bd84acfb1f904de5ca, 0xea209e9e3c5a9eed080e95dd0ca752b79686400da820ea67b87f98552d2992df | same table (L reverted, B succeeded, P succeeded) |
-| 0x5edf08eb6489d78c13f0748283e43bab8c015c851d0d40e86b030dd6794ad8e0, 0xd1c7db48a18647713c34384afc51b116888546dd837359eecad0938a5ebe9743 | same table (removal drill) |
-| 0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec | README "Publisher wallet" after the first publish |
-| 125 | the count printed by the README Arkiv query |
-| ‹PRECISION› | printed by `pnpm --filter @hexfence/detector precision` after the H9 labels exist: "N of M labelled rows were poisoning". Leave the sentence out if H9 is not done |
-| https://deven1305.github.io/hexfence/explorer/, https://deven1305.github.io/hexfence/pay/ | hosting (`.github/workflows/pages.yml`, see PROGRESS H11) |
-| https://github.com/Deven1305/hexfence | the public repo |
-| ‹VIDEO_URL› | the uploaded video |
-| ‹GUARD_REVIEWER› | the team member who actually reviewed the Guard; `docs/AI_USAGE.md` still needs this name |
+| Name | Value | Source |
+|---|---|---|
+| GUARD_ADDRESS | 0xA061fB511D69e5c92E50E3BE5c789472d6f19748 | `docs/PROGRESS.md` (HexFenceGuard, Sepolia) |
+| SAFE_ADDRESS | 0x3BCc3969713778F3Ed26AE1490529eeBAD43FbD5 | same (demo Safe, `VERSION()` 1.4.1) |
+| TX_SETGUARD | 0x2de356a6c196cb3f2040e3b8d4170ebe0cbc1b2684b0c05e26344756db6278e9 | same |
+| TX_APPROVE_P | 0x13baea5038b830810e1a9f68fbed3ae1069f981af4810cbd43c50f7b0d7d1af2 | same |
+| TX_L_REVERT | 0xa43b0eeef7253281a741deca144e5ddf0c465da9cc6f48d54673a9aa9c0f6d8f | same (L payment, reverted) |
+| TX_B_OK | 0x2455ca8f1ce612149f15e80325f372202bffeb0258f808bd84acfb1f904de5ca | same (B payment, succeeded) |
+| TX_P_OK | 0xea209e9e3c5a9eed080e95dd0ca752b79686400da820ea67b87f98552d2992df | same (P payment, succeeded) |
+| TX_REMOVE | 0x5edf08eb6489d78c13f0748283e43bab8c015c851d0d40e86b030dd6794ad8e0 | same (removal drill, `setGuard(0)`) |
+| TX_REENABLE | 0xd1c7db48a18647713c34384afc51b116888546dd837359eecad0938a5ebe9743 | same (removal drill, re-enable) |
+| TX_L_REVERT_2 | 0xe77e6a7a8ba5b6f9742ec953826bc47c69ffffdced3a4d40b8fe3a220e1bb46f | `docs/T8_LIVE_RESULTS.md` (direct script transaction, not Safe{Wallet}) |
+| ARKIV_PUBLISHER | 0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec | README "Publisher wallet" |
+| RECORD_COUNT | 125 | `docs/T8_LIVE_RESULTS.md` (124 zero-value, 1 dust, all suspected) |
+| EXPLORER_URL | https://deven1305.github.io/hexfence/explorer/ | Pages workflow, PROGRESS H11 |
+| PAY_URL | https://deven1305.github.io/hexfence/pay/ | same |
+| REPO_URL | https://github.com/Deven1305/hexfence | the public repo |
+| ‹PRECISION› | still owed | printed by `pnpm --filter @hexfence/detector precision` after the H9 labels exist: "N of M labelled rows were poisoning". Leave the sentence out if H9 is not done |
+| ‹VIDEO_URL› | still owed | the uploaded video |
+| ‹GUARD_REVIEWER› | still owed | the team member who actually reviewed the Guard; `docs/AI_USAGE.md` still needs this name |
+
+Decoded revert and verified Guard source are on Blockscout, not Etherscan (the Guard is not verified on Etherscan): [reverted L payment](https://eth-sepolia.blockscout.com/tx/0xa43b0eeef7253281a741deca144e5ddf0c465da9cc6f48d54673a9aa9c0f6d8f), [Guard source](https://eth-sepolia.blockscout.com/address/0xA061fB511D69e5c92E50E3BE5c789472d6f19748).
 
 ## 1. Project name and tagline
 
@@ -67,7 +75,7 @@ Paste:
 
 > HexFence uses Arkiv as the open evidence layer for address poisoning. The detector reads Ethereum mainnet USDT/USDC logs and writes each suspected pair as a `hexfence.poisoning.v1` entity on the Rabdi testnet with a 30-day expiry. Each record carries the victim, the impersonated address, the lookalike and both transaction hashes, and is always marked "suspected". Writes are idempotent, so a re-run creates 0 duplicates. The explorer and HexFence Pay read the records in bulk and never look up one address at a time, so no reader tells a server which address they care about. The explorer can re-check any record against Ethereum receipts in the browser. We chose Arkiv because the evidence should be queryable by anyone, expire when it stops being useful, and not sit in a vendor's closed feed. Currently 125 records, published by 0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec. Schema, friction notes, reach, why-Arkiv and how-we-use-it are in `/arkiv/`.
 
-Links to give: https://github.com/Deven1305/hexfence`/tree/main/arkiv`, https://deven1305.github.io/hexfence/explorer/, and the publisher wallet 0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec. The one query judges can run is in the README ("Arkiv publisher + query").
+Links to give: https://github.com/Deven1305/hexfence/tree/main/arkiv, https://deven1305.github.io/hexfence/explorer/, and the publisher wallet 0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec. The one query judges can run is in the README ("Arkiv publisher + query").
 
 ### 5.2 Ethereum Foundation: Best CROPS App
 
@@ -97,7 +105,7 @@ Do not claim a latency figure unless you measured one for the video. The README 
 ## 7. Required links and items (tick before submitting)
 
 ETHGlobal and partner forms:
-- [ ] Public repo, created after kickoff, MIT licence, small commits from all four accounts: https://github.com/Deven1305/hexfence
+- [ ] Public repo, created after kickoff, MIT licence: https://github.com/Deven1305/hexfence
 - [ ] No code from the pre-event Pramaan repo
 - [ ] Live explorer: https://deven1305.github.io/hexfence/explorer/
 - [ ] Live HexFence Pay (or install steps): https://deven1305.github.io/hexfence/pay/

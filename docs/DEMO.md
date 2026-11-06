@@ -10,7 +10,7 @@
 - [ ] One record chosen and already verified once: ✓ appears, and both Etherscan links open
 - [ ] HexFence Pay open, wallet on Sepolia, demo Safe loaded, status shows the Guard is active
 - [ ] Demo Safe holds test ETH, has the Guard set, and P approved (`payees(safe)` shows P)
-- [ ] Guard verified on Sepolia Etherscan, otherwise Etherscan may not name the revert reason (not tested yet; check it)
+- [ ] Open the reverted L payment on Blockscout, which decodes `LookalikeOfApprovedPayee` because the Guard is verified there: https://eth-sepolia.blockscout.com/tx/0xa43b0eeef7253281a741deca144e5ddf0c465da9cc6f48d54673a9aa9c0f6d8f. The Guard is not verified on Etherscan, so do not show Etherscan for the revert reason
 - [ ] Safe{Wallet} open in a second tab for step 5
 - [ ] Addresses ready to paste, with B a fresh test address:
   - P `0x4E185e251Ac7fB83E9DE10723EAda46cadE74120`
@@ -37,10 +37,10 @@ Label on screen: **Ethereum mainnet evidence · status: suspected**
 Say: ***"This is a synthetic test pair, not a real attack."***
 
 1. *"This demo Safe has the HexFence Guard, and P is its approved payee."*
-2. **Pay L** in HexFence Pay → RED: resembles P → type the last 6 characters (`344120`) to continue → sign and execute → **reverts with `LookalikeOfApprovedPayee(L, P)`** on Sepolia Etherscan. *"The warning can be overridden. The Safe's refusal can't."*
+2. **Pay L** in HexFence Pay → RED: resembles P → type the last 6 characters (`344120`) to continue → sign and execute → **reverts with `LookalikeOfApprovedPayee(L, P)`** (decoded on Sepolia Blockscout). *"The warning can be overridden. The Safe's refusal can't."*
 3. **Pay B**, a new supplier → AMBER → **succeeds**. *"Not an allowlist: new suppliers still work."*
 4. **Pay P** → GREEN → **succeeds**.
-5. **Client off:** close HexFence Pay and pay L again **from Safe{Wallet}, not from Pay** → **still reverts**. *"Enforcement doesn't need our software."*
+5. **Client off** (recorded today as the direct script transaction `0xe77e6a7a…1bb46f`, which is not Safe{Wallet}; the Safe{Wallet} version below applies only if H6 is done): close HexFence Pay and pay L again **from Safe{Wallet}, not from Pay** → **still reverts**. *"Enforcement doesn't need our software."*
    - Safe{Wallet} warns that the transaction will fail. **Choose to execute anyway and set a manual gas limit in the wallet** (`RUNBOOK_T8.md` uses 200000), so the revert is actually mined and you get a hash.
 6. Show the removal drill hashes: `setGuard(0)`, then re-enabled. *"Removal is tested through real Safe transactions."*
 
@@ -54,22 +54,24 @@ Then state the limits: *"Modules bypass guards, MultiSend is refused, and a 4+4 
 ## Narration script for the video (2:30–3:00)
 Spoken text only, about 370 spoken words, which is about 2:30 at 2.5 words a second before pauses and clicks, so expect 2:40 to 2:55; rehearse it with a timer. Wording follows spec §3.4: the verdict is "resembles your approved payee", the evidence is "suspected", and the synthetic pair is never called verified or evidence. Square brackets are on-screen cues, not spoken.
 
-**Hashes and counts:** the transaction hashes shown in Part 2, step 7, and the record count in Part 1 come from whatever the Sepolia run and the Arkiv publish actually produced. Replace each ‹…› with the real value before recording, and read out only what is on screen. Do not read a hash aloud.
+**Hashes and counts:** the transaction hashes shown in Part 2 and the record count in Part 1 are the values recorded in `docs/T8_LIVE_RESULTS.md` (record count 125). Read out only what is on screen. Do not read a hash aloud.
 
 **0:00–0:15 · The problem**
 "Address poisoning: an attacker sends you a tiny transfer from an address that starts and ends like one you pay. Later you copy it from your history, and the money goes to them. HexFence makes a protected Safe refuse that payment."
 
 **0:15–0:50 · Part 1: real evidence** [explorer, label "Ethereum mainnet evidence · status: suspected"]
-"First, real data. This page has no backend. It reads Arkiv directly. Our detector reads Ethereum mainnet USDT and USDC transfers, and these ‹COUNT› records are suspected poisonings it published. Every record is marked suspected. Here is one: the victim, the address they actually paid, and the lookalike. Same start, same end, different address. Both transactions open on Etherscan. And you do not have to trust us: Verify on Ethereum re-checks the receipts, from your browser." [click Verify, ✓ appears]
+"First, real data. This page has no backend. It reads Arkiv directly. Our detector reads Ethereum mainnet USDT and USDC transfers, and these 125 records are suspected poisonings it published. Every record is marked suspected. Here is one: the victim, the address they actually paid, and the lookalike. Same start, same end, different address. Both transactions open on Etherscan. And you do not have to trust us: Verify on Ethereum re-checks the receipts, from your browser." [click Verify, ✓ appears]
 
 **0:50–2:25 · Part 2: Sepolia re-enactment** [HexFence Pay, demo Safe loaded]
 1. "Now the Safe. This is a synthetic test pair on Sepolia, not a real attack." [pause]
 2. "This demo Safe has the HexFence Guard, and P is its approved payee."
 3. "I pay L, the lookalike. HexFence Pay says: possible address poisoning. This recipient resembles your approved payee, same first four and last four characters, but it is a different address. Your protected Safe will refuse this payment. It makes me type six characters to continue anyway, so I do." [type 344120, sign]
-4. "The transaction reverts on Sepolia with LookalikeOfApprovedPayee. The warning can be overridden. The Safe's refusal cannot." [Etherscan, 0xa43b0eeef7253281a741deca144e5ddf0c465da9cc6f48d54673a9aa9c0f6d8f]
+4. "The transaction reverts on Sepolia with LookalikeOfApprovedPayee. The warning can be overridden. The Safe's refusal cannot." [Sepolia Blockscout: https://eth-sepolia.blockscout.com/tx/0xa43b0eeef7253281a741deca144e5ddf0c465da9cc6f48d54673a9aa9c0f6d8f]
 5. "Now a new supplier, B. New recipient: not one of your approved payees. HexFence will not block this payment. And it goes through. This is not an allowlist." [0x2455ca8f1ce612149f15e80325f372202bffeb0258f808bd84acfb1f904de5ca]
 6. "And P, the approved payee: green, and it goes through." [0xea209e9e3c5a9eed080e95dd0ca752b79686400da820ea67b87f98552d2992df]
-7. "Last test. I close HexFence Pay and pay L again straight from Safe{Wallet}. It still reverts. Enforcement does not need our software." [‹TX_L_REVERT_2›] "And the Guard can be removed: set guard to zero, then enabled again, both real Safe transactions." [0x5edf08eb6489d78c13f0748283e43bab8c015c851d0d40e86b030dd6794ad8e0, 0xd1c7db48a18647713c34384afc51b116888546dd837359eecad0938a5ebe9743]
+7. "Last test. I switch HexFence Pay off and send the same payment to L again as a direct transaction from a script. It still reverts. Enforcement does not need our software." [https://eth-sepolia.blockscout.com/tx/0xe77e6a7a8ba5b6f9742ec953826bc47c69ffffdced3a4d40b8fe3a220e1bb46f] "And the Guard can be removed: set guard to zero, then enabled again, both real Safe transactions." [0x5edf08eb6489d78c13f0748283e43bab8c015c851d0d40e86b030dd6794ad8e0, 0xd1c7db48a18647713c34384afc51b116888546dd837359eecad0938a5ebe9743]
+
+**Swap note:** if H6 yields a reverted Safe{Wallet} payment of L, replace the direct-script hash in step 7 with that one and say "from Safe{Wallet}". Until then the narration says it was a direct transaction from a script.
 
 **2:25–2:55 · Part 3: why it is new**
 "Wallets warn, but a warning is interface you can click through. Allowlists block new suppliers. Blocklists need someone to report the attacker first. HexFence denies by resemblance, at the account level, so it stops a lookalike nobody has reported, and new suppliers still work. Limits: modules bypass guards, MultiSend is refused, and a four-plus-four match does not catch weaker lookalikes. The Guard has no owner and cannot be upgraded, so it keeps working even if everything else here disappears."
@@ -83,7 +85,7 @@ Spoken text only, about 370 spoken words, which is about 2:30 at 2.5 words a sec
 | Wallet refuses to send the L payment | Show the decoded refusal in Pay, then the L reverted hash already recorded in the README |
 | Arkiv is slow or rate limited | Set `VITE_ARKIV_ACCESS_KEY`. Failing that, use the recorded video |
 | Verify shows "could not verify" because of the RPC | Use another `VITE_MAINNET_RPC_URL` and try again. Don't describe it as a failed record |
-| Etherscan doesn't name the error | Show the revert in Pay's decoded result and say the Guard isn't verified on Etherscan yet |
+| Blockscout is slow or doesn't show the decoded error | Show the revert in Pay's decoded result. The Guard is verified on Blockscout (https://eth-sepolia.blockscout.com/address/0xA061fB511D69e5c92E50E3BE5c789472d6f19748) and not on Etherscan, so don't use Etherscan for the revert reason |
 
 ## Recording checklist
 - [ ] 2:30–3:00, at least 720p, audio clear
