@@ -32,20 +32,19 @@ const publisher = import.meta.env.VITE_ARKIV_PUBLISHER;
 if (!publisher || !isAddress(publisher, { strict: false })) {
   for (const k of Object.keys(tiles) as (keyof typeof tiles)[]) put(k, "Unavailable", "No evidence publisher is configured for this build.");
 } else {
-  void import("@hexfence/arkiv").then(async ({ arkivReadClient, fetchAllEvidence, fetchAllLosses }) => {
+  void import("@hexfence/arkiv").then(async ({ arkivReadClient, publishedRecordsWithSavedCopy, savedCopyNotice }) => {
     const client = arkivReadClient({ accessKey: import.meta.env.VITE_ARKIV_ACCESS_KEY || undefined });
-    const who = publisher as Address;
-    const evidence = fetchAllEvidence(client, who).then(records => {
-      const s = evidenceStats(records);
-      put("records", s.records.toLocaleString("en-US")); put("txs", s.attackTxs.toLocaleString("en-US")); put("most", s.mostVictims.toLocaleString("en-US"));
-    }).catch(() => { unavailable("records"); unavailable("txs"); unavailable("most"); });
-    const losses = fetchAllLosses(client, who).then(rows => {
-      const totals = lossTotals(rows);
-      if (!totals.length) { put("loss", "None", "No suspected loss records are published."); return; }
-      const top = totals[0]!; const num = document.createElement("span");
-      num.append(compactAmount(top)); const unit = document.createElement("small"); unit.textContent = top.symbol; num.append(unit);
-      put("loss", num, `${tiles.loss.note}. Exact value: ${totals.map(exactAmount).join(" · ")}.`);
-    }).catch(() => unavailable("loss"));
-    await Promise.all([evidence, losses]);
+    const read = await publishedRecordsWithSavedCopy(client, publisher as Address, "./evidence-saved.json");
+    if (read.source === "saved") {
+      const notice = document.createElement("p"); notice.className = "status saved-copy-notice";
+      notice.textContent = savedCopyNotice(read.readAt); grid.before(notice);
+    }
+    const s = evidenceStats(read.evidence);
+    put("records", s.records.toLocaleString("en-US")); put("txs", s.attackTxs.toLocaleString("en-US")); put("most", s.mostVictims.toLocaleString("en-US"));
+    const totals = lossTotals(read.losses);
+    if (!totals.length) { put("loss", "None", "No suspected loss records in this read."); return; }
+    const top = totals[0]!; const num = document.createElement("span");
+    num.append(compactAmount(top)); const unit = document.createElement("small"); unit.textContent = top.symbol; num.append(unit);
+    put("loss", num, `${tiles.loss.note}. Exact value: ${totals.map(exactAmount).join(" \u00b7 ")}.`);
   }).catch(() => { for (const k of Object.keys(tiles) as (keyof typeof tiles)[]) unavailable(k); });
 }

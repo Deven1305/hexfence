@@ -102,6 +102,11 @@ jobs:
           cp -R apps/pay/dist/. _site/pay/
           touch _site/.nojekyll
           cp -R apps/site/dist/. _site/
+      - name: Save published Arkiv records when reads are available
+        if: github.event_name != 'pull_request'
+        env:
+          ARKIV_ACCESS_KEY: ${{ secrets.ARKIV_ACCESS_KEY }}
+        run: corepack pnpm@10.34.9 --filter @hexfence/arkiv exec tsx scripts/save-records.ts "$VITE_ARKIV_PUBLISHER" "$GITHUB_WORKSPACE/_site/evidence-saved.json"
       - name: Record SHA-256 of every published file
         shell: bash
         run: |
