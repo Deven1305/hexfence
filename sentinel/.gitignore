@@ -1,2 +1,3 @@
 hexfence-sentinel/config.json
 *.wasm
+**/.workflow-temp-*.ts

@@ -19,10 +19,11 @@ jobs:
       - run: npx hardhat test
         working-directory: contracts
       - run: corepack pnpm@10.34.9 install --frozen-lockfile
-      # Preserve Vitest globs in existing package scripts (Pay's e2e exclusion
-      # is currently unquoted). Do not consume the Playwright suite as Vitest.
       - run: corepack pnpm@10.34.9 -r test
-        env:
-          npm_config_script_shell: bash
-          BASH_ENV: ${{ github.workspace }}/.github/scripts/ci-shell.sh
       - run: corepack pnpm@10.34.9 -r build
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.4.4'
+      - name: Compile Sentinel to WASM (not a CRE simulation)
+        run: bun node_modules/@chainlink/cre-sdk/bin/cre-compile.ts main.ts dist/sentinel.wasm
+        working-directory: sentinel/hexfence-sentinel
