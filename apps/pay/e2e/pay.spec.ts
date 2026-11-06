@@ -30,7 +30,6 @@ test('built Pay: real Safe 1.4.1, Guard, P/B success, L mined revert and bulk re
   await skip.click();
   releaseBootstrap();
   await expect(page.getByText('Reads go directly from your browser to the RPC provider. They are not anonymous.')).toBeVisible();
-  await page.getByRole('button', { name: '1. Connect', exact: true }).click();
   await page.getByRole('button', { name: /^Connect / }).click();
   await page.locator('#safe-address').fill(f.safe);
   await page.getByRole('button', { name: 'Load Safe', exact: true }).click();
@@ -70,7 +69,7 @@ test('built Pay: real Safe 1.4.1, Guard, P/B success, L mined revert and bulk re
   // decoder and renderer with unsupported calldata; there is no arbitrary-call product UI.
   await page.evaluate(to => window.dispatchEvent(new CustomEvent('e2e:call', { detail: { to, value: '0', data: '0xdeadbeef', operation: 0 } })), f.B);
   await expect(page.locator('.verdict.GREY')).toContainText('Cannot verify this transaction type.');
-  await page.getByRole('button', { name: '2. Safe', exact: true }).click();
+  await page.getByRole('button', { name: 'Change', exact: true }).click();
   await page.locator('#safe-address').fill(f.unguarded);
   await page.getByRole('button', { name: 'Load Safe', exact: true }).click();
   await expect(page.getByText(/Guard inactive/)).toBeVisible();

@@ -9,8 +9,11 @@ p { margin: 0 0 var(--s3); }
 .hidden, [hidden] { display: none !important; }
 code, .mono { font-family: var(--mono); font-size: 13px; overflow-wrap: anywhere; }
 
-/* Language toggle */
-main > p.small:has(button[aria-pressed]) { display: flex; gap: var(--s2); margin: 0 0 var(--s4); }
+/* Title row with a small language toggle */
+.titlerow { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s3); margin: 0 0 var(--s2); }
+.titlerow h1 { margin: 0; }
+.titlerow > p { display: flex; gap: var(--s1); margin: 0; }
+.titlerow button { min-height: 32px; margin: 0; padding: 0 var(--s3); font-size: 13px; }
 
 /* Cards */
 section { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: var(--s5); margin: 0 0 var(--s4); min-width: 0; }
@@ -37,7 +40,10 @@ button { min-height: 44px; padding: 0 var(--s5); margin: var(--s3) var(--s2) 0 0
 button:hover:not(:disabled) { outline: 2px solid var(--brand); outline-offset: 2px; }
 button[aria-pressed="false"] { background: transparent; color: var(--brand); }
 button:disabled { cursor: not-allowed; background: var(--surface2); border-color: var(--line); color: var(--muted); }
-.statusbar button, main > p.small button { min-height: 36px; margin-top: var(--s2); padding: 0 var(--s4); font-size: 14px; }
+.statusbar button { min-height: 36px; margin-top: var(--s2); padding: 0 var(--s4); font-size: 14px; }
+button.ghost { background: transparent; color: var(--brand); }
+.row > input { flex: 1 1 260px; }
+.row > button { margin: 0; }
 .row { display: flex; gap: var(--s3); align-items: center; flex-wrap: wrap; }
 .row > * { min-width: 0; }
 
@@ -64,5 +70,15 @@ button:disabled { cursor: not-allowed; background: var(--surface2); border-color
   section { padding: var(--s4); }
   .verdict { padding: var(--s4); }
   button { width: 100%; margin-right: 0; }
-  .statusbar button, main > p.small button { width: auto; }
+  .statusbar button, .titlerow button, button.ghost.inline, .row > button { width: auto; }
 }
+
+/* Quiet wallet line, compact Safe line, demo recipients, Sentinel band */
+section.quiet { background: none; border: 0; padding: 0; margin: 0 0 var(--s4); }
+section.safe-line { padding: var(--s4) var(--s5); }
+section.safe-line .row { justify-content: space-between; }
+.safe-detail { margin-top: var(--s3); }
+.safe-detail > summary { cursor: pointer; font-weight: 600; color: var(--brand); }
+.demo-row { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center; margin: 0 0 var(--s2); }
+.demo-row button { min-height: 36px; margin: 0; padding: 0 var(--s4); font-size: 14px; }
+.hf-radar { margin: 0 0 var(--s4); border-radius: var(--r); }
