@@ -71,3 +71,17 @@ The deployer funded only this new Safe with two wei. The successful payment redu
 All setup hashes, receipt statuses and costs are recorded in the journal. Total spending for this module drill, the [governance drill and the failed initial creation](README_GOVERNANCE.md#scripted-live-receipts-6-november-2026) was **0.000000000135696858 Sepolia ETH**, below the scripted shared 0.012 ETH ceiling. `node scripts/live-guard-receipts.js --verify` reads every receipt back without signing. `--send` and `--continue` refuse this completed run; other chain IDs are refused. Interrupted runs may continue only after their journaled receipts reconcile, without resending completed transactions.
 
 This exercised native ETH module payments from a script, not a human wallet. ERC-20 module payments, delegatecall refusal, module-guard removal, and module administration bypass were tested locally, not live in this drill. The module guard never learns from module payments. Safe/V2 calls remain exempt, and authorized modules can alter lists or remove guards; this does not contain an authorized module acting against the Safe. No mainnet operation, Safe{Wallet} UI flow or external audit is claimed.
+
+## Replay of one real suspected loss
+
+A local test in `test/LossReplay.test.js` replays one recorded loss event against `HexFenceGuardV2`.
+
+**What this shows:**
+- The addresses and amount come from one published record with status suspected.
+- Approving the impersonated recipient allows an ERC-20 payment of that amount to proceed.
+- An attempted payment of the same amount to the lookalike address reverts with `LookalikeOfKnownRecipient`.
+
+**What this does not show:**
+- The victim's account had no HexFence Guard; this test uses a separate local Safe instead.
+- This is a local counterfactual, not a mainnet action and not a claim that the loss would certainly have been prevented.
+
