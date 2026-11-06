@@ -55,7 +55,7 @@ Data note: the 1,126 records are a chosen subset of two 24-hour detector runs (4
 | Item | On main | Not proven |
 |---|---|---|
 | v1 Guard | 14 tests; Etherscan and Sourcify verified; live L revert, B/P success, removal drill | No person-run wallet payment (H6) |
-| A1 V2 Guard | Deployed, isolated Safe, removal/restore receipts, local Safe 1.4.1 tests | No funded positive-value Sepolia payment |
+| A1 V2 Guard | Deployed, isolated Safe, removal/restore receipts, local Safe 1.4.1 tests, [scripted P](https://sepolia.etherscan.io/tx/0xfc93f06334211546d1371ed3b2b5fbafc77842a03e227f7197a2e50680d866a5) and [refused L](https://sepolia.etherscan.io/tx/0x2585f5ce7bce79a6c139d19f56e4f125f8c84a7c09fe59d27d2598eb83c328ff) on Sepolia | No human wallet run on V2 |
 | A2 Sentinel | Source, WASM, consumer, real zero-value trigger tx | No CRE run, no Telegram, no alert |
 | A4 Rescue | One supported suspected follow-up payment, 303.635007 USDT, on Arkiv; downloadable pack | A lead, not a confirmed loss or cause |
 | B2 Campaigns | Grouping, real block-time hourly chart, match model | Counts describe published records only |

@@ -46,7 +46,7 @@ Only replace 2:20–2:40 if a person has run `cre login` and `sentinel/SIMULATIO
 
 - Pay inside Safe{Wallet} (B8): not tested by a person.
 - The Chrome extension on app.safe.global (T14): not tested.
-- The V2 learning Guard: deployed, but its Safe is unfunded, so no live payment.
+- The V2 learning Guard: its only live payments are one scripted P-then-L run, not a wallet test.
 - The module guard (Safe 1.5.0): deployed, but no live Safe uses it.
 - A second Arkiv publisher: none exists; the live explorer reads one.
 - Hindi: you can show the हिन्दी button, but say it hasn't been checked by a native speaker yet.
