@@ -1,0 +1,18 @@
+/* Styles for the preview banner and the Setup section. style.css is owned by the restyle work and is not edited here. */
+.preview {
+  margin-bottom: 0.75rem;
+}
+#setup h3 {
+  margin: 1rem 0 0.25rem;
+  font-size: 1rem;
+}
+#setup .warnings {
+  margin: 0.25rem 0 0.5rem;
+  padding-left: 1.25rem;
+}
+#setup .warnings li {
+  margin-bottom: 0.25rem;
+}
+#setup li > div {
+  margin-top: 0.25rem;
+}

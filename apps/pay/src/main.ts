@@ -10,7 +10,20 @@ import { planFromSimulation, simulateExec } from "./execute";
 import { buildPaymentCall, erc20Abi, InputError, parseAddress, parseAmount, type Asset } from "./payment";
 import { describeRevert } from "./revert";
 import { compositeProvider, createReadClient, type ReadClient } from "./rpc";
-import { loadSafeInfo, openSafe, type SafeInfo } from "./safe";
+import { loadSafeInfo, openSafe, openSafeReadOnly, type SafeInfo } from "./safe";
+import {
+  buildApprovePayeeCall,
+  buildDisableGuardCall,
+  buildEnableGuardCall,
+  buildRemovePayeeCall,
+  checkApprove,
+  DISABLE_WARNING,
+  enableWarnings,
+  removeWarning,
+  setupBlocker,
+  type SetupCall,
+} from "./setup";
+import "./setup.css";
 import { GUARD_INACTIVE_SENTENCE, hindiText, verdictText, type Lang } from "./verdictCopy";
 import { connect, discoverWallets, isUserRejection, switchToSepolia, walletChainId, type WalletOption } from "./wallet";
 
@@ -44,6 +57,10 @@ interface State {
   outcome?: AnonOutcome;
   trying?: string;
   skip: AbortController;
+  /** Safe address from `?safe=0x…`, loaded once when the Safe section first renders. */
+  pendingSafe?: string;
+  /** Last Safe loaded, kept so the address survives connecting a wallet. */
+  lastSafe?: Address;
   lang: Lang;
   shown?: { verdict: Verdict; box: HTMLElement };
 }
@@ -59,6 +76,7 @@ function boot(): void {
     return;
   }
   state = { config, reads: createReadClient(config.sepoliaRpcUrl), route: Promise.resolve(), skip: new AbortController(), lang: "en" };
+  state.pendingSafe = new URLSearchParams(window.location.search).get("safe")?.trim() || undefined;
   state.route = startRoute();
   render();
 }
@@ -72,6 +90,7 @@ function render(): void {
     walletSection(),
     safeSection(),
     paymentSection(),
+    setupSection(),
   );
 }
 
@@ -127,10 +146,10 @@ function walletSection(): HTMLElement {
   status.textContent = "Looking for wallets…";
   void discoverWallets().then((wallets) => {
     if (wallets.length === 0) {
-      status.textContent = "No browser wallet found. Install one and reload.";
+      status.textContent = "No browser wallet found. You can still use the read-only preview below. Signing, sending and setup need a Sepolia wallet: install one and reload.";
       return;
     }
-    status.textContent = "Choose a wallet:";
+    status.textContent = "Choose a wallet to sign and send, or skip this step and use the read-only preview below:";
     for (const w of wallets) {
       const b = el("button", {}, `Connect ${w.name}`);
       b.onclick = () => void onConnect(w, s);
@@ -161,32 +180,38 @@ function safeSection(): HTMLElement {
   const s = el("section");
   s.append(el("h2", {}, "2. Safe"));
   if (!state.account) {
-    s.append(el("p", { class: "small" }, "Connect a wallet first."));
-    return s;
+    s.append(el("div", { class: "notice preview" }, "Read-only preview. No wallet is connected, so this page can read a Safe and check a payment but cannot sign or send anything. The full flow needs a Sepolia wallet."));
   }
   const input = el("input", { id: "safe-address", placeholder: "Safe address (0x…)", spellcheck: "false" });
-  const load = el("button", {}, "Load Safe");
+  const load = el("button", {}, state.account ? "Load Safe" : "Load Safe (read-only)");
   if (state.info) input.value = state.info.address;
+  else if (state.pendingSafe) input.value = state.pendingSafe;
+  else if (state.lastSafe) input.value = state.lastSafe;
   const out = el("div");
   load.onclick = () => void onLoadSafe(input.value, out);
   s.append(el("label", { for: "safe-address" }, "Safe address on Sepolia"), input, load, out);
   if (state.info) renderSafeInfo(out, state.info);
+  else if (state.pendingSafe) {
+    const raw = state.pendingSafe;
+    state.pendingSafe = undefined;
+    void onLoadSafe(raw, out);
+  }
   return s;
 }
 
 async function onLoadSafe(raw: string, out: HTMLElement): Promise<void> {
   out.replaceChildren(el("p", { class: "small" }, "Loading…"));
   try {
-    if (!state.provider || !state.account) throw new InputError("Connect a wallet first.");
     const address = parseAddress(raw, "Safe address");
     await state.route;
     if (state.wallet) state.provider = compositeProvider(state.wallet.provider, state.reads);
     const code = await state.reads.getCode({ address });
     if (!code || code === "0x") throw new InputError("There is no contract at that address on Sepolia.");
-    const safe = await openSafe(state.provider, state.account, address);
+    const safe = state.provider && state.account ? await openSafe(state.provider, state.account, address) : await openSafeReadOnly(state.reads, address);
     const info = await loadSafeInfo(safe, state.reads, state.config.guard);
     state.safe = safe;
     state.info = info;
+    state.lastSafe = info.address;
     const { publisher, arkivAccessKey } = state.config;
     state.listed ??= loadListed(publisher !== undefined, () =>
       fetchAllEvidence(arkivReadClient({ accessKey: arkivAccessKey }), publisher as Address),
@@ -200,10 +225,10 @@ async function onLoadSafe(raw: string, out: HTMLElement): Promise<void> {
 function renderSafeInfo(out: HTMLElement, info: SafeInfo): void {
   out.replaceChildren();
   out.append(el("p", { class: "mono" }, `Safe ${info.address} · version ${info.version} · threshold ${info.threshold}/${info.owners.length}`));
-  if (!info.owners.some((o) => o.toLowerCase() === state.account?.toLowerCase())) {
+  if (state.account && !info.owners.some((o) => o.toLowerCase() === state.account?.toLowerCase())) {
     out.append(el("div", { class: "error" }, "The connected account is not an owner of this Safe, so it cannot sign for it."));
   }
-  if (info.threshold > 1) {
+  if (state.account && info.threshold > 1) {
     out.append(el("div", { class: "error" }, "Pay signs and sends in one step, so it supports Safes with threshold 1 only."));
   }
   if (info.guard.active) {
@@ -237,6 +262,7 @@ function paymentSection(): HTMLElement {
     s.append(el("p", { class: "small" }, "Load a Safe first."));
     return s;
   }
+  if (!state.account) s.append(el("p", { class: "small" }, "Read-only preview: you get the real verdict, but nothing can be signed or sent."));
   const asset = el("select", { id: "asset" });
   asset.append(el("option", { value: "eth" }, "ETH"), el("option", { value: "erc20" }, "ERC-20 token"));
   const token = el("input", { id: "token", placeholder: "Token contract address (0x…)", spellcheck: "false" });
@@ -322,6 +348,10 @@ function renderVerdict(out: HTMLElement, verdict: Verdict, recipient: Address, c
   fillVerdictBox(box, verdict);
   state.shown = { verdict, box };
   out.replaceChildren(box);
+  if (!state.account) {
+    out.append(el("p", { class: "small" }, "Read-only preview: this page cannot sign or send. The full flow needs a Sepolia wallet."));
+    return;
+  }
 
   const friction = requiresFriction(verdict);
   const go = el("button", {}, friction ? "Continue anyway" : "Sign and send");
@@ -342,7 +372,7 @@ function renderVerdict(out: HTMLElement, verdict: Verdict, recipient: Address, c
   out.append(go, cancel, result);
 }
 
-async function onExecute(call: Call, out: HTMLElement): Promise<void> {
+async function onExecute(call: SetupCall, out: HTMLElement): Promise<boolean> {
   out.replaceChildren(el("p", { class: "small" }, "Waiting for your wallet…"));
   try {
     const { safe, info, account, wallet } = state;
@@ -360,7 +390,7 @@ async function onExecute(call: Call, out: HTMLElement): Promise<void> {
     const plan = planFromSimulation(sim);
     if (!plan.send) {
       out.replaceChildren(el("div", { class: "error" }, `Not sent. ${describeRevert(plan.info)}`));
-      return;
+      return false;
     }
     const sent = await safe.executeTransaction(signed, plan.gasLimit ? { gasLimit: plan.gasLimit } : undefined);
     const hash = sent.hash as Hex;
@@ -374,9 +404,104 @@ async function onExecute(call: Call, out: HTMLElement): Promise<void> {
       done.append(el("div", { class: "error" }, !sim.ok ? describeRevert(sim.info) : "The transaction reverted on-chain."));
     }
     out.replaceChildren(done);
+    return receipt.status === "success";
   } catch (e) {
     out.replaceChildren(isUserRejection(e) ? el("div", { class: "notice" }, "Cancelled in your wallet. Nothing was sent.") : el("div", { class: "error" }, errText(e)));
+    return false;
   }
+}
+
+// ---------- 4. setup (owner only) ----------
+function setupSection(): HTMLElement {
+  const s = el("section", { id: "setup" });
+  s.append(el("h2", {}, "4. Setup"));
+  const { info, account } = state;
+  if (!info) {
+    s.append(el("p", { class: "small" }, "Load a Safe first."));
+    return s;
+  }
+  if (!account) {
+    s.append(el("p", { class: "small" }, "Enabling the Guard and approving payees need a connected Sepolia wallet that owns this Safe. The read-only preview cannot change anything."));
+    return s;
+  }
+  const blocker = setupBlocker(info, account);
+  if (blocker) {
+    s.append(el("div", { class: "error" }, blocker));
+    return s;
+  }
+  const guard = state.config.guard;
+
+  s.append(el("h3", {}, "HexFence Guard"));
+  const guardOut = el("div");
+  if (info.guard.active) {
+    s.append(el("p", { class: "small" }, `Current state, read from the Safe: the HexFence Guard ${guard} is active.`));
+    const off = el("button", { id: "guard-off" }, "Turn Guard off…");
+    off.onclick = () => reviewAndSend(guardOut, [DISABLE_WARNING], "Sign and turn Guard off", buildDisableGuardCall(info.address));
+    s.append(off, guardOut);
+  } else {
+    s.append(el("p", { class: "small" }, "Current state, read from the Safe: the HexFence Guard is not active."));
+    const on = el("button", { id: "guard-on" }, "Enable HexFence Guard…");
+    on.onclick = () => reviewAndSend(guardOut, enableWarnings(info), "Sign and enable Guard", buildEnableGuardCall(info.address, guard));
+    s.append(on, guardOut);
+  }
+
+  s.append(el("h3", {}, "Approved payees"));
+  s.append(el("p", { class: "small" }, `Read from the Guard: ${info.payees.length === 0 ? "none approved." : `${info.payees.length} approved.`}`));
+  const list = el("ul");
+  for (const p of info.payees) {
+    const li = el("li", {}, el("span", { class: "mono" }, p), " ");
+    const rm = el("button", {}, "Remove…");
+    const rmOut = el("div");
+    rm.onclick = () => reviewAndSend(rmOut, [removeWarning(p)], "Sign and remove payee", buildRemovePayeeCall(guard, p));
+    li.append(rm, rmOut);
+    list.append(li);
+  }
+  s.append(list);
+
+  const input = el("input", { id: "new-payee", placeholder: "Payee address to approve (0x…)", spellcheck: "false" });
+  const add = el("button", {}, "Approve payee…");
+  const addOut = el("div");
+  add.onclick = () => {
+    try {
+      const payee = parseAddress(input.value, "Payee address");
+      const check = checkApprove(payee, info.payees);
+      if (!check.ok) {
+        addOut.replaceChildren(el("div", { class: "error" }, check.reason));
+        return;
+      }
+      reviewAndSend(addOut, [check.warning], "Sign and approve payee", buildApprovePayeeCall(guard, payee));
+    } catch (e) {
+      addOut.replaceChildren(el("div", { class: "error" }, errText(e)));
+    }
+  };
+  s.append(el("label", { for: "new-payee" }, "Approve a payee"), input, add, addOut);
+  return s;
+}
+
+/** Shows what the contract will do, requires a tick, then sends through the same sign -> simulate -> send path as a payment. */
+function reviewAndSend(out: HTMLElement, warnings: string[], label: string, call: SetupCall): void {
+  const ul = el("ul", { class: "warnings" });
+  for (const w of warnings) ul.append(el("li", {}, w));
+  const tick = el("input", { type: "checkbox", id: `ack-${label.replace(/\W+/g, "-")}` });
+  const go = el("button", {}, label);
+  go.disabled = true;
+  tick.onchange = () => (go.disabled = !tick.checked);
+  const cancel = el("button", {}, "Cancel");
+  cancel.onclick = () => out.replaceChildren();
+  const result = el("div");
+  go.onclick = () => {
+    go.disabled = true;
+    cancel.disabled = true;
+    void onExecute(call, result)
+      .then((ok) => {
+        if (!ok) return;
+        const refresh = el("button", {}, "Reload Safe state");
+        refresh.onclick = () => void onLoadSafe(state.info?.address ?? "", result);
+        result.append(refresh);
+      })
+      .finally(() => (cancel.disabled = false));
+  };
+  out.replaceChildren(el("div", { class: "notice" }, "Read before you sign:"), ul, el("label", {}, tick, " I have read this"), go, cancel, result);
 }
 
 // ---------- helpers ----------
