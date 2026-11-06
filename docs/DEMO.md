@@ -8,6 +8,7 @@ Checked against the live pages on 6 Nov 2026 (about 18:00 IST, main 8c3c175). Ru
 
 1. Open these tabs and let each one finish loading. The public Arkiv endpoint is rate-limited: load the explorer once, then don't reload it.
    - Landing: https://deven1305.github.io/hexfence/
+   - Guided demo (after PR #45 merges): https://deven1305.github.io/hexfence/demo.html. Every status on it is read live; a good backup if Pay or Arkiv is slow, and a good closing shot.
    - Explorer: https://deven1305.github.io/hexfence/explorer/ (wait for "Showing 173 of 173 publisher records. All records loaded.")
    - Pay preview: https://deven1305.github.io/hexfence/pay/?safe=0x3BCc3969713778F3Ed26AE1490529eeBAD43FbD5 (wait 25–40 s for "Nox reads active" and "Guard active")
    - L revert on Blockscout (decodes the reason): https://eth-sepolia.blockscout.com/tx/0xa43b0eeef7253281a741deca144e5ddf0c465da9cc6f48d54673a9aa9c0f6d8f
