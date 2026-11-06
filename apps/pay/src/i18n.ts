@@ -1,0 +1,86 @@
+import { GUARD_INACTIVE_SENTENCE } from "./verdictCopy";
+
+/** Hindi for Pay's interface text. Not yet checked by a native speaker (H10). Technical errors stay in English. */
+const EXACT: Record<string, string> = {
+  "Checks a payment against your approved payees before you sign. Sepolia test network.": "हस्ताक्षर करने से पहले भुगतान को आपके स्वीकृत प्राप्तकर्ताओं से जाँचता है। Sepolia टेस्ट नेटवर्क।",
+  "Read route": "रीड रूट",
+  "Skip: read directly (not anonymous)": "छोड़ें: सीधे पढ़ें (गुमनाम नहीं)",
+  "Reads go directly from your browser to the RPC provider. They are not anonymous.": "रीड आपके ब्राउज़र से सीधे RPC प्रदाता तक जाते हैं। ये गुमनाम नहीं हैं।",
+  "Your wallet signs and sends. The start-up routing read and the bulk evidence read contain no recipient address and use a direct connection.": "हस्ताक्षर और भेजने का काम आपका वॉलेट करता है। शुरुआती रूटिंग रीड और साक्ष्य का बल्क रीड सीधे कनेक्शन से होते हैं और इनमें प्राप्तकर्ता का पता नहीं होता।",
+  "1. Wallet": "1. वॉलेट",
+  "3. Payment": "3. भुगतान",
+  "4. Setup": "4. सेटअप",
+  "Looking for wallets…": "वॉलेट खोजे जा रहे हैं…",
+  "No browser wallet found yet. The live preview below works without one. To sign and send, install a Sepolia wallet and reload.": "अभी कोई ब्राउज़र वॉलेट नहीं मिला। नीचे का लाइव प्रीव्यू बिना वॉलेट के चलता है। हस्ताक्षर करके भेजने के लिए Sepolia वॉलेट इंस्टॉल करें और पेज दोबारा खोलें।",
+  "Connect a wallet to sign and send, or use the live preview below:": "हस्ताक्षर करके भेजने के लिए वॉलेट जोड़ें, या नीचे का लाइव प्रीव्यू इस्तेमाल करें:",
+  "Live preview: real Safe data and real verdicts, no wallet needed. Connect a Sepolia wallet to sign and send.": "लाइव प्रीव्यू: Safe का असली डेटा और असली नतीजे, बिना वॉलेट के। हस्ताक्षर करके भेजने के लिए Sepolia वॉलेट जोड़ें।",
+  "Live preview: this is the real verdict. Connect a Sepolia wallet to sign and send.": "लाइव प्रीव्यू: यह असली नतीजा है। हस्ताक्षर करके भेजने के लिए Sepolia वॉलेट जोड़ें।",
+  "Connect a Sepolia wallet that owns this Safe to enable the Guard and approve payees.": "Guard चालू करने और प्राप्तकर्ता स्वीकृत करने के लिए इस Safe के मालिक वाला Sepolia वॉलेट जोड़ें।",
+  "Load Safe": "Safe लोड करें",
+  "Safe address on Sepolia": "Sepolia पर Safe का पता",
+  "Safe address (0x…)": "Safe का पता (0x…)",
+  "Loading…": "लोड हो रहा है…",
+  "Load a Safe first.": "पहले Safe लोड करें।",
+  "Public evidence: loading…": "सार्वजनिक साक्ष्य: लोड हो रहा है…",
+  "Approved payees (read once from the Guard): ": "स्वीकृत प्राप्तकर्ता (Guard से एक बार पढ़े गए): ",
+  "Approved payees (read once from the Guard): none": "स्वीकृत प्राप्तकर्ता (Guard से एक बार पढ़े गए): कोई नहीं",
+  Asset: "एसेट",
+  "ERC-20 token": "ERC-20 टोकन",
+  "Token address (decimals are read on-chain)": "टोकन का पता (decimals ऑन-चेन पढ़े जाते हैं)",
+  "Token contract address (0x…)": "टोकन कॉन्ट्रैक्ट का पता (0x…)",
+  Recipient: "प्राप्तकर्ता",
+  "Recipient (0x…)": "प्राप्तकर्ता (0x…)",
+  Amount: "राशि",
+  "Check payment": "भुगतान जाँचें",
+  "Checking…": "जाँच हो रही है…",
+  RED: "लाल",
+  AMBER: "पीला",
+  GREEN: "हरा",
+  "CANNOT VERIFY": "जाँच संभव नहीं",
+  "Open the explorer": "एक्सप्लोरर खोलें",
+  "Continue anyway": "फिर भी आगे बढ़ें",
+  "Sign and send": "हस्ताक्षर करके भेजें",
+  Reject: "अस्वीकार करें",
+  Cancel: "रद्द करें",
+  "Waiting for your wallet…": "आपके वॉलेट का इंतज़ार है…",
+  "Signed. Simulating before sending…": "हस्ताक्षर हो गए। भेजने से पहले सिमुलेशन चल रहा है…",
+  "Waiting for confirmation…": "पुष्टि का इंतज़ार है…",
+  "Cancelled in your wallet. Nothing was sent.": "वॉलेट में रद्द किया गया। कुछ नहीं भेजा गया।",
+  "Approved payees": "स्वीकृत प्राप्तकर्ता",
+  "Approve a payee": "प्राप्तकर्ता स्वीकृत करें",
+  "Approve payee…": "प्राप्तकर्ता स्वीकृत करें…",
+  "Payee address to approve (0x…)": "स्वीकृत करने वाला पता (0x…)",
+  "Remove…": "हटाएँ…",
+  "Enable HexFence Guard…": "HexFence Guard चालू करें…",
+  "Turn Guard off…": "Guard बंद करें…",
+  "Read before you sign:": "हस्ताक्षर से पहले पढ़ें:",
+  " I have read this": " मैंने इसे पढ़ लिया है",
+  "Reload Safe state": "Safe की स्थिति दोबारा लोड करें",
+  "Current state, read from the Safe: the HexFence Guard is not active.": "वर्तमान स्थिति, Safe से पढ़ी गई: HexFence Guard सक्रिय नहीं है।",
+  "Read from the Guard: none approved.": "Guard से पढ़ा गया: कोई स्वीकृत नहीं।",
+  [GUARD_INACTIVE_SENTENCE]: "HexFence Guard इस Safe पर सक्रिय नहीं है, इसलिए कोई ऑन-चेन नियम इस भुगतान को नहीं रोकेगा।",
+};
+
+const PATTERNS: [RegExp, string][] = [
+  [/^Connecting to anonymous read routes \((.+)\)… Safe and payee reads wait for this\.$/, "गुमनाम रीड रूट से जुड़ रहा है ($1)… Safe और प्राप्तकर्ता के रीड इसका इंतज़ार कर रहे हैं।"],
+  [/^Reads go through (.+)\.$/, "रीड $1 के ज़रिए जाते हैं।"],
+  [/^Start-up order: (.+), then direct reads\. If this route fails later, reads fail with an error; they do not silently switch to direct\.$/, "शुरुआती क्रम: $1, फिर सीधे रीड। यह रूट बाद में विफल हो तो त्रुटि दिखेगी; रीड चुपचाप सीधे नहीं जाएँगे।"],
+  [/^Connected: (.+) \((.+)\)$/, "जुड़ा है: $1 ($2)"],
+  [/^Connect (.+)$/, "$1 जोड़ें"],
+  [/^Safe (0x\w+) · version (\S+) · threshold (\d+\/\d+)$/, "Safe $1 · संस्करण $2 · थ्रेशहोल्ड $3"],
+  [/^HexFence Guard (0x\w+) is active on this Safe\.$/, "HexFence Guard $1 इस Safe पर सक्रिय है।"],
+  [/^Public evidence: (\d+) records? loaded once from Arkiv\.$/, "सार्वजनिक साक्ष्य: Arkiv से एक बार में $1 रिकॉर्ड लोड हुए।"],
+  [/^To continue, type the last 6 characters of (0x\w+)$/, "आगे बढ़ने के लिए $1 के आख़िरी 6 अक्षर लिखें"],
+  [/^Last (\d+) characters$/, "आख़िरी $1 अक्षर"],
+  [/^Current state, read from the Safe: the HexFence Guard (0x\w+) is active\.$/, "वर्तमान स्थिति, Safe से पढ़ी गई: HexFence Guard $1 सक्रिय है।"],
+  [/^Read from the Guard: (\d+) approved\.$/, "Guard से पढ़ा गया: $1 स्वीकृत।"],
+  [/^Confirmed in block (\d+)\.$/, "ब्लॉक $1 में पुष्टि हुई।"],
+];
+
+/** Hindi for one piece of interface text, or the text unchanged when there is no translation. */
+export function toHindi(text: string): string {
+  const exact = EXACT[text];
+  if (exact !== undefined) return exact;
+  for (const [pattern, replacement] of PATTERNS) if (pattern.test(text)) return text.replace(pattern, replacement);
+  return text;
+}

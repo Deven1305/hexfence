@@ -7,6 +7,7 @@ import { frictionSatisfied, frictionSuffix, requiresFriction } from "../src/fric
 import { buildPaymentCall, erc20Abi, InputError, parseAddress, parseAmount } from "../src/payment";
 import { describeRevert, interpretRevert } from "../src/revert";
 import { isWalletMethod } from "../src/rpc";
+import { toHindi } from "../src/i18n";
 import { GUARD_INACTIVE_SENTENCE, verdictText } from "../src/verdictCopy";
 
 const P: Address = "0x4E185e251Ac7fB83E9DE10723EAda46cadE74120";
@@ -78,19 +79,28 @@ describe("Hindi (T12, spec 3.4 verbatim)", () => {
     expect(verdictText(verdictFor(eth(L), [P]), { guardActive: true, lang: "hi" }).sentences.join(" ")).toBe(SPEC_RED);
     expect(verdictText(verdictFor(eth(B), [P]), { guardActive: true, lang: "hi" }).sentences.join(" ")).toBe(SPEC_AMBER);
   });
-  it("Guard not active: the refusal claim is dropped, English notice used", () => {
+  it("Guard not active: the refusal claim is dropped", () => {
     const t = verdictText(verdictFor(eth(L), [P]), { guardActive: false, lang: "hi" });
     expect(t.guardNotice).toBe(true);
     expect(t.sentences.join(" ")).not.toContain("नहीं करेगा");
     expect(t.sentences[1]).toBe(GUARD_INACTIVE_SENTENCE);
   });
-  it("every other verdict stays English even when Hindi is selected", () => {
+  it("every other verdict has Hindi and keeps its address and meaning", () => {
     const listed = verdictFor(eth(B), [P], new Map([[B.toLowerCase(), ["0xab" as Hex]]]));
     const others: Verdict[] = [verdictFor(eth(P), [P]), listed, { level: "GREY", reason: "delegatecall" }, { level: "GREY", reason: "unsupported" }];
     for (const v of others) {
-      const ctx = { guardActive: true, publisher: "0xPUB" };
-      expect(verdictText(v, { ...ctx, lang: "hi" })).toEqual(verdictText(v, ctx));
+      const text = verdictText(v, { guardActive: true, publisher: "0xPUB", lang: "hi" }).sentences.join(" ");
+      expect(text).toMatch(/[\u0900-\u097F]/);
     }
+    expect(verdictText(others[0]!, { guardActive: true, lang: "hi" }).sentences.join(" ")).toContain(P);
+    expect(verdictText(listed, { guardActive: true, publisher: "0xPUB", lang: "hi" }).sentences.join(" ")).toMatch(/0xPUB.*संदिग्ध/);
+    expect(verdictText({ level: "GREY", reason: "delegatecall" }, { guardActive: false, lang: "hi" }).sentences.join(" ")).not.toContain("अस्वीकार करेगा");
+  });
+  it("interface text translates, keeps addresses, and leaves unknown text alone", () => {
+    expect(toHindi("3. Payment")).toBe("3. भुगतान");
+    expect(toHindi(`To continue, type the last 6 characters of ${L}`)).toContain(L);
+    expect(toHindi(GUARD_INACTIVE_SENTENCE)).toMatch(/[\u0900-\u097F]/);
+    expect(toHindi("Some technical error")).toBe("Some technical error");
   });
   it("default language is English", () => {
     expect(verdictText(verdictFor(eth(B), [P]), { guardActive: true }).sentences[0]).toBe("New recipient: not one of your approved payees.");

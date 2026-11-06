@@ -12,7 +12,7 @@ export interface CopyContext {
   /** `safe.getGuard()` equals VITE_GUARD_ADDRESS. The "will refuse" claim is shown only when true. */
   guardActive: boolean;
   publisher?: string;
-  /** Display language. Hindi exists only for RED resembles and AMBER (spec 3.4, P1); every other verdict stays English. */
+  /** Display language. RED resembles and AMBER use the spec 3.4 Hindi; the other verdicts were added 6 Nov. */
   lang?: Lang;
 }
 
@@ -24,9 +24,9 @@ export const GUARD_INACTIVE_SENTENCE =
 /**
  * Spec 3.4 Hindi, verbatim, split at its sentence boundaries. NOT yet checked by a native speaker (T12 stays blocked on that).
  * When the Guard is not active the last RED sentence ("your Safe will not make this payment") would be false, so the
- * English Guard-inactive sentence is used instead; the spec has no Hindi for it.
+ * Guard-inactive sentence is used instead; the page translates it through i18n.ts.
  */
-export function hindiText(v: Verdict, ctx: CopyContext): VerdictText | undefined {
+export function hindiText(v: Verdict, ctx: CopyContext): VerdictText {
   if (v.level === "RED" && v.reason === "resembles") {
     return {
       level: "RED",
@@ -44,14 +44,21 @@ export function hindiText(v: Verdict, ctx: CopyContext): VerdictText | undefined
       guardNotice: false,
     };
   }
-  return undefined;
+  const t = (sentences: string[], guardNotice = false): VerdictText => ({ level: v.level, sentences, guardNotice });
+  if (v.level === "RED") {
+    return t([`यह पता Arkiv पर सार्वजनिक पॉइज़निंग साक्ष्य में दर्ज है (Ethereum mainnet, प्रकाशक ${ctx.publisher ?? "अज्ञात"})। स्थिति: संदिग्ध। एक्सप्लोरर देखें।`]);
+  }
+  if (v.level === "GREEN") return t([`स्वीकृत प्राप्तकर्ता ${v.recipient}।`]);
+  if (v.reason === "delegatecall") {
+    return ctx.guardActive
+      ? t(["यह delegatecall है। आपका HexFence Guard इसे अस्वीकार करेगा।"])
+      : t(["यह delegatecall है।", GUARD_INACTIVE_SENTENCE], true);
+  }
+  return t(["इस प्रकार के लेनदेन की जाँच संभव नहीं। HexFence केवल ETH और ERC-20 ट्रांसफ़र जाँचता है।"]);
 }
 
 export function verdictText(v: Verdict, ctx: CopyContext): VerdictText {
-  if (ctx.lang === "hi") {
-    const hi = hindiText(v, ctx);
-    if (hi) return hi;
-  }
+  if (ctx.lang === "hi") return hindiText(v, ctx);
   const t = (sentences: string[], guardNotice = false): VerdictText => ({ level: v.level, sentences, guardNotice });
   switch (v.level) {
     case "RED":

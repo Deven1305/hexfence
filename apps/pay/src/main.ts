@@ -24,7 +24,8 @@ import {
   type SetupCall,
 } from "./setup";
 import "./setup.css";
-import { GUARD_INACTIVE_SENTENCE, hindiText, verdictText, type Lang } from "./verdictCopy";
+import { toHindi } from "./i18n";
+import { GUARD_INACTIVE_SENTENCE, verdictText, type Lang } from "./verdictCopy";
 import { connect, discoverWallets, isUserRejection, switchToSepolia, walletChainId, type WalletOption } from "./wallet";
 
 const app = document.getElementById("app") as HTMLElement;
@@ -78,6 +79,7 @@ function boot(): void {
   state = { config, reads: createReadClient(config.sepoliaRpcUrl), route: Promise.resolve(), skip: new AbortController(), lang: "en" };
   state.pendingSafe = new URLSearchParams(window.location.search).get("safe")?.trim() || undefined;
   state.route = startRoute();
+  new MutationObserver(applyLang).observe(app, { childList: true, subtree: true });
   render();
 }
 
@@ -146,10 +148,10 @@ function walletSection(): HTMLElement {
   status.textContent = "Looking for wallets…";
   void discoverWallets().then((wallets) => {
     if (wallets.length === 0) {
-      status.textContent = "No browser wallet found. You can still use the read-only preview below. Signing, sending and setup need a Sepolia wallet: install one and reload.";
+      status.textContent = "No browser wallet found yet. The live preview below works without one. To sign and send, install a Sepolia wallet and reload.";
       return;
     }
-    status.textContent = "Choose a wallet to sign and send, or skip this step and use the read-only preview below:";
+    status.textContent = "Connect a wallet to sign and send, or use the live preview below:";
     for (const w of wallets) {
       const b = el("button", {}, `Connect ${w.name}`);
       b.onclick = () => void onConnect(w, s);
@@ -180,10 +182,10 @@ function safeSection(): HTMLElement {
   const s = el("section");
   s.append(el("h2", {}, "2. Safe"));
   if (!state.account) {
-    s.append(el("div", { class: "notice preview" }, "Read-only preview. No wallet is connected, so this page can read a Safe and check a payment but cannot sign or send anything. The full flow needs a Sepolia wallet."));
+    s.append(el("div", { class: "notice preview" }, "Live preview: real Safe data and real verdicts, no wallet needed. Connect a Sepolia wallet to sign and send."));
   }
   const input = el("input", { id: "safe-address", placeholder: "Safe address (0x…)", spellcheck: "false" });
-  const load = el("button", {}, state.account ? "Load Safe" : "Load Safe (read-only)");
+  const load = el("button", {}, "Load Safe");
   if (state.info) input.value = state.info.address;
   else if (state.pendingSafe) input.value = state.pendingSafe;
   else if (state.lastSafe) input.value = state.lastSafe;
@@ -262,7 +264,6 @@ function paymentSection(): HTMLElement {
     s.append(el("p", { class: "small" }, "Load a Safe first."));
     return s;
   }
-  if (!state.account) s.append(el("p", { class: "small" }, "Read-only preview: you get the real verdict, but nothing can be signed or sent."));
   const asset = el("select", { id: "asset" });
   asset.append(el("option", { value: "eth" }, "ETH"), el("option", { value: "erc20" }, "ERC-20 token"));
   const token = el("input", { id: "token", placeholder: "Token contract address (0x…)", spellcheck: "false" });
@@ -320,17 +321,43 @@ function langBar(): HTMLElement {
       state.lang = lang;
       bar.replaceWith(langBar());
       if (state.shown) fillVerdictBox(state.shown.box, state.shown.verdict);
+      applyLang();
     };
     bar.append(b);
   }
-  bar.append(" Hindi covers two verdicts (resembles an approved payee, new recipient); the others stay in English.");
   return bar;
+}
+
+const englishText = new WeakMap<Text, string>();
+const englishPlaceholder = new WeakMap<Element, string>();
+
+/** Swaps the interface text in place, so typed values and the current verdict survive a language change. */
+function applyLang(): void {
+  document.documentElement.lang = state.lang;
+  const pick = (english: string) => (state.lang === "hi" ? toHindi(english) : english);
+  const walker = document.createTreeWalker(app, NodeFilter.SHOW_TEXT);
+  for (let n = walker.nextNode() as Text | null; n; n = walker.nextNode() as Text | null) {
+    const english = englishText.get(n) ?? n.data;
+    const next = pick(english);
+    if (next !== n.data) {
+      englishText.set(n, english);
+      n.data = next;
+    }
+  }
+  for (const input of Array.from(app.querySelectorAll("[placeholder]"))) {
+    const english = englishPlaceholder.get(input) ?? (input.getAttribute("placeholder") as string);
+    const next = pick(english);
+    if (next !== input.getAttribute("placeholder")) {
+      englishPlaceholder.set(input, english);
+      input.setAttribute("placeholder", next);
+    }
+  }
 }
 
 function fillVerdictBox(box: HTMLElement, verdict: Verdict): void {
   const info = state.info as SafeInfo;
   const text = verdictText(verdict, { guardActive: info.guard.active, publisher: state.config.publisher, lang: state.lang });
-  const hindi = state.lang === "hi" && hindiText(verdict, { guardActive: info.guard.active }) !== undefined;
+  const hindi = state.lang === "hi";
   box.replaceChildren(el("strong", {}, verdict.level === "GREY" ? "CANNOT VERIFY" : verdict.level));
   text.sentences.forEach((sentence, i) => {
     const p = el("p", {}, i === 0 && verdict.level === "RED" ? el("strong", {}, sentence) : sentence);
@@ -349,7 +376,7 @@ function renderVerdict(out: HTMLElement, verdict: Verdict, recipient: Address, c
   state.shown = { verdict, box };
   out.replaceChildren(box);
   if (!state.account) {
-    out.append(el("p", { class: "small" }, "Read-only preview: this page cannot sign or send. The full flow needs a Sepolia wallet."));
+    out.append(el("p", { class: "small" }, "Live preview: this is the real verdict. Connect a Sepolia wallet to sign and send."));
     return;
   }
 
@@ -421,7 +448,7 @@ function setupSection(): HTMLElement {
     return s;
   }
   if (!account) {
-    s.append(el("p", { class: "small" }, "Enabling the Guard and approving payees need a connected Sepolia wallet that owns this Safe. The read-only preview cannot change anything."));
+    s.append(el("p", { class: "small" }, "Connect a Sepolia wallet that owns this Safe to enable the Guard and approve payees."));
     return s;
   }
   const blocker = setupBlocker(info, account);
