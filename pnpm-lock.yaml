@@ -100,6 +100,9 @@ importers:
       '@safe-global/protocol-kit':
         specifier: 8.0.11
         version: 8.0.11(typescript@5.9.3)(zod@4.6.7)
+      '@safe-global/safe-apps-sdk':
+        specifier: 9.1.0
+        version: 9.1.0(typescript@5.9.3)(zod@4.6.7)
       viem:
         specifier: 2.57.16
         version: 2.57.16(typescript@5.9.3)(zod@4.6.7)
@@ -583,9 +586,17 @@ packages:
   '@safe-global/protocol-kit@8.0.11':
     resolution: {integrity: sha512-N0KBBb5fixmttg8hitj9SVSD6qWs2snoW2IEBPsucu+ftWp+xZOEpcmrYcYGPe+BjutyvzF+stLEW2aj5oU/xA==}
 
+  '@safe-global/safe-apps-sdk@9.1.0':
+    resolution: {integrity: sha512-N5p/ulfnnA2Pi2M3YeWjULeWbjo7ei22JwU/IXnhoHzKq3pYCN6ynL9mJBOlvDVv892EgLPCWCOwQk/uBT2v0Q==}
+
   '@safe-global/safe-deployments@1.37.67':
     resolution: {integrity: sha512-WRQ47OjHJ8Mn6vW72Eby6r4AqL1vA16iSV9U5+cOCj41HuiIMU1c2qm59D5SgkQHfE/bJ/h2dYnK0ki2e1WJWg==}
     engines: {node: '>=22.0.0', pnpm: '>=10.16.0'}
+
+  '@safe-global/safe-gateway-typescript-sdk@3.23.1':
+    resolution: {integrity: sha512-6ORQfwtEJYpalCeVO21L4XXGSdbEMfyp2hEv6cP82afKXSwvse6d3sdelgaPWUxHIsFRkWvHDdzh8IyyKHZKxw==}
+    engines: {node: '>=16'}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
 
   '@safe-global/safe-modules-deployments@3.0.14':
     resolution: {integrity: sha512-Br8QWV4rav2duXNSVe4iahTBrZ6XAEOw11s3SE9/DUhE1FKkWfy7zx18wI2kJg/VIblXWRUidZ4eJLz6bwoClw==}
@@ -1395,9 +1406,22 @@ snapshots:
       - utf-8-validate
       - zod
 
+  '@safe-global/safe-apps-sdk@9.1.0(typescript@5.9.3)(zod@4.6.7)':
+    dependencies:
+      '@safe-global/safe-gateway-typescript-sdk': 3.23.1
+      viem: 2.57.16(typescript@5.9.3)(zod@4.6.7)
+    transitivePeerDependencies:
+      - bufferutil
+      - mppx
+      - typescript
+      - utf-8-validate
+      - zod
+
   '@safe-global/safe-deployments@1.37.67':
     dependencies:
       semver: 7.8.6
+
+  '@safe-global/safe-gateway-typescript-sdk@3.23.1': {}
 
   '@safe-global/safe-modules-deployments@3.0.14': {}
 

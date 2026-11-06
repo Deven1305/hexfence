@@ -16,9 +16,10 @@
     "@anon-rpc/browser-harness": "0.4.0",
     "@hexfence/arkiv": "workspace:*",
     "@hexfence/shared": "workspace:*",
+    "@hexfence/ui": "workspace:*",
     "@safe-global/protocol-kit": "8.0.11",
-    "viem": "2.57.16",
-    "@hexfence/ui": "workspace:*"
+    "@safe-global/safe-apps-sdk": "9.1.0",
+    "viem": "2.57.16"
   },
   "devDependencies": {
     "@playwright/test": "1.58.2",
