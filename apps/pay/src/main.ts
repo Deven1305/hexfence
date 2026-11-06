@@ -1,6 +1,8 @@
 import { AddressXray, SafeHeader, VerdictCard } from "@hexfence/ui";
 import "@hexfence/ui/style.css";
-import { decodeSafeCall, verdictFor, type Verdict } from "@hexfence/shared";
+import type { VerdictV2 as Verdict } from "@hexfence/shared";
+import { paymentVerdict, paymentVerdictText } from "./upgrade";
+import { radarPanel } from "./radar";
 import type { AnonOutcome } from "./anon";
 import { getAddress, getContract, type Address, type EIP1193Provider, type Hex } from "viem";
 import type Safe from "@safe-global/protocol-kit";
@@ -27,7 +29,7 @@ import {
 import "./setup.css";
 import { detectSafeApp, proposeInSafe, type SafeAppContext } from "./safeapp";
 import { toHindi } from "./i18n";
-import { GUARD_INACTIVE_SENTENCE, verdictText, type Lang } from "./verdictCopy";
+import { GUARD_INACTIVE_SENTENCE, type Lang } from "./verdictCopy";
 import { connect, discoverWallets, isUserRejection, switchToSepolia, walletChainId, type WalletOption } from "./wallet";
 
 const app = document.getElementById("app") as HTMLElement;
@@ -106,7 +108,8 @@ function render(): void {
     langBar(),
     stepper(),
     routeSection(),
-    ...(state.info ? [SafeHeader(state.info.address, `v${state.info.version} ? ${state.info.threshold}/${state.info.owners.length} ? Guard ${state.info.guard.active ? "active" : "inactive"}`)] : []),
+    ...(state.info ? [SafeHeader(state.info.address, `v${state.info.version} ? ${state.info.threshold}/${state.info.owners.length} ? Guard ${state.info.guard.active ? "active" : "inactive"}${state.info.v2 ? " / Auto-Fence V2" : ""}`)] : []),
+    ...(state.info ? [radarPanel(state.reads, state.info)] : []),
     [walletSection, safeSection, paymentSection, setupSection][state.step]!(),
   );
 }
@@ -279,7 +282,7 @@ function renderSafeInfo(out: HTMLElement, info: SafeInfo): void {
     out.append(el("div", { class: "error" }, "Pay signs and sends in one step, so it supports Safes with threshold 1 only."));
   }
   if (info.guard.active) {
-    out.append(el("div", { class: "notice" }, `HexFence Guard ${state.config.guard} is active on this Safe.`));
+    out.append(el("div", { class: "notice" }, `HexFence Guard ${info.v2?.guard ?? state.config.guard} is active on this Safe.`));
   } else {
     const why =
       info.guard.reason === "unsupported"
@@ -299,6 +302,7 @@ function renderSafeInfo(out: HTMLElement, info: SafeInfo): void {
   const ul = el("ul");
   for (const p of info.payees) ul.append(el("li", { class: "mono" }, p));
   out.append(ul);
+  if (info.v2) out.append(el("p", { class: "small" }, `Auto-Fence V2: ${info.v2.known.length} recorded recipient(s). Automatic learning ${info.v2.autoLearn ? "on" : "off"}.`));
 }
 
 // ---------- 3. payment ----------
@@ -331,7 +335,7 @@ function paymentSection(): HTMLElement {
       const info = state.info!;
       const paint = (listed?: ListedState) => {
         if (version !== revision) return;
-        const v = verdictFor({ kind: "eth", recipient, amount: 0n }, info.payees, listed?.status === "ok" ? listed.map : undefined);
+        const v = paymentVerdict({ to: recipient, value: 0n, data: "0x", operation: 0 }, info, state.config.guard, listed?.status === "ok" ? listed.map : undefined);
         const box = VerdictCard(v.level); fillVerdictBox(box, v); preview.replaceChildren(box);
         state.shown = { verdict: v, box };
       };
@@ -374,9 +378,8 @@ async function onCheck(f: { asset: string; token: string; to: string; amount: st
     const recipient = parseAddress(f.to, "Recipient");
     const amount = parseAmount(f.amount, asset.kind === "eth" ? 18 : asset.decimals);
     const call = buildPaymentCall(asset, recipient, amount);
-    const decoded = decodeSafeCall(call, { safe: info.address, guard: state.config.guard });
     const listed = await state.listed;
-    const verdict = verdictFor(decoded, info.payees, listed?.status === "ok" ? listed.map : undefined);
+    const verdict = paymentVerdict(call, info, state.config.guard, listed?.status === "ok" ? listed.map : undefined);
     if (current()) renderVerdict(out, verdict, recipient, call);
   } catch (e) {
     if (current()) out.replaceChildren(el("div", { class: "error" }, errText(e)));
@@ -427,17 +430,18 @@ function applyLang(): void {
 
 function fillVerdictBox(box: HTMLElement, verdict: Verdict): void {
   const info = state.info as SafeInfo;
-  const text = verdictText(verdict, { guardActive: info.guard.active, publisher: state.config.publisher, lang: state.lang });
-  const hindi = state.lang === "hi";
+  const text = paymentVerdictText(verdict, { guardActive: info.guard.active, publisher: state.config.publisher, lang: state.lang }, info);
+  const hindi = state.lang === "hi" && !text.englishOnly;
   box.replaceChildren(el("strong", {}, verdict.level === "GREY" ? "CANNOT VERIFY" : verdict.level));
   text.sentences.forEach((sentence, i) => {
     const p = el("p", {}, i === 0 && verdict.level === "RED" ? el("strong", {}, sentence) : sentence);
     if (hindi && !(sentence === GUARD_INACTIVE_SENTENCE)) p.lang = "hi";
+    if (text.englishOnly) p.lang = "en";
     box.append(p);
   });
   if ("recipient" in verdict) {
-    if (verdict.reason === "resembles") box.append(AddressXray(verdict.payee, verdict.recipient, "Approved payee"));
-    box.append(AddressXray(verdict.recipient, verdict.reason === "resembles" ? verdict.payee : undefined, "Recipient"));
+    if ("payee" in verdict) box.append(AddressXray(verdict.payee, verdict.recipient, verdict.reason === "resembles-known" ? "Recorded recipient" : "Approved payee"));
+    box.append(AddressXray(verdict.recipient, "payee" in verdict ? verdict.payee : undefined, "Recipient"));
   }
   if (verdict.level === "RED" && verdict.reason === "listed") {
     const url = state.config.explorerUrl;
@@ -483,6 +487,10 @@ async function onPropose(call: SetupCall, out: HTMLElement): Promise<boolean> {
     if (info.address.toLowerCase() !== safeApp.safeAddress.toLowerCase()) throw new InputError("The checked Safe is not the Safe this app is open in. Reload the Safe from Safe{Wallet}.");
     const safeTxHash = await proposeInSafe(call);
     out.replaceChildren(el("div", { class: "notice" }, `Proposed in Safe{Wallet} (safeTxHash ${safeTxHash}). Confirm and execute it there.`));
+    if (info.v2) {
+      state.info = undefined;
+      out.append(el("p", {}, "Reload the Safe after execution to refresh Auto-Fence recipients before another payment."));
+    }
     return true;
   } catch (e) {
     out.replaceChildren(el("div", { class: "error" }, `Not proposed. ${errText(e)}`));
@@ -518,6 +526,13 @@ async function onExecute(call: SetupCall, out: HTMLElement): Promise<boolean> {
     done.append(el("p", {}, "Transaction: ", link(`${SEPOLIA_EXPLORER}/tx/${hash}`, hash)));
     if (receipt.status === "success") {
       done.append(el("div", { class: "notice" }, `Confirmed in block ${receipt.blockNumber}.`));
+      if (info.v2) {
+        try { state.info = await loadSafeInfo(safe, state.reads, state.config.guard); }
+        catch {
+          state.info = undefined;
+          done.append(el("p", { class: "error" }, "Transaction confirmed; recorded recipients could not refresh. Reload the Safe before another payment."));
+        }
+      }
     } else {
       done.append(el("div", { class: "error" }, !sim.ok ? describeRevert(sim.info) : "The transaction reverted on-chain."));
     }
@@ -549,6 +564,10 @@ function setupSection(): HTMLElement {
   const blocker = setupBlocker(info, account);
   if (blocker) {
     s.append(el("div", { class: "error" }, blocker));
+    return s;
+  }
+  if (info.v2) {
+    s.append(el("p", { class: "notice" }, `Auto-Fence V2 is active. Automatic learning is ${info.v2.autoLearn ? "on" : "off"}. Manage learning, approval, forget and Guard removal through owner-signed contract calls. V1 payee setup controls do not apply to this Guard.`));
     return s;
   }
   const guard = state.config.guard;
