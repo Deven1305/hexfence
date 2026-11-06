@@ -274,8 +274,8 @@ async function onLoadSafe(raw: string, out: HTMLElement): Promise<void> {
     state.lastSafe = info.address;
     const { publisher, arkivAccessKey } = state.config;
     state.listed ??= loadListed(publisher !== undefined, async () => {
-      const { arkivReadClient, fetchAllEvidence } = await import("@hexfence/arkiv");
-      return fetchAllEvidence(arkivReadClient({ accessKey: arkivAccessKey }), publisher as Address);
+      const { arkivReadClient, evidenceWithSavedCopy } = await import("@hexfence/arkiv");
+      return evidenceWithSavedCopy(arkivReadClient({ accessKey: arkivAccessKey }), publisher as Address, "../evidence-saved.json");
     });
     render();
   } catch (e) {
@@ -310,6 +310,8 @@ function compactSafe(s: HTMLElement, info: SafeInfo): HTMLElement {
   void state.listed?.then((l) => {
     evidenceLine.textContent = listedStatusText(l);
     if (l.status === "unavailable") evidenceLine.className = "error";
+    // A failed or saved read changes what the verdict can see, so it stays outside the folded detail.
+    if (l.status === "unavailable" || (l.status === "ok" && l.savedAt !== undefined)) s.insertBefore(evidenceLine, d);
   });
   const ul = el("ul");
   for (const p of info.payees) ul.append(el("li", { class: "mono" }, p));

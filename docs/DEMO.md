@@ -6,7 +6,7 @@ Checked against the live pages on 6 Nov 2026 (about 18:00 IST, main 8c3c175). Ru
 
 ## Before recording (10 min)
 
-1. Open these tabs and let each one finish loading. After a failed live Arkiv read, the site, guided demo and explorer use a dated `evidence-saved.json` copy when available and show its read time. Pay does not use the copy yet.
+1. Open these tabs and let each one finish loading. After a failed live Arkiv read, the site, guided demo and explorer use a dated `evidence-saved.json` copy when available and show its read time. Pay uses it too and says so.
    - Landing: https://deven1305.github.io/hexfence/
    - Guided demo: https://deven1305.github.io/hexfence/demo.html. It reads live first; evidence counts fall back to the dated saved copy when available after a failed live read, with an on-page notice. A good closing shot.
    - Explorer: https://deven1305.github.io/hexfence/explorer/ (wait for the loaded-record count; if it says "from the saved copy", show the dated notice and describe it as a saved Arkiv read)
@@ -70,7 +70,7 @@ Real output on 6 Nov: `{"level":"RED","reason":"resembles","recipient":"0x4E185a
 |---|---|
 | Explorer live read fails | It tries the dated `evidence-saved.json` copy and shows its read time. If no valid copy is available, retry or use the recorded query result; describe the source shown. |
 | Pay stuck on "Nox connecting · choose read route" | Wait up to 40 s, or click **Skip: read directly (not anonymous)** and say so. |
-| Pay evidence read fails | Pay does not use the saved copy yet. It shows evidence unavailable and checks against approved payees only. |
+| Pay evidence read fails | Pay uses the dated saved copy and says so. With no valid copy it shows evidence unavailable and checks against approved payees only. |
 | The live L send doesn't revert | Stop. Use the 🟢 fallback receipts. |
 
 ## Hard judge questions
