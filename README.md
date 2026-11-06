@@ -190,7 +190,7 @@ One public read-only query judges can run from the repo root, without a wallet o
 corepack pnpm@10.34.9 --filter @hexfence/detector exec tsx ../../arkiv/query.ts
 ```
 
-Fresh observation, 6 Nov 2026 at 09:47:52 UTC: **173 records, 173 unique IDs, 147 zero-value and 26 dust, all suspected**. [Recorded query result](docs/research/arkiv-snapshot-2026-11-06.json). This is a published subset of the historical 47,694-pair detector run, not comprehensive coverage or a user-adoption measure.
+Fresh observation, 6 Nov 2026 at 15:07:58 UTC: **1,126 records, 1,126 unique IDs, 651 zero-value and 475 dust, all suspected**. [Recorded query result](docs/research/arkiv-snapshot-2026-11-06-1126.json). This is a published subset of two 24-hour detector runs (47,694 and 58,739 suspected pairs, overlapping blocks), not comprehensive coverage or a user-adoption measure.
 
 ## Live links
 - Landing page: https://deven1305.github.io/hexfence/
@@ -225,7 +225,7 @@ Pay waits for route selection before Safe/history/alert reads. Explicit **Skip: 
 - Nox covers the configured Sepolia RPC read route only (see CROPS, P). Guard and payee reads through Nox worked on the hosted site. Nox start-up took 26–38 seconds in hosted browser runs and timed out at 60 seconds during a network outage; these are single observations, not benchmarks.
 - The Chrome extension's interception on `app.safe.global` has not been tested with a real wallet, so its go/no-go is open.
 - Pay's owner setup panel is unit-tested but has not been used with a real wallet.
-- 173 records are published: 125 from one Ethereum attack block (26352743) and 48 taken one per equal slice of the roughly 24-hour scan, so they are a sample of the detector's 47,694 records, not all of them. The scheduled publisher has not run with a key.
+- 1,126 records are published: 125 from one Ethereum attack block (26352743), 48 taken one per equal slice of the first roughly 24-hour scan (47,694 pairs), and 953 from a second scan (58,739 pairs, blocks 26349302-26356501), selected as one per equal block slice plus up to 20 from each of the 10 largest attack transactions. They are a sample, not all detections. The scheduled publisher has not run with a key.
 - Module transactions bypass transaction guards. `HexFenceModuleGuard` covers Safe 1.5.0 modules, but no live Safe uses it and no live module payment has run.
 - MultiSend is refused (it's a delegatecall).
 - Only ETH, `transfer` and `transferFrom` are inspected; other calls are allowed and clients show "cannot verify".
@@ -287,7 +287,7 @@ The raw ≥1-token follow-up rule also matches automated contract movements: the
 
 The Campaigns tab groups downloaded publisher records by attack transaction and counts distinct victims mentioned. These counts describe the downloaded, selected corpus, not every victim or attack on Ethereum. Expand a group to inspect its address comparisons.
 
-**Why one hour has most records:** 125 of the 173 published records come from one attack block (26352743, two attack transactions), because the first publication took the most recent records. The other 48 are spread evenly over the scan. So the hourly chart is titled "Published records per UTC hour" and, when one hour holds most records, it says how many attack blocks fill it. It shows what was published, not how many attacks happened each hour.
+**Why the hours are uneven:** 125 of the 1,126 published records come from one attack block (26352743, two attack transactions), because the first publication took the most recent records, and later records were selected by the rules above. So the hourly chart is titled "Published records per UTC hour" and, when one hour holds most records, it says how many attack blocks fill it. It shows what was published, not how many attacks happened each hour.
 
 **Read real block times** reads each distinct recorded attack block by number, validates the mainnet chain ID, caches timestamps for the page session, and assigns records to exact UTC hours. It does not infer dates from block height or interpolate timestamps. The read can be stopped and retried; an incomplete read does not render a complete hourly series. No recipient address is included in these requests. See [viem getBlock](https://viem.sh/docs/actions/public/getBlock).
 
