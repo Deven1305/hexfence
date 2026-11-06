@@ -11,20 +11,20 @@ HexFence detects address poisoning, publishes the evidence openly on Arkiv, warn
 ## Architecture
 ```
 Ethereum mainnet USDT/USDC logs
-        â”‚
-   apps/detector â”€â”€ evidence.jsonl
-        â”‚ publish (idempotent, 30-day expiry)
-        â–¼
- Arkiv Rabdi testnet: hexfence.poisoning.v1 â”€â”€â–º apps/explorer (data views, local search, Verify on Ethereum)
-        â”‚ bulk read
-        â–¼
-   apps/pay: bulk payees (v1) or recorded recipients (V2) â†’ local verdict â†’ sign
-        â”‚ Safe transaction
-        â–¼
-   Safe â†’ HexFenceGuard v1 or separate HexFenceGuardV2 (opt-in learning)
+        │
+   apps/detector ── evidence.jsonl
+        │ publish (idempotent, 30-day expiry)
+        ▼
+ Arkiv Rabdi testnet: hexfence.poisoning.v1 ──► apps/explorer (data views, local search, Verify on Ethereum)
+        │ bulk read
+        ▼
+   apps/pay: bulk payees (v1) or recorded recipients (V2) → local verdict → sign
+        │ Safe transaction
+        ▼
+   Safe → HexFenceGuard v1 or separate HexFenceGuardV2 (opt-in learning)
 
-Sepolia Transfer log â†’ Sentinel source/WASM [CRE login/run pending]
-        â†’ HexFenceAlerts [deployed simulation consumer] â†’ Pay Radar bulk read
+Sepolia Transfer log → Sentinel source/WASM [CRE login/run pending]
+        → HexFenceAlerts [deployed simulation consumer] → Pay Radar bulk read
 ```
 - **`contracts/`:** `HexFenceGuard`, a Safe transaction guard with no owner and no upgrade path. A recipient that shares a fingerprint (first 4 + last 4 hex characters) with an approved payee, but is a different address, reverts with `LookalikeOfApprovedPayee`. Anyone else still goes through. The Guard reads nothing off-chain.
 - **`packages/shared/`:** fingerprint, Safe payment decoder, verdict logic and evidence schema, with a parity test against the real Guard on 411 transactions.
@@ -109,7 +109,7 @@ npx hardhat test                 # 32 at the upgrade checkpoint: 14 v1 + 14 V2 +
    API references: [Safe signatures](https://docs.safe.global/advanced/smart-account-signatures),
    [canonical deployments](https://github.com/safe-global/safe-deployments).
 
-4. For the **human Safe{Wallet} UI drill**, use an **isolated 1-of-1 demo Safe** holding test ETH only. Check the Safe's `VERSION()` (1.4.1 is what the tests use). Then in **Apps â†’ Transaction Builder**, send **one call per transaction**. A batch uses a MultiSend delegatecall, and the Guard refuses delegatecalls. The script does not replace this human UI check.
+4. For the **human Safe{Wallet} UI drill**, use an **isolated 1-of-1 demo Safe** holding test ETH only. Check the Safe's `VERSION()` (1.4.1 is what the tests use). Then in **Apps → Transaction Builder**, send **one call per transaction**. A batch uses a MultiSend delegatecall, and the Guard refuses delegatecalls. The script does not replace this human UI check.
    1. To the Safe: `setGuard(<guard address>)`. It reverts with `GS300` if the interface check fails.
    2. To the Guard: `approvePayee(<P>)`.
    3. **Removal drill:** to the Safe, `setGuard(0x0000000000000000000000000000000000000000)`, which must succeed. Then re-enable with step 1.
@@ -117,7 +117,7 @@ npx hardhat test                 # 32 at the upgrade checkpoint: 14 v1 + 14 V2 +
 | Item | Value |
 |---|---|
 | HexFenceGuard (Sepolia) | `0xA061fB511D69e5c92E50E3BE5c789472d6f19748` |
-| Demo Safe + `VERSION()` | `0x3BCc3969713778F3Ed26AE1490529eeBAD43FbD5` Â· `1.4.1` |
+| Demo Safe + `VERSION()` | `0x3BCc3969713778F3Ed26AE1490529eeBAD43FbD5` · `1.4.1` |
 | `setGuard` / `approvePayee(P)` | `0x2de356a6c196cb3f2040e3b8d4170ebe0cbc1b2684b0c05e26344756db6278e9` / `0x13baea5038b830810e1a9f68fbed3ae1069f981af4810cbd43c50f7b0d7d1af2` |
 | Removal drill `setGuard(0)` / re-enable | `0x5edf08eb6489d78c13f0748283e43bab8c015c851d0d40e86b030dd6794ad8e0` / `0xd1c7db48a18647713c34384afc51b116888546dd837359eecad0938a5ebe9743` |
 | L payment (reverted) / B payment / P payment | `0xa43b0eeef7253281a741deca144e5ddf0c465da9cc6f48d54673a9aa9c0f6d8f` / `0x2455ca8f1ce612149f15e80325f372202bffeb0258f808bd84acfb1f904de5ca` / `0xea209e9e3c5a9eed080e95dd0ca752b79686400da820ea67b87f98552d2992df` |
@@ -125,7 +125,7 @@ npx hardhat test                 # 32 at the upgrade checkpoint: 14 v1 + 14 V2 +
 Decoded revert and Guard source: [reverted L payment](https://eth-sepolia.blockscout.com/tx/0xa43b0eeef7253281a741deca144e5ddf0c465da9cc6f48d54673a9aa9c0f6d8f) and [Guard source](https://eth-sepolia.blockscout.com/address/0xA061fB511D69e5c92E50E3BE5c789472d6f19748) on Sepolia Blockscout. The Guard source is also verified on [Etherscan](https://sepolia.etherscan.io/address/0xA061fB511D69e5c92E50E3BE5c789472d6f19748#code).
 
 ### Synthetic demo pair (not a real attack)
-`node contracts/scripts/make-lookalike-pair.js` finds two keys whose addresses share a fingerprint (a birthday search, usually 1â€“2 minutes). We use this ready-made pair **as recipients only**:
+`node contracts/scripts/make-lookalike-pair.js` finds two keys whose addresses share a fingerprint (a birthday search, usually 1–2 minutes). We use this ready-made pair **as recipients only**:
 - fingerprint `0x4e184120`
 - **P** (approved payee) `0x4E185e251Ac7fB83E9DE10723EAda46cadE74120`
 - **L** (lookalike) `0x4E185a3FC4B530244aB9ed0dE38167b403344120`
@@ -145,7 +145,7 @@ corepack pnpm@10.34.9 -r build
 
 **Detector** (read-only on mainnet; needs `MAINNET_RPC_URL`, and the public `https://ethereum-rpc.publicnode.com` works):
 ```bash
-pnpm --filter @hexfence/detector detect                         # latest 7,200 blocks â†’ out/evidence.jsonl
+pnpm --filter @hexfence/detector detect                         # latest 7,200 blocks → out/evidence.jsonl
 pnpm --filter @hexfence/detector publish:arkiv --limit 25       # needs ARKIV_PRIVATE_KEY and tGLM; a re-run creates 0
 ```
 
@@ -155,7 +155,7 @@ pnpm --filter @hexfence/explorer dev
 pnpm --filter @hexfence/explorer build    # dist/ works from any path on static hosting
 ```
 
-**HexFence Pay** (`VITE_GUARD_ADDRESS`, `VITE_SEPOLIA_RPC_URL`; a browser wallet on Sepolia for signing, sending and owner setup, while `?safe=0xâ€¦` without a wallet gives a read-only preview; optional `VITE_ARKIV_PUBLISHER` turns on the "listed in public evidence" signal, and without it the page says the signal is off):
+**HexFence Pay** (`VITE_GUARD_ADDRESS`, `VITE_SEPOLIA_RPC_URL`; a browser wallet on Sepolia for signing, sending and owner setup, while `?safe=0x…` without a wallet gives a read-only preview; optional `VITE_ARKIV_PUBLISHER` turns on the "listed in public evidence" signal, and without it the page says the signal is off):
 ```bash
 pnpm --filter @hexfence/pay dev
 pnpm --filter @hexfence/pay build
@@ -211,7 +211,7 @@ Fresh observation, 6 Nov 2026 at 09:47:52 UTC: **173 records, 173 unique IDs, 14
 Pay waits for route selection before Safe/history/alert reads. Explicit **Skip: read directly (not anonymous)** or failed startup gives a labelled direct route; a later failure of an active Nox route is an error, not a silent fallback. Arkiv bulk reads remain direct. [Anon-RPC's documented model](https://ethereum.github.io/anon-rpc/) and [our routing code](apps/pay/src/anon.ts) explain the boundary.
 
 ## Limits
-- Nox covers the configured Sepolia RPC read route only (see CROPS, P). Guard and payee reads through Nox worked on the hosted site. Nox start-up took 26â€“38 seconds in hosted browser runs and timed out at 60 seconds during a network outage; these are single observations, not benchmarks.
+- Nox covers the configured Sepolia RPC read route only (see CROPS, P). Guard and payee reads through Nox worked on the hosted site. Nox start-up took 26–38 seconds in hosted browser runs and timed out at 60 seconds during a network outage; these are single observations, not benchmarks.
 - The Chrome extension's interception on `app.safe.global` has not been tested with a real wallet, so its go/no-go is open.
 - Pay's owner setup panel is unit-tested but has not been used with a real wallet.
 - 173 records are published: 125 from one Ethereum attack block (26352743) and 48 taken one per equal slice of the roughly 24-hour scan, so they are a sample of the detector's 47,694 records, not all of them. The scheduled publisher has not run with a key.
@@ -264,6 +264,6 @@ The explorer reads loss entities in bulk from its configured publisher. Its only
 Official references: [Arkiv column types](https://docs.arkiv.network/schemas/column-types/), [expiry](https://docs.arkiv.network/writing/expiration/), [batches](https://docs.arkiv.network/writing/batches/), [India's reporting helpline](https://www.pib.gov.in/Pressreleaseshare.aspx?PRID=1814120&lang=2&reg=48), [Tether contact](https://cs.tether.to/), and [Circle support](https://help.circle.com/).
 
 
-The raw â‰¥1-token follow-up rule also matches automated contract movements: the first real run's largest candidates involved the PoolManager address in [Uniswap's official deployment list](https://developers.uniswap.org/docs/protocols/v4/deployments). The loss call-shape pass therefore fetches transactions by hash (never by recipient), retains explicit ERC-20 payments initiated by the recorded victim or encoded through `execTransaction`, and leaves unsupported calls unclassified. Only those supported payment shapes contribute to the loss headline or publisher input. Even a supported shape remains suspected and does not prove poisoning caused the payment. Raw candidate counts stay in the scan report separately. Five initial raw candidates were withdrawn from Arkiv before this feature was merged; the report records the retraction transaction.
+The raw ≥1-token follow-up rule also matches automated contract movements: the first real run's largest candidates involved the PoolManager address in [Uniswap's official deployment list](https://developers.uniswap.org/docs/protocols/v4/deployments). The loss call-shape pass therefore fetches transactions by hash (never by recipient), retains explicit ERC-20 payments initiated by the recorded victim or encoded through `execTransaction`, and leaves unsupported calls unclassified. Only those supported payment shapes contribute to the loss headline or publisher input. Even a supported shape remains suspected and does not prove poisoning caused the payment. Raw candidate counts stay in the scan report separately. Five initial raw candidates were withdrawn from Arkiv before this feature was merged; the report records the retraction transaction.
 
 The optional `hexfence.release.v1` publisher is a prototype, not a proved live integration. Its current manifest field is `str`, but the measured manifest is 5,601 bytes and Arkiv's `str` limit is 128 bytes; it needs a `bytes` representation before publication. The publisher secret is also a human configuration step. Attestations establish build provenance, not an audit or protection against a compromised maintainer.

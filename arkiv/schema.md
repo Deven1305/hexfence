@@ -8,20 +8,20 @@ Defined once in code: [`packages/arkiv/src/schema.ts`](../packages/arkiv/src/sch
 
 | Column | Arkiv type | Indexed | Meaning |
 |---|---|---|---|
-| `evidenceId` | `str` | âœ“ | Idempotency key, see below |
-| `chainId` | `dec` | âœ“ | Where the attack happened. Always `1` (Ethereum mainnet) |
-| `lookalike` | `addr` | âœ“ | Address resembling `impersonated`; controller intent is not established |
-| `impersonated` | `addr` | âœ“ | The real recipient the victim paid before |
-| `victim` | `addr` | âœ“ | The account that was targeted |
-| `variant` | `str` | âœ“ | `zero-value`: `Transfer(victim â†’ lookalike, 0)`, or `dust`: `Transfer(lookalike â†’ victim, 0 < v < 1 token)` |
-| `attackBlock` | `dec` | âœ“ | Block of the attack transfer |
-| `detectorVersion` | `str` | âœ“ | Detector release that produced the record |
-| `token` | `addr` |  | Mainnet USDT `0xdAC1â€¦1ec7` or USDC `0xA0b8â€¦eB48` |
+| `evidenceId` | `str` | ✓ | Idempotency key, see below |
+| `chainId` | `dec` | ✓ | Where the attack happened. Always `1` (Ethereum mainnet) |
+| `lookalike` | `addr` | ✓ | Address resembling `impersonated`; controller intent is not established |
+| `impersonated` | `addr` | ✓ | The real recipient the victim paid before |
+| `victim` | `addr` | ✓ | The account that was targeted |
+| `variant` | `str` | ✓ | `zero-value`: `Transfer(victim → lookalike, 0)`, or `dust`: `Transfer(lookalike → victim, 0 < v < 1 token)` |
+| `attackBlock` | `dec` | ✓ | Block of the attack transfer |
+| `detectorVersion` | `str` | ✓ | Detector release that produced the record |
+| `token` | `addr` |  | Mainnet USDT `0xdAC1…1ec7` or USDC `0xA0b8…eB48` |
 | `attackTx` | `str` |  | Attack transaction hash |
-| `referenceTx` | `str` |  | The victim's earlier real payment (â‰¥ 1 token) to `impersonated` |
-| `referenceBlock` | `dec` |  | Block of the reference payment (always â‰¤ `attackBlock`) |
-| `prefixLen` | `dec` |  | Leading hex characters `lookalike` and `impersonated` share (â‰¥ 4) |
-| `suffixLen` | `dec` |  | Trailing hex characters they share (â‰¥ 4) |
+| `referenceTx` | `str` |  | The victim's earlier real payment (≥ 1 token) to `impersonated` |
+| `referenceBlock` | `dec` |  | Block of the reference payment (always ≤ `attackBlock`) |
+| `prefixLen` | `dec` |  | Leading hex characters `lookalike` and `impersonated` share (≥ 4) |
+| `suffixLen` | `dec` |  | Trailing hex characters they share (≥ 4) |
 | `status` | `str` |  | Always `"suspected"`. Never "malicious" or "scammer" |
 
 The named schema also tags every entity with the indexed system attribute `arkiv.schema = "hexfence.poisoning.v1"`.
@@ -29,9 +29,9 @@ The named schema also tags every entity with the indexed system attribute `arkiv
 **Why this split:** only indexed columns can be filtered on. Address indexes support other clients; our apps bulk-read and search locally. The single-record writer looks up `evidenceId` and the batch writer bulk-reads existing IDs, and the rest is stored for display and verification without paying for an index. There is deliberately **no confidence score**: the record carries the two transaction hashes, so anyone can check it on Ethereum.
 
 ## Match rule (what makes a record)
-`fingerprint(a)` = the first 4 hex characters followed by the last 4 (`0x2ef9â€¦8bf7` â†’ `0x2ef98bf7`), the same function the on-chain Guard uses. A record is written when:
+`fingerprint(a)` = the first 4 hex characters followed by the last 4 (`0x2ef9…8bf7` → `0x2ef98bf7`), the same function the on-chain Guard uses. A record is written when:
 - `fingerprint(lookalike) == fingerprint(impersonated)` and `lookalike != impersonated`;
-- the victim paid `impersonated` â‰¥ 1 token (the reference) **before** the attack (block, then log index), within 7,200 blocks;
+- the victim paid `impersonated` ≥ 1 token (the reference) **before** the attack (block, then log index), within 7,200 blocks;
 - the attack is a zero-value or a dust transfer of the same token family (USDT/USDC).
 
 ## Idempotency
@@ -44,7 +44,7 @@ One lookalike of one address is one record per detector version, however many vi
 `ExpirationTime.fromDays(30)`. Evidence older than a month is stale for warning purposes, and expiring keeps the dataset (and its cost) bounded.
 
 ## Reading it
-Records are read **in bulk per publisher**: `createdBy(publisher)`, `orderBy(asc("$key"))`, pages of â‰¤ 100 rows (the SDK's `MAX_LIMIT`), continued with `gt("$key", lastKey)`. Clients never send a per-recipient lookup. Code: `fetchAllEvidence` in [`packages/arkiv/src/read.ts`](../packages/arkiv/src/read.ts).
+Records are read **in bulk per publisher**: `createdBy(publisher)`, `orderBy(asc("$key"))`, pages of ≤ 100 rows (the SDK's `MAX_LIMIT`), continued with `gt("$key", lastKey)`. Clients never send a per-recipient lookup. Code: `fetchAllEvidence` in [`packages/arkiv/src/read.ts`](../packages/arkiv/src/read.ts).
 
 Anyone can write an entity with this schema tag, so **trust comes from the publisher address**, and readers re-validate every row (fingerprint match, `evidenceId`, `status`) before showing it.
 
