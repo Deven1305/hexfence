@@ -274,8 +274,8 @@ async function onLoadSafe(raw: string, out: HTMLElement): Promise<void> {
     state.lastSafe = info.address;
     const { publisher, arkivAccessKey } = state.config;
     state.listed ??= loadListed(publisher !== undefined, async () => {
-      const { arkivReadClient, fetchAllEvidence } = await import("@hexfence/arkiv");
-      return fetchAllEvidence(arkivReadClient({ accessKey: arkivAccessKey }), publisher as Address);
+      const { arkivReadClient, evidenceWithSavedCopy } = await import("@hexfence/arkiv");
+      return evidenceWithSavedCopy(arkivReadClient({ accessKey: arkivAccessKey }), publisher as Address, "../evidence-saved.json");
     });
     render();
   } catch (e) {
