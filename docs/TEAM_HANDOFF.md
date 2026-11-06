@@ -103,3 +103,7 @@ cd contracts && npm install --legacy-peer-deps && npx hardhat test
 - Pay's Nox route took 26–38 s to start in hosted runs and timed out at 60 s during a network outage. **Skip: read directly (not anonymous)** loaded the Safe in about 4 s. These are single observations, not benchmarks.
 - `/hexfence/explorer/` logs one 404 in the console; probably the favicon, not confirmed.
 - Blockscout decodes the revert reason because the Guard is verified there. It is not verified on Etherscan, so do not use Etherscan to show the reason.
+
+## Codex 2 upgrade handoff, 6 Nov
+
+Merged sequentially: Sentinel #29, Auto-Fence #32, Pay Radar/V2 #35. V1 and its 14 tests remain unchanged. [Judge readiness](JUDGE_READINESS.md), [Chainlink](../CHAINLINK.md), [V2](../contracts/README_V2.md) and [submission](SUBMISSION.md) contain exact proofs and human steps. CRE login/simulation/Telegram and funded V2 positive payments remain incomplete; never invent SIMULATION.md output. Actual Radar reads are empty. Readiness is tied to a main checkpoint, not another agent's feature branch. B7's oversized str manifest is the first optional follow-up; no live release record is proved.
