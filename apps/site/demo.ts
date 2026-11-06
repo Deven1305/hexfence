@@ -69,7 +69,7 @@ async function evidence() {
   part("evidence").replaceChildren(tiles,
     el("p", "demo-caption", `Latest record: block ${latest.attackBlock}, ${latest.variant}, ${latest.token === "0xdAC17F958D2ee523a2206206994597C13D831ec7" ? "USDT" : "USDC"}. The victim had paid the impersonated address; then a ${latest.variant} transfer planted the lookalike.`),
     AddressXray(latest.impersonated, latest.lookalike, "Impersonated address"), AddressXray(latest.lookalike, latest.impersonated, "Lookalike · suspected"),
-    el("p", "demo-links", link("Planting transaction on Etherscan ↗", `https://etherscan.io/tx/${latest.attackTx}`), link("Earlier real payment ↗", `https://etherscan.io/tx/${latest.referenceTx}`)));
+    el("p", "demo-links", link("Suspected attack transaction on Etherscan ↗", `https://etherscan.io/tx/${latest.attackTx}`), link("Earlier real payment ↗", `https://etherscan.io/tx/${latest.referenceTx}`)));
 }
 
 async function chain() {
