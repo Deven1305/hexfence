@@ -46,8 +46,8 @@ Only replace 2:20–2:40 if a person has run `cre login` and `sentinel/SIMULATIO
 
 - Pay inside Safe{Wallet} (B8): not tested by a person.
 - The Chrome extension on app.safe.global (T14): not tested.
-- The V2 learning Guard: deployed, but its Safe is unfunded, so no live payment.
-- The module guard (Safe 1.5.0): deployed, but no live Safe uses it.
+- The V2 learning Guard: its only live payments are one scripted P-then-L run, not a wallet test.
+- The module and governance guards: scripted Sepolia drills on new isolated Safes only (receipts in `contracts/README.md` and `contracts/README_GOVERNANCE.md`). No person has run them from a wallet.
 - A second Arkiv publisher: none exists; the live explorer reads one.
 - Hindi: you can show the हिन्दी button, but say it hasn't been checked by a native speaker yet.
 
@@ -86,7 +86,7 @@ Real output on 6 Nov: `{"level":"RED","reason":"resembles","recipient":"0x4E185a
 | False positives? | Two random addresses share a 4+4 fingerprint with chance 1 in 2^32. A collision is resemblance, not intent; owners can approve the second address after removing the first. |
 | Is your precision 100%? | No human-checked precision yet. The 30 sample labels were assigned by AI. |
 | Gas? | Measured on a local Safe 1.4.1: 182,927 gas for a new V2 recipient, 72,839 for a repeat; whole Safe calls, not a universal quote. |
-| Modules, MultiSend, governance? | Module transactions bypass transaction guards; our module guard for Safe 1.5.0 is deployed but not used by a live Safe yet. MultiSend is a delegatecall and is refused. A separate governance guard checks new owner/module resemblance only for Safes that install it; no live Safe was switched. Pay still points to original V2. Owners can remove the Guard. |
+| Modules, MultiSend, governance? | Module transactions bypass transaction guards; our module guard for Safe 1.5.0 has one scripted Sepolia drill on an isolated Safe: a recorded-recipient payment succeeded and a lookalike payment reverted, both native ETH. MultiSend is a delegatecall and is refused. A separate governance guard checks new owner/module resemblance only for Safes that install it; a scripted drill on one isolated Safe refused a lookalike owner and added a non-lookalike one. No pre-existing Safe was switched. Pay still points to original V2. Owners can remove the Guard. |
 | Who uses it? | DAO treasuries and payment teams are the intended users. No pilots or paying users yet. |
 | Has a person checked it? | The Guard review in the repo is by AI. Human sign-off, a person-run wallet test and the Hindi check are still open, and we say so. |
 | Does the Campaigns hourly chart show attack rate? | No. It shows published records, which we selected: 125 of the 1,126 come from one block, and the rest were picked by block slice and largest attack transaction. The chart title says published. |

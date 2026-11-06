@@ -27,12 +27,12 @@ Checked in headless Chrome on 6 Nov at about 18:00 IST: the landing page showed 
 | Item | PR | What exists | Not done |
 |---|---|---|---|
 | v1 Guard and demo | T1–T8 | `HexFenceGuard` 0xA061…9748, verified on Etherscan and Sourcify; demo Safe 0x3BCc…FbD5; real L revert, B and P success, removal drill | Payments ran from a script, not a person (H6) |
-| A1 Auto-Fence V2 | #32 | Separate `HexFenceGuardV2` 0x0adF…98c7 with opt-in learning; isolated Safe 0x5142…8214 | Safe is unfunded: no positive-value Sepolia payment |
+| A1 Auto-Fence V2 | #32 | Separate `HexFenceGuardV2` 0x0adF…98c7 with opt-in learning; isolated Safe 0x5142…8214 | Scripted P-then-L run done 6 Nov: [P](https://sepolia.etherscan.io/tx/0xfc93f06334211546d1371ed3b2b5fbafc77842a03e227f7197a2e50680d866a5), [L reverted](https://sepolia.etherscan.io/tx/0x2585f5ce7bce79a6c139d19f56e4f125f8c84a7c09fe59d27d2598eb83c328ff). No human wallet run |
 | A2 Sentinel (Chainlink CRE) | #29, #35 | Workflow source, WASM build in CI, consumer `HexFenceAlerts` 0x97F6…D80F, Pay Radar reads it | No successful `cre workflow simulate`; no Telegram message; Radar shows no alerts |
 | A3 UI | #28 | Shared UI package, Address X-Ray, step navigation | |
 | A4 Rescue | #36 | Explorer **Losses** tab: one supported suspected follow-up payment, 303.635007 USDT, published as `hexfence.loss.v1`; downloadable pack with SHA-256 | It is an investigative lead, not a confirmed loss |
 | B2 Campaigns | #38 | Explorer **Campaigns** tab: groups records by attack transaction, hourly chart from real block times, match-length model | The hourly chart counts published records, not attacks (see below) |
-| B5 Module guard | #41 | `HexFenceModuleGuard` for Safe 1.5.0 at 0xa7Dc…546B, reads V2's list; 8 tests on a real 1.5.0 Safe | **No live Safe uses it; no live module payment has run** |
+| B5 Module guard | #41 | `HexFenceModuleGuard` for Safe 1.5.0 at 0xa7Dc…546B, reads V2's list; 8 tests on a real 1.5.0 Safe | Scripted drill only, on isolated Safe 0x36cc…77b2: [recorded recipient paid](https://sepolia.etherscan.io/tx/0x1b981af2679ec1e035b53ebe3950cf2c892416fb12f9826e406c02297529471d), [lookalike refused](https://sepolia.etherscan.io/tx/0x3f9035a29f220fe23995444a72d3821a8be34c4bc50b328ee3d9755df64bd935). Native ETH; no human wallet |
 | B6 Explain layer | #40 | Pay panel "Explain another call (ERC-7730)": shows a pasted descriptor's intent and fields; the verdict stays CANNOT VERIFY | Nothing is fetched; the Guard still does not check those calls |
 | B7 Client attestation | #39 | Pages builds publish `SHA256SUMS.txt` and GitHub build attestations | No live Arkiv release record |
 | B8 Pay as a Safe App | #31 | Pay runs inside Safe{Wallet} via the Safe Apps SDK | **Not tested by a person inside Safe{Wallet}** |
@@ -40,7 +40,7 @@ Checked in headless Chrome on 6 Nov at about 18:00 IST: the landing page showed 
 | C3 Multi-publisher | #42 | Explorer can read extra publishers from `VITE_ARKIV_EXTRA_PUBLISHERS`; cards say "Published by N of M publishers read" | **No second publisher with records exists, and `pages.yml` does not pass that variable, so the live explorer reads one publisher** |
 | T14 Chrome extension | #24 | `apps/extension` builds and has unit tests | Not tested on app.safe.global with a real wallet |
 
-**Not built:** B3 (batch protection) was cut. C2 and C4 were scrapped. B1 was not built because it needs approval to spend tGLM. The separately deployed governance guard (B4) is described in the follow-up below; no live Safe is configured with it.
+**Not built:** B3 (batch protection) was cut. C2 and C4 were scrapped. B1 was not built because it needs approval to spend tGLM. The separately deployed governance guard (B4) is described in the follow-up below; only one isolated drill Safe uses it.
 
 ## Why the Campaigns hourly chart has one tall bar
 
@@ -57,7 +57,6 @@ The live chart's hourly shape comes from how the records were published, not fro
 | A person with a Chainlink account | `cre login`, then the simulation in `CHAINLINK.md`; save only real output to `sentinel/SIMULATION.md` | Chainlink entry |
 | Dhruv | T14: extension go/no-go with MetaMask on app.safe.global (`apps/extension/TESTING.md`) | Extension claims |
 | A person | B8: add Pay as a custom Safe App on a Sepolia Safe and try one payment (`apps/pay/SAFE_APP.md`) | Safe App claims |
-| Optional, human | Fund the V2 Safe and run `contracts/scripts/demo-v2-payments.js` (`contracts/README_V2.md`) | Live V2 claim |
 | Dhruv | Post-Mumbai sentence at `arkiv/reach.md` | Arkiv reach answer |
 | Team | Record the video from `docs/DEMO.md`, upload, fill `‹VIDEO_URL›`, submit by 08:30 | Everything |
 
@@ -100,4 +99,4 @@ cd contracts && npm install --legacy-peer-deps && npx hardhat test
 
 ## B4 governance guard follow-up
 
-Codex 2 added a separately deployed HexFenceGovernanceGuardV2; [installation scope, separate state, tests and public receipts](../contracts/README_GOVERNANCE.md). No live Safe was switched and Pay remains pinned to original V2. Only Safes selecting the new guard receive its three governance checks. B3 stays cut; B5 is not reimplemented. Source match 58635387 is for this new contract, leaving original V2 unchanged.
+Codex 2 added a separately deployed HexFenceGovernanceGuardV2; [installation scope, separate state, tests and public receipts](../contracts/README_GOVERNANCE.md). Only a new isolated drill Safe uses it, from a script; Pay remains pinned to original V2. Only Safes selecting the new guard receive its three governance checks. B3 stays cut; B5 is not reimplemented. Source match 58635387 is for this new contract, leaving original V2 unchanged.
