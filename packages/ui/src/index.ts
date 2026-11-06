@@ -53,11 +53,11 @@ export function DataTable(headers: string[], rows: (string | Node)[][], details:
   const head = table.createTHead().insertRow(); for (const label of headers) { const th = document.createElement("th"); th.scope = "col"; th.textContent = label; head.append(th); }
   if (details.length) { const th = document.createElement("th"); th.scope = "col"; th.textContent = "Inspect"; head.append(th); }
   const body = table.createTBody(); rows.forEach((row, i) => {
-    const tr = body.insertRow(); for (const value of row) tr.insertCell().append(value);
+    const tr = body.insertRow(); row.forEach((value, c) => { const td = tr.insertCell(); td.dataset.label = headers[c] ?? ""; td.append(value); });
     const detail = details[i];
     if (detail) {
       const button = document.createElement("button"); button.type = "button"; button.textContent = detailLabel; button.setAttribute("aria-expanded", "false");
-      tr.insertCell().append(button);
+      const action = tr.insertCell(); action.className = "hf-action"; action.append(button);
       const expansion = body.insertRow(); expansion.hidden = true;
       const cell = expansion.insertCell(); cell.colSpan = headers.length + 1;
       const content = document.createElement("div"); content.className = "hf-detail-content"; content.append(detail); cell.append(content);
