@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { PoisoningEvidenceSchema } from "@hexfence/shared";
 import type { Hex } from "viem";
 import saved from "./fixtures/receipts.json";
-import { groupCampaigns, chanceMatchProbability, matchComparison, utcHourBins, utcLabel } from "../src/campaigns.js";
+import { groupCampaigns, chanceMatchProbability, matchComparison, utcHourBins, utcLabel, peakHour } from "../src/campaigns.js";
 const zero = PoisoningEvidenceSchema.parse(saved.zeroValue.evidence);
 const dust = PoisoningEvidenceSchema.parse(saved.dust.evidence);
 describe("campaign grouping", () => {
@@ -41,5 +41,13 @@ describe("real timestamp bins", () => {
     expect(() => utcHourBins([zero], new Map())).toThrow("incomplete");
     expect(() => utcHourBins([zero], new Map([[zero.attackBlock, NaN]]))).toThrow();
     expect(utcHourBins([], new Map())).toEqual([]);
+  });
+});
+describe("peak hour", () => {
+  it("names the busiest hour and counts the distinct attack blocks in it", () => {
+    const rows = [{ ...zero, attackBlock: 100 }, { ...dust, attackBlock: 100 }, { ...zero, evidenceId: dust.evidenceId.replace(/.$/, "0") as Hex, attackBlock: 300 }];
+    const times = new Map([[100, Date.parse("2026-11-06T05:10:00Z") / 1000], [300, Date.parse("2026-11-06T01:00:00Z") / 1000]]);
+    expect(peakHour(rows, times)).toEqual({ from: Date.parse("2026-11-06T05:00:00Z") / 1000, count: 2, total: 3, blocks: 1 });
+    expect(peakHour([], new Map())).toBeNull();
   });
 });
