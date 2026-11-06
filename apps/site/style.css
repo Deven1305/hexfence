@@ -95,3 +95,6 @@ footer p { margin: 0; }
   .artifacts > a:nth-child(even) { border-left: 0; padding-left: 0; }
   .button { width: 100%; gap: 1rem; }
 }
+
+#live-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1rem; }
+.boundary .hf-address { font-size:.72rem; }

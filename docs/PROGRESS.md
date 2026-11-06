@@ -76,6 +76,9 @@
 | Second L (direct script, not Safe{Wallet}; gas 200000) | `0xe77e6a7a8ba5b6f9742ec953826bc47c69ffffdced3a4d40b8fe3a220e1bb46f` |
 
 ## Decisions log
+
+- 06 Nov (upgrade, user-authorized): the upgrade plan supersedes the locked spec's "No Chainlink" restriction. Guard v1 and its tests stay unchanged. UI/Rescue builder owns A3, A4, B2 and extension UI; another Codex owns contracts, Sentinel, Radar data and V2 wiring.
+
 - 06 Nov (Dhruv, scope override): Dhruv approved work beyond the "P2 only if every P1 task is ✔" rule while T6, T12 and T13 wait on humans: a real landing page and UI pass (feat/site-ui), Pay self-serve setup plus a no-wallet read-only preview (feat/pay-setup), live evidence with explorer views (feat/live-evidence), and the Chrome extension with a go/no-go on `app.safe.global` (feat/extension, T14). Lane ownership stays lifted for this pass. No Guard contract change.
 - 06 Nov (T8 live verification): the pinned Hardhat 2 verifier calls Sourcify API v1, retired July 2026 (live HTTP 404). Added scripts/verify-sourcify.js using the documented v2 standard-JSON API and unchanged build info. Live exact creation/runtime match obtained; repeat lookup passed. The existing Etherscan path remains enabled when ETHERSCAN_API_KEY is supplied. Etherscan itself still shows unverified.
 - 06 Nov (Dhruv, T8 live pass): Dhruv explicitly authorised agents to perform the testnet key generation, deployment and payment steps previously labelled human-only in AGENTS.md, and lifted lane ownership for this pass. Keys stay only in the ignored root `.env` of `C:/hexfence-work/live`; no key may enter a webpage or extension. No captcha, sign-in or wallet-connect is to be bypassed. The wallet test will be scripted and cannot tick H6 or claim a Safe{Wallet} test. Work is on `feat/t8-live`, via one PR to main, with no agent merge.
@@ -112,3 +115,22 @@
 
 | 06 Nov 09:18 | Codex | Post-T8 Arkiv publication and criteria | Existing publisher funds only: 100 additional records in 4 batches; total 125 (124 zero-value, 1 dust), all suspected. Rerun 0 created / 125 already present / 0 tx. Public query and hosted paginated explorer confirmed 125; Verify on Ethereum passed. Remaining 0.066344842 tGLM. Prize documents answer the official criteria; post-Mumbai plan: team to confirm. | pending |
 | 06 Nov (copy pass) | Claude Code | Hindi button, public copy, spread publish | PR #26 and #27: Hindi covers the Pay page and every verdict; landing and apps lead with what HexFence does; 48 more records published, total 173 (147 zero-value, 26 dust), all suspected; publisher holds 0.0535 tGLM. Hosted landing, Pay in Hindi on the Nox and skip routes, and explorer checked in a headless browser. Tests: shared 32, arkiv 12, extension 22, pay 49, detector 19, explorer 36. Hardhat not rerun, contracts unchanged. | da4fc97 |
+
+
+## Upgrade UI and Rescue lane (Codex)
+
+| ID | Status | Commit | Notes | Next step |
+|---|---|---|---|---|
+| A3 | In progress | See feature branch feat/xray-ui | Shared UI exports including unwired RadarBanner; grouped address comparison and hash colour strip; paste verdict; Pay step navigation; dynamic Protocol Kit/Nox/Arkiv; self-hosted fonts; landing live counters; explorer tabs/table. Local direct TypeScript and worker-thread tests pass (173 tests, 4 skipped, including 3 new UI tests). Required recursive commands fail at Windows child-process spawn EPERM; direct Pay build passes, entry 137 KB before final stepper change. Browser tool denied Edge access; CI captures 375/1440 light/dark screenshots for inspection before merge. | CI full checks and screenshot review; merge A3, then begin A4. |
+| A4 | Todo | ? | Rescue loss pass, schema/publisher, explorer and pack. | After A3 merge. |
+| B2 | Todo | ? | Campaign grouping, timestamp axis and match-length comparison. | After A4. |
+| Extension UI | Todo | ? | Use AddressXray/VerdictCard in review window. | After B2. |
+| UI polish | Todo | ? | Complete section 7 refinements within freeze. | After extension. |
+
+### Upgrade UI session log
+
+- 06 Nov 13:45 IST: A3 implementation and direct local checks. Git's original worktree metadata is outside the writable sandbox, so commands explicitly use local `.upgrade-git` metadata with the same working directory. `.upgrade-git/`, `.pnpm-store/` and `artifacts/` are ignored and must never be staged. No contract or Sentinel source changed. UI screenshot verification is delegated to a normal CI test job (no agents) because browser control was denied.
+
+- 06 Nov 13:44 IST: first A3 CI run passed all 14 v1 contract tests, then exposed an existing unquoted shell glob in Pay's Vitest command on Linux. Quoted the exclude pattern; adjusted the scripted v1 browser regression for step navigation, and added it to CI before real-data captures.
+
+- 06 Nov 13:49 IST: A3 CI passed (14 v1 contract tests, workspace tests/build, local scripted-wallet P/B success and L refusal, real-data light/dark captures). Found initial entry plus static preloads totalled over 400 KB despite the 137 KB entry; deferred the RPC/Anon modules after first paint too. Rebuilt locally: initial entry plus all static preloads = 309,207 bytes, enforced in visual CI. Review and final-head CI remain before merge.

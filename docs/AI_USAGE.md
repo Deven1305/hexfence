@@ -65,3 +65,8 @@ Rules are in [AGENTS.md](../AGENTS.md) and [docs/PARALLEL_PLAN.md](PARALLEL_PLAN
 - **Detector:** 40 of 40 random records from a real run were confirmed against mainnet receipts.
 - **Verify on Ethereum:** tests use real saved mainnet receipts for both variants, plus broken records that must not pass.
 - **Not checkable by AI:** real wallet behaviour on Sepolia. That is what H6 and H7 are for.
+
+
+## Upgrade UI / Rescue pass, 6 Nov
+
+Codex implements A3, A4, B2, extension shared UI and section 7 polish sequentially. Another Codex owns contracts and Sentinel. A3 adds the shared DOM components, local X-Ray comparisons, self-hosted fonts, paste verdict, Pay step navigation, deferred dependencies, explorer table and landing counters. Tests run directly with Vitest worker threads because the requested recursive commands encounter Windows spawn EPERM; CI runs the exact contract, workspace test and build commands. Visual QA captures real read-only data at 375/1440 in light/dark; screenshot inspection is required before merge. No H9 labels were changed.

@@ -14,7 +14,8 @@
     "@arkiv-network/sdk": "1.0.1",
     "@hexfence/arkiv": "workspace:*",
     "@hexfence/shared": "workspace:*",
-    "viem": "2.57.16"
+    "viem": "2.57.16",
+    "@hexfence/ui": "workspace:*"
   },
   "devDependencies": {
     "typescript": "5.9.3",

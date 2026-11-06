@@ -1,3 +1,5 @@
+import { AddressXray } from "@hexfence/ui";
+import type { Address } from "viem";
 import type { PoisoningEvidence } from "@hexfence/shared";
 import { EVIDENCE_LABEL, etherscanAddress, etherscanTx, splitAddress, tokenName, variantText } from "./format.js";
 import { mainnetReader, verificationText, verifyOnEthereum } from "./verify.js";
@@ -65,8 +67,8 @@ export function recordCard(e: PoisoningEvidence, rpcUrl: string | undefined): HT
     el("p", "label", EVIDENCE_LABEL),
     el("h3", undefined, `${variantText(e.variant)} · ${tokenName(e.token)}`),
     addressRow("Victim", e.victim),
-    addressRow("Impersonated", e.impersonated, match),
-    addressRow("Lookalike", e.lookalike, match),
+    AddressXray(e.impersonated as Address, e.lookalike as Address, "Impersonated"),
+    AddressXray(e.lookalike as Address, e.impersonated as Address, "Lookalike"),
     el(
       "div",
       "row",

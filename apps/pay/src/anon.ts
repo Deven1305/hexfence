@@ -1,4 +1,4 @@
-import { AnonRpcWorker } from "@anon-rpc/browser-harness";
+import type { AnonRpcWorker } from "@anon-rpc/browser-harness";
 import { createPublicClient, http } from "viem";
 import { sepolia } from "viem/chains";
 import { createReadClient } from "./rpc";
@@ -56,7 +56,10 @@ export interface ConnectOptions {
   onTry?: (route: Route) => void;
 }
 
-const defaultFactory: WorkerFactory = (init) => new AnonRpcWorker(init) as unknown as WorkerLike;
+async function workerFactory(): Promise<WorkerFactory> {
+  const { AnonRpcWorker } = await import("@anon-rpc/browser-harness");
+  return (init) => new AnonRpcWorker(init) as unknown as WorkerLike;
+}
 
 function errText(e: unknown): string {
   return e instanceof Error ? e.message : String(e);
@@ -85,7 +88,7 @@ function bootstrapProvider(opts: ConnectOptions): { request(a: { method: string;
  * through its worker and come back as 11155111. If none works, reads stay direct and `active` is null.
  */
 export async function connectAnon(opts: ConnectOptions): Promise<AnonOutcome> {
-  const make = opts.makeWorker ?? defaultFactory;
+  const make = opts.makeWorker ?? await workerFactory();
   const ms = opts.timeoutMs ?? 60_000;
   const attempts: Attempt[] = [];
   for (const route of opts.routes ?? ROUTES) {

@@ -1,3 +1,5 @@
+import { DataTable } from "@hexfence/ui";
+import "@hexfence/ui/style.css";
 ﻿import { arkivReadClient } from "@hexfence/arkiv";
 import type { PoisoningEvidence } from "@hexfence/shared";
 import { isAddress, type Address, type Hex } from "viem";
@@ -51,7 +53,21 @@ if (!isAddress(publisherEnv, { strict: false })) {
   const publisher = publisherEnv as Address;
   const accessKey = (import.meta.env.VITE_ARKIV_ACCESS_KEY as string | undefined)?.trim();
   const client = arkivReadClient(accessKey ? { accessKey } : undefined);
-  app.append(el("p", "publisher", `Publisher ${publisher}`), status, retry, dashboard, ownPanel, form, searchStatus, results);
+  const tabs = el("nav", "hf-tabs"); tabs.setAttribute("aria-label", "Explorer views");
+  const tablePanel = el("section");
+  let view = "Evidence";
+  const panels = { Evidence: [form, searchStatus, tablePanel, results], Campaigns: [dashboard], "Check my address": [ownPanel] };
+  const choose = (name: string) => {
+    view = name;
+    for (const [label, nodes] of Object.entries(panels)) for (const node of nodes) node.hidden = label !== name;
+    for (const b of Array.from(tabs.querySelectorAll("button"))) b.setAttribute("aria-pressed", String(b.textContent === name));
+  };
+  for (const name of Object.keys(panels)) {
+    const b = el("button", undefined, name) as HTMLButtonElement; b.type = "button"; b.onclick = () => choose(name); tabs.append(b);
+  }
+  app.append(tabs);
+  app.append(el("p", "publisher", `Publisher ${publisher}`), status, retry, dashboard, ownPanel, form, searchStatus, tablePanel, results);
+  choose(view);
   const downloaded: PoisoningEvidence[] = [];
   const seen = new Set<string>();
   let nextKey: Hex | undefined;
@@ -71,8 +87,12 @@ if (!isAddress(publisherEnv, { strict: false })) {
 
   function updateSearch(replace = true, added: PoisoningEvidence[] = []): void {
     const records = search ? checkOwnAddress(downloaded, search)! : downloaded;
-    if (replace || search) results.replaceChildren(...records.map((e) => recordCard(e, rpcUrl)));
-    else results.append(...added.map((e) => recordCard(e, rpcUrl)));
+    tablePanel.replaceChildren(DataTable(["Block", "Pattern", "Token", "Lookalike", "Status"], records.map(e => {
+      const address = el("a", undefined, `${e.lookalike.slice(0, 6)}?${e.lookalike.slice(-4)}`) as HTMLAnchorElement;
+      address.href = `https://etherscan.io/address/${e.lookalike}`; address.target = "_blank"; address.rel = "noreferrer";
+      return [String(e.attackBlock), e.variant, e.token.toLowerCase().startsWith("0xdac1") ? "USDT" : "USDC", address, e.status];
+    }), records.map(e => recordCard(e, rpcUrl))));
+    results.replaceChildren();
     searchStatus.textContent = search ?
       `${records.length} suspected ${records.length === 1 ? "record mentions" : "records mention"} ${search} among downloaded records. ` +
       (complete ? "" : "More pages are still loading. ") +

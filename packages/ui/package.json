@@ -1,0 +1,7 @@
+{
+  "name": "@hexfence/ui", "version": "0.1.0", "private": true, "type": "module",
+  "exports": { ".": "./src/index.ts", "./style.css": "./src/style.css" },
+  "scripts": { "build": "tsc -p tsconfig.json", "test": "vitest run" },
+  "dependencies": { "@fontsource/inter": "5.2.8", "@fontsource/jetbrains-mono": "5.2.8", "viem": "2.57.16" },
+  "devDependencies": { "typescript": "5.9.3", "vitest": "4.1.12" }
+}
