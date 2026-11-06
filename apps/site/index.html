@@ -5,78 +5,97 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="referrer" content="no-referrer">
     <meta name="description" content="HexFence finds address poisoning on Ethereum, warns you before you sign, and refuses lookalike payments on-chain.">
-    <meta name="color-scheme" content="light dark">
+    <meta name="color-scheme" content="light">
     <title>HexFence — Stop the lookalike payment before it leaves your Safe.</title>
     <link rel="stylesheet" href="./style.css">
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>
-    <header class="site-header wrap">
-      <a class="brand" href="./" aria-label="HexFence home">
-        HexFence
-      </a>
-      <nav aria-label="Main navigation"><a href="#how">How it works</a><a href="./demo.html">Guided demo</a><a href="#try">Try HexFence <span aria-hidden="true">↗</span></a></nav>
-    </header>
+    <header class="top"><div class="wrap topin">
+      <a class="brand" href="./" aria-label="HexFence home">HexFence</a>
+      <nav aria-label="Main navigation"><a class="nav-home" href="./" aria-current="page"><span aria-hidden="true">⌂</span> Home</a><a href="./explorer/">Explorer</a><a href="./pay/">HexFence Pay</a></nav>
+      <a class="btn sm" href="#try">Try HexFence</a>
+    </div></header>
     <main id="main">
       <section class="hero wrap" aria-labelledby="hero-title">
-        <div>
-          <p class="eyebrow">Address poisoning / Account enforcement</p>
+        <div class="hero-copy">
+          <p class="eyebrow">Address poisoning · Account enforcement</p>
           <h1 id="hero-title">A familiar address.<br>A different recipient.</h1>
           <p class="lead">Address poisoning puts lookalike addresses into your transaction history. A tiny or zero-value transfer can make the wrong recipient look familiar when you copy an address for your next payment.</p>
           <p class="hero-note">HexFence finds poisoning on Ethereum, warns you before you sign, and refuses the lookalike on-chain.</p>
-          <a class="text-link" href="./demo.html">Watch one lookalike payment fail: the guided demo <span aria-hidden="true">→</span></a>
+          <div class="cta"><a class="btn" href="./pay/">Check a payment</a><a class="btn ghost" href="./explorer/">Browse the evidence</a></div>
+          <a class="more" href="./demo.html">Watch one lookalike payment fail: the guided demo <span aria-hidden="true">→</span></a>
         </div>
-        <aside class="boundary hf-xray-hero" aria-label="Explanation of the address check">
-          <div class="boundary-top"><span class="eyebrow">Three checks, one payment</span><svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true"><path d="M14 2 24 6v8c0 6-10 12-10 12S4 20 4 14V6Z" stroke="currentColor" stroke-width="1.5"/><path d="m9 14 3 3 7-7" stroke="currentColor" stroke-width="1.5"/></svg></div>
-          <p class="boundary-title">Resemblance is<br>not identity.</p>
-          <div id="hero-xray"></div><dl><div><dt>In your history</dt><dd>A familiar-looking address</dd></div><div><dt>Before you sign</dt><dd>A check against approved payees</dd></div><div><dt>At execution</dt><dd>A rule enforced by HexFenceGuard</dd></div></dl>
-          <p class="boundary-foot">The rule lives on-chain, so it holds without our website.</p>
+        <aside class="card hero-aside hf-xray-hero" aria-label="Explanation of the address check">
+          <h2 class="h3">Three checks, one payment</h2>
+          <ul class="checks">
+            <li><b>In your history</b><span>A familiar-looking address.</span></li>
+            <li><b>Before you sign</b><span>A check against approved payees.</span></li>
+            <li><b>At execution</b><span>A rule enforced by HexFenceGuard.</span></li>
+          </ul>
+          <div id="hero-xray"></div>
+          <p class="fine">Resemblance is not identity. The rule lives on-chain, so it holds without our website.</p>
         </aside>
       </section>
 
-      <section class="wrap" id="live-stats" aria-live="polite"></section>
-      <section id="how" class="section wrap" aria-labelledby="how-title">
-        <div class="section-heading"><p class="eyebrow">From observation to enforcement</p><h2 id="how-title">A warning can be clicked through. The Guard can’t.</h2><p>Open evidence powers the warning. An on-chain rule makes the final call.</p></div>
-        <ol class="pipeline">
-          <li><span class="step-label">Observe <span aria-hidden="true">→</span></span><h3>Detector</h3><p>Reads Ethereum mainnet USDT and USDC transfer logs for address-poisoning patterns.</p></li>
-          <li><span class="step-label">Publish <span aria-hidden="true">→</span></span><h3>Arkiv evidence</h3><p>Publishes open records anyone can re-check against Ethereum, each labelled <strong>suspected</strong>.</p></li>
-          <li><span class="step-label">Explore</span><h3>Evidence explorer</h3><p>Browse suspected records and inspect their linked Ethereum receipts.</p></li>
-          <li><span class="step-label">Compare</span><h3>Address X-Ray</h3><p>Read the full recipient in groups of four, with matching and different groups highlighted.</p></li>
-          <li><span class="step-label">Check <span aria-hidden="true">→</span></span><h3>HexFence Pay verdict</h3><p>Checks every recipient in your browser against your approved payees and the public evidence, before you sign.</p></li>
-          <li><span class="step-label">Enforce <span aria-hidden="true">↳</span></span><h3>HexFenceGuard</h3><p>Refuses a payment to any different address that shares an approved payee’s fingerprint, directly on your Safe.</p></li>
+      <section class="wrap block" id="live-stats" aria-labelledby="stats-title">
+        <div class="sec-h"><h2 id="stats-title">What the evidence shows</h2><p class="sub">Read live from Arkiv each time you open this page. Every record is labelled suspected.</p></div>
+        <div class="stats" id="stats" aria-live="polite"></div>
+      </section>
+
+      <section id="how" class="wrap block" aria-labelledby="how-title">
+        <div class="sec-h"><h2 id="how-title">How it works</h2><p class="sub">A warning can be clicked through. The Guard can’t. Open evidence powers the warning; an on-chain rule makes the final call.</p></div>
+        <ol class="pipe">
+          <li class="card step"><span class="k"><i>01</i> Observe</span><h3>Detector</h3><p>Reads Ethereum mainnet USDT and USDC transfer logs for address-poisoning patterns.</p></li>
+          <li class="card step"><span class="k"><i>02</i> Publish</span><h3>Arkiv evidence</h3><p>Publishes open records anyone can re-check against Ethereum, each labelled <strong>suspected</strong>.</p></li>
+          <li class="card step"><span class="k"><i>03</i> Explore</span><h3>Evidence explorer</h3><p>Browse suspected records and inspect their linked Ethereum receipts.</p></li>
+          <li class="card step"><span class="k"><i>04</i> Compare</span><h3>Address X-Ray</h3><p>Read the full recipient in groups of four, with matching and different groups highlighted.</p></li>
+          <li class="card step"><span class="k"><i>05</i> Check</span><h3>HexFence Pay verdict</h3><p>Checks every recipient in your browser against your approved payees and the public evidence, before you sign.</p></li>
+          <li class="card step"><span class="k"><i>06</i> Enforce</span><h3>HexFenceGuard</h3><p>Refuses a payment to any different address that shares an approved payee’s fingerprint, directly on your Safe.</p></li>
         </ol>
       </section>
 
-      <section id="try" class="section wrap" aria-labelledby="try-title">
-        <div class="section-heading"><p class="eyebrow">Explore, then try</p><h2 id="try-title">See the evidence. Inspect a payment.</h2></div>
-        <div class="try-grid">
-          <article class="try-card"><p class="eyebrow">Payment client / Sepolia</p><h3>Check before you sign.</h3><p>HexFence Pay brings approved payees, suspected evidence and the Guard’s resemblance rule into the payment flow.</p><a class="button" href="./pay/">Open HexFence Pay <span aria-hidden="true">↗</span></a><div class="requirements"><strong>Try it right now</strong><p><a href="./pay/?safe=0x3BCc3969713778F3Ed26AE1490529eeBAD43FbD5">Open the live preview on our demo Safe</a>: real verdicts in your browser, no wallet needed.</p><p>Ready to send? Connect a Sepolia wallet and a Safe with HexFenceGuard enabled.</p></div></article>
-          <article class="try-card"><p class="eyebrow">Public evidence / Ethereum mainnet</p><h3>Inspect the suspected patterns.</h3><p>Browse records from the Arkiv publisher, search addresses and inspect the linked Ethereum transactions.</p><a class="button secondary" href="./explorer/">Open evidence explorer <span aria-hidden="true">↗</span></a><div class="requirements"><strong>Nothing to install</strong><p>No wallet, no account, no backend. Your browser reads the records straight from Arkiv.</p><p>Check any address privately: the check runs on your own machine.</p></div></article>
+      <section class="wrap block" aria-labelledby="case-title">
+        <div class="sec-h"><h2 id="case-title">One suspected case, end to end</h2><p class="sub">A single documented case: Ethereum mainnet, 6 Nov 2026, times in UTC. It is not part of the live counts above.<br><span class="chip">Suspected. An investigative lead, not a confirmed loss.</span></p></div>
+        <ol class="tl">
+          <li class="card tlc"><span class="time">02:02</span><h3>The account pays its usual recipient</h3><p>117.34 USDT to the recipient it normally pays.</p><a class="more" href="https://etherscan.io/tx/0x28fdf0f9f6373618f855139bee537e407fad59fdb9dd9fbc07a8faef23811d84" rel="noreferrer">View on Etherscan <span aria-hidden="true">↗</span><span class="txh mono">0x28fdf0f9…811d84</span></a></li>
+          <li class="card tlc"><span class="time">02:17</span><h3>A different sender plants a lookalike</h3><p>A 0 USDT transfer from an address with the same first 4 and last 4 characters.</p><a class="more" href="https://etherscan.io/tx/0x9e9c9d9be8e0c3865be598cc10292136b56095f6695d5ffb3cf97fc1217f4e63" rel="noreferrer">View on Etherscan <span aria-hidden="true">↗</span><span class="txh mono">0x9e9c9d9b…7f4e63</span></a></li>
+          <li class="card tlc"><span class="time">04:14</span><h3>The account pays the lookalike</h3><p>303.635007 USDT is sent to the lookalike.</p><a class="more" href="https://etherscan.io/tx/0x6fe839c128085bc4492c0e09bf4c9c69f60aaca5d9f72aa88ec30be89b606bac" rel="noreferrer">View on Etherscan <span aria-hidden="true">↗</span><span class="txh mono">0x6fe839c1…606bac</span></a></li>
+          <li class="card tlc"><span class="time">04:16</span><h3>The lookalike forwards it on</h3><p>All of it moves to another address.</p><a class="more" href="https://etherscan.io/tx/0x7b4d3a689c66ad084c6567098d92fdc1a77b798790dafadf6b257fa24cd0a48e" rel="noreferrer">View on Etherscan <span aria-hidden="true">↗</span><span class="txh mono">0x7b4d3a68…d0a48e</span></a></li>
+        </ol>
+      </section>
+
+      <section id="try" class="wrap block" aria-labelledby="try-title">
+        <div class="sec-h"><h2 id="try-title">Try it</h2><p class="sub">See the evidence. Inspect a payment.</p></div>
+        <div class="two">
+          <article class="card tryc"><p class="eyebrow">Payment client · Sepolia</p><h3>Check before you sign.</h3><p>HexFence Pay brings approved payees, suspected evidence and the Guard’s resemblance rule into the payment flow.</p><a class="btn" href="./pay/">Open HexFence Pay <span aria-hidden="true">↗</span></a><p class="fine"><strong>Try it right now:</strong> <a href="./pay/?safe=0x3BCc3969713778F3Ed26AE1490529eeBAD43FbD5">open the live preview on our demo Safe</a>: real verdicts in your browser, no wallet needed. Ready to send? Connect a Sepolia wallet and a Safe with HexFenceGuard enabled.</p></article>
+          <article class="card tryc"><p class="eyebrow">Public evidence · Ethereum mainnet</p><h3>Inspect the suspected patterns.</h3><p>Browse records from the Arkiv publisher, search addresses and inspect the linked Ethereum transactions.</p><a class="btn ghost" href="./explorer/">Open evidence explorer <span aria-hidden="true">↗</span></a><p class="fine"><strong>Nothing to install:</strong> no wallet, no account, no backend. Your browser reads the records straight from Arkiv. Check any address privately: the check runs on your own machine.</p></article>
         </div>
       </section>
 
-      <section class="section wrap limits" aria-labelledby="limits-title">
-        <div><p class="eyebrow">What you get</p><h2 id="limits-title">Built to stop the wrong payment.</h2><p>Live on Sepolia, powered by real Ethereum mainnet data.</p></div>
-        <ul>
-          <li><strong>Every common payment, checked twice.</strong> ETH payments and token <code>transfer</code> / <code>transferFrom</code> calls are checked before you sign and again at execution.</li>
-          <li><strong>Hidden calls stopped.</strong> The Guard refuses delegatecall, so a payment can’t be tucked inside a batch.</li>
-          <li><strong>Lookalikes refused on-chain.</strong> Same first 4 and last 4 characters as an approved payee, different address: the Guard reverts the payment.</li>
-          <li><strong>Real data at real scale.</strong> The detector found 47,694 suspected poisoning records in 7,200 Ethereum mainnet blocks, about a day of USDT and USDC transfers.</li>
-          <li><strong>Private by design.</strong> Recipients are compared in your browser, never looked up on a server, and Safe reads go through the Nox mixnet by default.</li>
-        </ul>
+      <section class="wrap block lim" aria-labelledby="limits-title">
+        <div class="card"><h2 class="h3" id="limits-title">Built to stop the wrong payment.</h2>
+          <ul>
+            <li><strong>Every common payment, checked twice.</strong> ETH payments and token <code>transfer</code> / <code>transferFrom</code> calls are checked before you sign and again at execution.</li>
+            <li><strong>Hidden calls stopped.</strong> The Guard refuses delegatecall, so a payment can’t be tucked inside a batch.</li>
+            <li><strong>Lookalikes refused on-chain.</strong> Same first 4 and last 4 characters as an approved payee, different address: the Guard reverts the payment.</li>
+            <li><strong>Other calls are not checked.</strong> HexFence checks only ETH and ERC-20 transfers; anything else shows “cannot verify”.</li>
+            <li><strong>Private by design.</strong> Recipients are compared in your browser, never looked up on a server, and Safe reads go through the Nox mixnet by default.</li>
+          </ul>
+        </div>
       </section>
 
-      <section class="section wrap" aria-labelledby="receipts-title">
-        <div class="section-heading"><p class="eyebrow">Public artifacts</p><h2 id="receipts-title">Inspect the work yourself.</h2><p>Each link below is a public record, including the Guard refusing a test payment to an address that resembles your approved payee.</p></div>
+      <section class="wrap block" aria-labelledby="receipts-title">
+        <div class="sec-h"><h2 id="receipts-title">Inspect the work yourself.</h2><p class="sub">Each link below is a public record, including the Guard refusing a test payment to an address that resembles your approved payee.</p></div>
         <div class="artifacts">
-          <a href="https://eth-sepolia.blockscout.com/address/0xA061fB511D69e5c92E50E3BE5c789472d6f19748"><span>Guard on Sepolia Blockscout <span aria-hidden="true">↗</span></span><code>0xA061fB511D69e5c92E50E3BE5c789472d6f19748</code></a>
-          <a href="https://eth-sepolia.blockscout.com/tx/0xa43b0eeef7253281a741deca144e5ddf0c465da9cc6f48d54673a9aa9c0f6d8f"><span>Guard refusal on Sepolia <span aria-hidden="true">↗</span></span><code>0xa43b0eeef7253281a741deca144e5ddf0c465da9cc6f48d54673a9aa9c0f6d8f</code></a>
-          <a href="./explorer/"><span>Arkiv publisher · Rabdi testnet <span aria-hidden="true">↗</span></span><code>0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec</code><small>Inspect this publisher’s suspected records in the explorer.</small></a>
-          <a href="https://github.com/deven1305/hexfence"><span>GitHub repository <span aria-hidden="true">↗</span></span><small>Source, run instructions and recorded test results.</small></a>
+          <a class="card" href="https://eth-sepolia.blockscout.com/address/0xA061fB511D69e5c92E50E3BE5c789472d6f19748"><span>Guard on Sepolia Blockscout <span aria-hidden="true">↗</span></span><code>0xA061fB511D69e5c92E50E3BE5c789472d6f19748</code></a>
+          <a class="card" href="https://eth-sepolia.blockscout.com/tx/0xa43b0eeef7253281a741deca144e5ddf0c465da9cc6f48d54673a9aa9c0f6d8f"><span>Guard refusal on Sepolia <span aria-hidden="true">↗</span></span><code>0xa43b0eeef7253281a741deca144e5ddf0c465da9cc6f48d54673a9aa9c0f6d8f</code></a>
+          <a class="card" href="./explorer/"><span>Arkiv publisher · Rabdi testnet <span aria-hidden="true">↗</span></span><code>0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec</code><small>Inspect this publisher’s suspected records in the explorer.</small></a>
+          <a class="card" href="https://github.com/deven1305/hexfence"><span>GitHub repository <span aria-hidden="true">↗</span></span><small>Source, run instructions and recorded test results.</small></a>
         </div>
       </section>
     </main>
-    <footer class="wrap"><a class="brand" href="./">HexFence</a><p>Open evidence. Local checks. On-chain enforcement.</p><a href="#main">Back to top ↑</a></footer>
+    <footer class="foot"><div class="wrap"><a class="brand" href="./">HexFence</a><p>Open evidence. Local checks. On-chain enforcement.</p><a href="#main">Back to top ↑</a></div></footer>
   <script type="module" src="./main.ts"></script>
   </body>
 </html>
