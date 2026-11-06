@@ -1,4 +1,4 @@
-import { AddressXray, SafeHeader, VerdictCard } from "@hexfence/ui";
+import { AddressXray, VerdictCard } from "@hexfence/ui";
 import "@hexfence/ui/style.css";
 import type { VerdictV2 as Verdict } from "@hexfence/shared";
 import { paymentVerdict, paymentVerdictText } from "./upgrade";
@@ -73,6 +73,7 @@ interface State {
   lang: Lang;
   /** Whether the Fence settings panel is open, kept across re-renders. */
   fenceOpen?: boolean;
+  editSafe?: boolean;
   shown?: { verdict: Verdict; box: HTMLElement };
 }
 
@@ -104,13 +105,12 @@ async function boot(): Promise<void> {
 
 function render(): void {
   app.replaceChildren(
-    el("h1", {}, "HexFence Pay"),
+    el("div", { class: "titlerow" }, el("h1", {}, "HexFence Pay"), langBar()),
     el("p", { class: "sub" }, "Checks a payment against your approved payees before you sign. Sepolia test network."),
-    langBar(),
     statusBar(),
     walletSection(),
     safeSection(),
-    ...(state.info ? [SafeHeader(state.info.address, `v${state.info.version} · ${state.info.threshold}/${state.info.owners.length} · Guard ${state.info.guard.active ? "active" : "inactive"}${state.info.v2 ? " / Auto-Fence V2" : ""}`), radarPanel(state.reads, state.info), paymentSection()] : []),
+    ...(state.info ? [paymentSection(), radarPanel(state.reads, state.info)] : []),
   );
 }
 
@@ -192,7 +192,9 @@ function walletSection(): HTMLElement {
   status.textContent = "Looking for wallets…";
   void discoverWallets().then((wallets) => {
     if (wallets.length === 0) {
-      status.textContent = "No browser wallet found yet. The live preview below works without one. To sign and send, install a Sepolia wallet and reload.";
+      s.replaceChildren(status);
+      s.className = "quiet";
+      status.textContent = "No browser wallet found. Live preview works without one; to sign and send, install a Sepolia wallet and reload.";
       return;
     }
     status.textContent = "Connect a wallet to sign and send, or use the live preview below:";
@@ -224,12 +226,13 @@ async function onConnect(w: WalletOption, section: HTMLElement): Promise<void> {
 // ---------- 2. Safe ----------
 function safeSection(): HTMLElement {
   const s = el("section");
+  if (state.info && !state.editSafe) return compactSafe(s, state.info);
   s.append(el("h2", {}, "Safe"));
   if (state.safeApp && state.safeApp.chainId !== SEPOLIA_CHAIN_ID) {
     s.append(el("div", { class: "error" }, `This Safe is on chain ${state.safeApp.chainId}. HexFence Pay works on Sepolia only: open a Sepolia Safe in Safe{Wallet}.`));
   } else if (state.safeApp) {
     s.append(el("div", { class: "notice preview" }, `Safe App mode: checking payments for ${state.safeApp.safeAddress}. You sign and confirm in Safe{Wallet}.`));
-  } else if (!state.account) {
+  } else if (!state.account && !state.info) {
     s.append(el("div", { class: "notice preview" }, "Live preview: real Safe data and real verdicts, no wallet needed. Connect a Sepolia wallet to sign and send."));
   }
   const input = el("input", { id: "safe-address", placeholder: "Safe address (0x…)", spellcheck: "false" });
@@ -239,9 +242,12 @@ function safeSection(): HTMLElement {
   else if (state.lastSafe) input.value = state.lastSafe;
   const out = el("div");
   load.onclick = () => void onLoadSafe(input.value, out);
-  s.append(el("label", { for: "safe-address" }, "Safe address on Sepolia"), input, load, out);
-  if (state.info) renderSafeInfo(out, state.info);
-  else if (state.pendingSafe) {
+  s.append(el("label", { for: "safe-address" }, "Safe address on Sepolia"), el("div", { class: "row" }, input, load), out);
+  if (state.info) {
+    const keep = el("button", { type: "button", class: "ghost" }, "Keep this Safe");
+    keep.onclick = () => { state.editSafe = false; render(); };
+    s.append(keep);
+  } else if (state.pendingSafe) {
     const raw = state.pendingSafe;
     state.pendingSafe = undefined;
     void onLoadSafe(raw, out);
@@ -264,6 +270,7 @@ async function onLoadSafe(raw: string, out: HTMLElement): Promise<void> {
     const info = await loadSafeInfo(safe, state.reads, state.config.guard);
     state.safe = safe;
     state.info = info;
+    state.editSafe = false;
     state.lastSafe = info.address;
     const { publisher, arkivAccessKey } = state.config;
     state.listed ??= loadListed(publisher !== undefined, async () => {
@@ -276,40 +283,57 @@ async function onLoadSafe(raw: string, out: HTMLElement): Promise<void> {
   }
 }
 
-function renderSafeInfo(out: HTMLElement, info: SafeInfo): void {
-  out.replaceChildren();
-  out.append(el("p", { class: "mono" }, `Safe ${info.address} · version ${info.version} · threshold ${info.threshold}/${info.owners.length}`));
+/** Loaded Safe: one line, with the detail folded away. A missing Guard stays fully visible. */
+function compactSafe(s: HTMLElement, info: SafeInfo): HTMLElement {
+  const a = info.address;
+  const change = el("button", { type: "button", class: "ghost" }, "Change");
+  change.onclick = () => { state.editSafe = true; render(); };
+  s.className = "safe-line";
+  s.append(el("div", { class: "row" }, el("span", {}, el("strong", {}, "Safe "), el("code", {}, `${a.slice(0, 6)}…${a.slice(-4)}`), ` · v${info.version} · threshold ${info.threshold}/${info.owners.length}`), change));
   if (state.account && !info.owners.some((o) => o.toLowerCase() === state.account?.toLowerCase())) {
-    out.append(el("div", { class: "error" }, "The connected account is not an owner of this Safe, so it cannot sign for it."));
+    s.append(el("div", { class: "error" }, "The connected account is not an owner of this Safe, so it cannot sign for it."));
   }
   if (state.account && info.threshold > 1) {
-    out.append(el("div", { class: "error" }, "Pay signs and sends in one step, so it supports Safes with threshold 1 only."));
+    s.append(el("div", { class: "error" }, "Pay signs and sends in one step, so it supports Safes with threshold 1 only."));
   }
-  if (info.guard.active) {
-    out.append(el("div", { class: "notice" }, `HexFence Guard ${info.v2?.guard ?? state.config.guard} is active on this Safe.`));
-  } else {
+  if (!info.guard.active) {
     const why =
       info.guard.reason === "unsupported"
         ? "This Safe version does not support guards."
         : info.guard.reason === "none"
           ? "No guard is set on this Safe."
           : `A different guard is set on this Safe (${info.guard.current}).`;
-    out.append(el("div", { class: "error" }, `HexFence Guard is not active on this Safe. ${why} Nothing on-chain will refuse a lookalike payment.`));
+    s.append(el("div", { class: "error" }, `HexFence Guard is not active on this Safe. ${why} Nothing on-chain will refuse a lookalike payment.`));
   }
+  const d = el("details", { class: "safe-detail" });
   const evidenceLine = el("p", { class: "small" }, "Public evidence: loading…");
-  out.append(evidenceLine);
   void state.listed?.then((l) => {
     evidenceLine.textContent = listedStatusText(l);
     if (l.status === "unavailable") evidenceLine.className = "error";
   });
-  out.append(el("p", { class: "small" }, `Approved payees (read once from the Guard): ${info.payees.length === 0 ? "none" : ""}`));
   const ul = el("ul");
   for (const p of info.payees) ul.append(el("li", { class: "mono" }, p));
-  out.append(ul);
-  if (info.v2) out.append(el("p", { class: "small" }, `Auto-Fence V2: ${info.v2.known.length} recorded recipient(s). Automatic learning ${info.v2.autoLearn ? "on" : "off"}.`));
+  d.append(
+    el("summary", {}, "Safe details: approved payees, evidence"),
+    el("p", { class: "mono" }, `Safe ${a}`),
+    ...(info.guard.active ? [el("p", { class: "small" }, `HexFence Guard ${info.v2?.guard ?? state.config.guard} is active on this Safe.`)] : []),
+    evidenceLine,
+    el("p", { class: "small" }, `Approved payees (read once from the Guard): ${info.payees.length === 0 ? "none" : ""}`),
+    ul,
+  );
+  if (info.v2) d.append(el("p", { class: "small" }, `Auto-Fence V2: ${info.v2.known.length} recorded recipient(s). Automatic learning ${info.v2.autoLearn ? "on" : "off"}.`));
+  s.append(d);
+  return s;
 }
 
 // ---------- 3. payment ----------
+const DEMO_SAFE = "0x3BCc3969713778F3Ed26AE1490529eeBAD43FbD5";
+const DEMO_RECIPIENTS: [string, string][] = [
+  ["Approved payee", "0x4E185e251Ac7fB83E9DE10723EAda46cadE74120"],
+  ["Lookalike (resembles your approved payee)", "0x4E185a3FC4B530244aB9ed0dE38167b403344120"],
+  ["New supplier", "0xcB0a33f755826307CcaC3f4b4833e7e19d38cEb6"],
+];
+
 function paymentSection(): HTMLElement {
   const s = el("section");
   s.append(el("h2", {}, "Payment"));
@@ -352,6 +376,15 @@ function paymentSection(): HTMLElement {
     const version = ++revision;
     void onCheck({ asset: asset.value, token: token.value, to: to.value, amount: amount.value }, out, () => version === revision);
   };
+  if (state.info.address.toLowerCase() === DEMO_SAFE.toLowerCase()) {
+    const demo = el("div", { class: "demo-row" }, el("span", { class: "small" }, "Try the demo recipients (synthetic Sepolia addresses):"));
+    for (const [label, addr] of DEMO_RECIPIENTS) {
+      const b = el("button", { type: "button", class: "ghost", title: addr }, label);
+      b.onclick = () => { to.value = addr; to.dispatchEvent(new Event("input", { bubbles: true })); };
+      demo.append(b);
+    }
+    s.append(demo);
+  }
   s.append(el("label", { for: "asset" }, "Asset"), asset, tokenWrap, el("label", { for: "to" }, "Recipient"), to, el("label", { for: "amount" }, "Amount"), amount, preview, check, out);
   s.append(explainPanel(state.info, state.config.guard, state.lang, state.config.publisher));
   for (const field of [asset, token, amount]) field.addEventListener("input", () => { ++revision; out.replaceChildren(); });
@@ -385,7 +418,11 @@ async function onCheck(f: { asset: string; token: string; to: string; amount: st
     const call = buildPaymentCall(asset, recipient, amount);
     const listed = await state.listed;
     const verdict = paymentVerdict(call, info, state.config.guard, listed?.status === "ok" ? listed.map : undefined);
-    if (current()) renderVerdict(out, verdict, recipient, call);
+    if (current()) {
+      renderVerdict(out, verdict, recipient, call);
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      out.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "nearest" });
+    }
   } catch (e) {
     if (current()) out.replaceChildren(el("div", { class: "error" }, errText(e)));
   }

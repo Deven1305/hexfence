@@ -20,6 +20,8 @@ const EXACT: Record<string, string> = {
   "Live preview: this is the real verdict. Connect a Sepolia wallet to sign and send.": "लाइव प्रीव्यू: यह असली नतीजा है। हस्ताक्षर करके भेजने के लिए Sepolia वॉलेट जोड़ें।",
   "Connect a Sepolia wallet that owns this Safe to enable the Guard and approve payees.": "Guard चालू करने और प्राप्तकर्ता स्वीकृत करने के लिए इस Safe के मालिक वाला Sepolia वॉलेट जोड़ें।",
   "Load Safe": "Safe लोड करें",
+  Change: "बदलें",
+  "Keep this Safe": "यही Safe रखें",
   "Safe address on Sepolia": "Sepolia पर Safe का पता",
   "Safe address (0x…)": "Safe का पता (0x…)",
   "Loading…": "लोड हो रहा है…",
