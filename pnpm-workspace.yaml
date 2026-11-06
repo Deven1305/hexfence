@@ -1,6 +1,21 @@
 # contracts/ is deliberately NOT here: it is a standalone npm + Hardhat project (see AGENTS.md).
+# pramaan/ keeps its own folder layout for now; its packages and apps are members of this workspace.
 packages:
   - "packages/*"
   - "apps/*"
   - "sentinel/hexfence-sentinel"
   - "integration"
+  - "pramaan"
+  - "pramaan/packages/*"
+  - "pramaan/apps/*"
+
+allowBuilds:
+  esbuild: true
+
+# pnpm 10 blocks dependency install scripts by default; only these may run them.
+onlyBuiltDependencies:
+  - esbuild
+
+# Keep browser compatibility data reproducible and outside the package-age quarantine.
+overrides:
+  electron-to-chromium: 1.5.474

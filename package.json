@@ -13,7 +13,7 @@
     "test:contracts": "cd contracts && npx hardhat test",
     "merged:check": "pnpm --filter @hexfence/integration check",
     "merged:test": "pnpm --filter @hexfence/integration test",
-    "pramaan:install": "corepack pnpm@10.34.9 --dir pramaan install --frozen-lockfile",
+    "pramaan:install": "corepack pnpm@10.34.9 install --frozen-lockfile",
     "pramaan:test": "corepack pnpm@10.34.9 --dir pramaan test",
     "pramaan:build:extension": "corepack pnpm@10.34.9 --dir pramaan build:extension",
     "pramaan:demo": "corepack pnpm@10.34.9 --dir pramaan demo:up --fixtures",
