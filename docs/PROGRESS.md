@@ -89,6 +89,8 @@
 | Second L (direct script, not Safe{Wallet}; gas 200000) | `0xe77e6a7a8ba5b6f9742ec953826bc47c69ffffdced3a4d40b8fe3a220e1bb46f` |
 
 ## Decisions log
+
+- 06 Nov (Rescue): the published packHash seals a deterministic UTF-8 core; dated balance and receipt-check results remain a separate local supplement. Context uses Arkiv bytes storage because str is limited to 128 UTF-8 bytes. The loss pass retains separate payment cases for multiple victims/assets in one transaction. Raw transfer-pattern matches are NOT loss figures: automated contract movements are excluded unless transaction calldata shows a supported ERC-20 payment by the victim or through execTransaction. All findings remain suspected/investigative leads.
 - 06 Nov (Codex 2, A1): V2 uses transient storage keyed by Safe and execution depth (not a single global pending slot). Real Safe tests exercise nested same-Safe, administrative and different-Safe execution. Learning dates mean successful recognized Safe execution, not independently confirmed ERC-20 movement; zero-value and false-returning token-shaped calls are within that limitation. V2 compiler override is solc 0.8.28/Cancun; v1 stays 0.8.26.
 
 - 06 Nov (Codex 2, user-authorized upgrade): **v2 is a new contract; v1 unchanged**. The locked spec's **"No Chainlink" is superseded by the upgrade plan** for Sentinel. No changes to the locked planning files or H9 labels.
@@ -139,8 +141,8 @@
 
 | ID | Status | Commit | Notes | Next step |
 |---|---|---|---|---|
-| A3 | In progress | See feature branch feat/xray-ui | Shared UI exports including unwired RadarBanner; grouped address comparison and hash colour strip; paste verdict; Pay step navigation; dynamic Protocol Kit/Nox/Arkiv; self-hosted fonts; landing live counters; explorer tabs/table. Local direct TypeScript and worker-thread tests pass (173 tests, 4 skipped, including 3 new UI tests). Required recursive commands fail at Windows child-process spawn EPERM; direct Pay build passes, entry 137 KB before final stepper change. Browser tool denied Edge access; CI captures 375/1440 light/dark screenshots for inspection before merge. | CI full checks and screenshot review; merge A3, then begin A4. |
-| A4 | Todo | ? | Rescue loss pass, schema/publisher, explorer and pack. | After A3 merge. |
+| A3 | ✔ Merged [PR #28](https://github.com/Deven1305/hexfence/pull/28) | 73e8939 | Shared UI, live verdict, step navigation, deferred dependencies, expandable evidence rows and live landing counters. Final CI: 14 unchanged v1 contract tests, 173 workspace tests / 4 skips, builds and scripted-wallet regression passed. Initial Pay JavaScript including preloads: 309,603 bytes. All 12 captures at 375/1440 light/dark inspected. RadarBanner exported and unwired. | Complete; extension and remaining section 7 polish are separate rows below. |
+| A4 | In progress | feat/rescue-v0 | Loss fixtures green; schema, idempotent writer, local pack and explorer tools implemented. Real 7,200-block scan running; no publication claimed. | Finish tests, scan/publication, UI checks and PR. |
 | B2 | Todo | ? | Campaign grouping, timestamp axis and match-length comparison. | After A4. |
 | Extension UI | Todo | ? | Use AddressXray/VerdictCard in review window. | After B2. |
 | UI polish | Todo | ? | Complete section 7 refinements within freeze. | After extension. |
@@ -152,3 +154,15 @@
 - 06 Nov 13:44 IST: first A3 CI run passed all 14 v1 contract tests, then exposed an existing unquoted shell glob in Pay's Vitest command on Linux. Quoted the exclude pattern; adjusted the scripted v1 browser regression for step navigation, and added it to CI before real-data captures.
 
 - 06 Nov 13:49 IST: A3 CI passed (14 v1 contract tests, workspace tests/build, local scripted-wallet P/B success and L refusal, real-data light/dark captures). Found initial entry plus static preloads totalled over 400 KB despite the 137 KB entry; deferred the RPC/Anon modules after first paint too. Rebuilt locally: initial entry plus all static preloads = 309,207 bytes, enforced in visual CI. Review and final-head CI remain before merge.
+
+- 06 Nov 14:10 IST: A3 merged as 73e8939 / PR #28, final CI green and 12 captures inspected. A4 streaming fixtures (5), shared schema/hash tests (3), and Arkiv codec/idempotency tests (3) pass. A real 7,200-block scan started through an in-process Vite SSR bundle because tsx subprocess spawning is blocked locally. No scan result or Arkiv write claimed yet.
+
+- 06 Nov 14:22 IST: A4 working checkpoint: shared 35, Arkiv 15, detector 25 and explorer 39 tests pass (existing opt-in skips remain). First live scan failed before a final summary; a retry is underway. GitHub fetch/API and mainnet RPC have intermittent connection failures. No loss totals or publication are claimed. Next: finish real scan, seal normalized records, publish with existing testnet balance, then review Losses screenshots and PR.
+
+- 06 Nov 14:45 IST: Added separate multi-token/multi-victim payment cases, preserving one entity per evidenceId+lossTx. Bulk scan can resume a fixed range from cached windows after RPC interruptions.
+- 06 Nov 14:57 IST: Raw scan completed over blocks 26347577–26354776: 1,423,954 logs, 239 raw candidate transactions / 258 cases. The largest raw matches involved Uniswap's documented PoolManager; raw totals are not presented as losses. Five initial raw entities were withdrawn in Rabdi tx 0xbc3820c1e396f7a1cb956cf77ebac44246a5fa6e7b3f19f0a0e97e92fb1a600e; bulk read confirmed zero remained.
+- 06 Nov 15:04 IST: Call data for all 239 transaction hashes checked: one supported direct payment remains, 303.635007 USDT (USDC 0), status suspected. Added call-shape fixtures, router rejection, and fail-closed publication for unclassified cases. Final supported publication and UI validation pending. Merged main's Auto-Fence/Safe App changes while preserving both lanes. Corrected an accidental local documentation overwrite before PR; PROGRESS was restored from current main with this lane's earlier table/log and new findings retained.
+
+- 06 Nov 15:07 IST: Published the supported 303.635007 USDT case as hexfence.loss.v1 using existing publisher funds: Rabdi tx 0x899bc5466cc62545cbfd69478a587605f412dbb0af51e63882e5e32fdbb3923e. Initial raw candidates remain withdrawn. Next: live idempotence probe, full CI and Losses captures before merging A4.
+
+- 06 Nov 15:10 IST: Supported record publication succeeded (1 created, tx 0x899bc5466cc62545cbfd69478a587605f412dbb0af51e63882e5e32fdbb3923e). Live repeat returned 0 created / 1 already present / 0 transactions, proving idempotence. The generated manifest retains the original publication receipt and initial retraction. Final CI, real receipt/balance/download checks and mobile/dark screenshots remain before merge.

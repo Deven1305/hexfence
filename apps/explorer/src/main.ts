@@ -1,3 +1,4 @@
+import { lossesPanel } from "./losses.js";
 import { DataTable } from "@hexfence/ui";
 import "@hexfence/ui/style.css";
 ﻿import { arkivReadClient } from "@hexfence/arkiv";
@@ -55,8 +56,9 @@ if (!isAddress(publisherEnv, { strict: false })) {
   const client = arkivReadClient(accessKey ? { accessKey } : undefined);
   const tabs = el("nav", "hf-tabs"); tabs.setAttribute("aria-label", "Explorer views");
   const tablePanel = el("section");
+  const lossPanel = lossesPanel(client, publisher, rpcUrl);
   let view = "Evidence";
-  const panels = { Evidence: [form, searchStatus, tablePanel, results], Campaigns: [dashboard], "Check my address": [ownPanel] };
+  const panels = { Evidence: [form, searchStatus, tablePanel, results], Losses: [lossPanel], Campaigns: [dashboard], "Check my address": [ownPanel] };
   const choose = (name: string) => {
     view = name;
     for (const [label, nodes] of Object.entries(panels)) for (const node of nodes) node.hidden = label !== name;
@@ -66,7 +68,7 @@ if (!isAddress(publisherEnv, { strict: false })) {
     const b = el("button", undefined, name) as HTMLButtonElement; b.type = "button"; b.onclick = () => choose(name); tabs.append(b);
   }
   app.append(tabs);
-  app.append(el("p", "publisher", `Publisher ${publisher}`), status, retry, dashboard, ownPanel, form, searchStatus, tablePanel, results);
+  app.append(el("p", "publisher", `Publisher ${publisher}`), status, retry, dashboard, ownPanel, form, searchStatus, tablePanel, results, lossPanel);
   choose(view);
   const downloaded: PoisoningEvidence[] = [];
   const seen = new Set<string>();
@@ -88,7 +90,7 @@ if (!isAddress(publisherEnv, { strict: false })) {
   function updateSearch(replace = true, added: PoisoningEvidence[] = []): void {
     const records = search ? checkOwnAddress(downloaded, search)! : downloaded;
     tablePanel.replaceChildren(DataTable(["Block", "Pattern", "Token", "Lookalike", "Status"], records.map(e => {
-      const address = el("a", undefined, `${e.lookalike.slice(0, 6)}?${e.lookalike.slice(-4)}`) as HTMLAnchorElement;
+      const address = el("a", undefined, `${e.lookalike.slice(0, 6)}…${e.lookalike.slice(-4)}`) as HTMLAnchorElement;
       address.href = `https://etherscan.io/address/${e.lookalike}`; address.target = "_blank"; address.rel = "noreferrer";
       return [String(e.attackBlock), e.variant, e.token.toLowerCase().startsWith("0xdac1") ? "USDT" : "USDC", address, e.status];
     }), records.map(e => recordCard(e, rpcUrl))));

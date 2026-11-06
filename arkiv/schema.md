@@ -49,3 +49,10 @@ Records are read **in bulk per publisher**: `createdBy(publisher)`, `orderBy(asc
 Anyone can write an entity with this schema tag, so **trust comes from the publisher address**, and readers re-validate every row (fingerprint match, `evidenceId`, `status`) before showing it.
 
 The publisher wallet and a query judges can run are added here when the first real records are written (T4b).
+
+
+## `hexfence.loss.v1` (upgrade)
+
+Loss entities live for 90 days (SDK `ExpirationTime.fromDays(90)`). Indexed fields: `evidenceId`, `victim`, `lookalike`, `lossBlock`. Plain fields: `token`, exact base-unit string `amount`, `lossTx`, `repeat`, `packHash`, `status` (always `suspected`). The plain `context` is `bytes` containing the full normalized record and bounded outgoing-transfer leads; a string column has a documented 128-byte limit. Context duplicates are checked against the indexed/plain attributes on every read. All records pass the shared loss schema; invalid or conflicting records fail the bulk read.
+
+Writer idempotency is by `(evidenceId, lossTx)`, including input deduplication and one bulk read of existing publisher records. Each create is a separate transaction to keep the larger context bounded. Readers use publisher-scoped key pagination with at most 100 rows per page. There are no per-victim or per-lookalike queries. The canonical Rescue Markdown is generated locally from that immutable context; `packHash` is its SHA-256. Current balance and receipt recheck results are a separately dated local supplement. Expiry and idempotence do not establish that a suspected loss was caused by poisoning.

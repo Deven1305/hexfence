@@ -1,4 +1,5 @@
 // Read-only production UI checks. Uses published records and the existing demo Safe.
+import { createHash } from 'node:crypto';
 import { createServer } from 'node:http';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -54,11 +55,42 @@ try {
           await expect(page.locator('#live-stats .hf-stat').first()).toBeVisible({ timeout: 120000 });
         }
         if (app === 'explorer') {
+          await expect(page.locator('.bulk-status')).toContainText('All records loaded.', { timeout: 120000 });
           await expect(page.getByRole('button', { name: 'X-Ray', exact: true }).first()).toBeVisible({ timeout: 120000 });
           await page.getByRole('button', { name: 'X-Ray', exact: true }).first().click();
           await expect(page.locator('article.card').first()).toBeVisible();
         }
         await page.screenshot({ path: path.join(out, `${app}-${width}-${colorScheme}.png`), fullPage: app !== 'explorer' });
+      }
+      if (app === 'explorer') {
+        await page.getByRole('button', { name: 'Losses', exact: true }).click();
+        const panel = page.locator('.losses-panel');
+        await expect(panel).toContainText('Publisher loss records loaded in bulk.', { timeout: 120000 });
+        const inspect = panel.getByRole('button', { name: 'X-Ray', exact: true }).first();
+        if (await inspect.count()) {
+          await inspect.click();
+          const detail = panel.locator('article.card').first();
+          await expect(detail).toContainText('investigative lead');
+          if (colorScheme === 'light' && width === 1440) {
+            await detail.getByRole('button', { name: 'Check incident receipts', exact: true }).click();
+            await expect(detail).toContainText('Receipt patterns match the recorded incident.', { timeout: 120000 });
+            const fileReady = page.waitForEvent('download');
+            await detail.getByRole('button', { name: 'Download Rescue pack', exact: true }).click();
+            const file = await fileReady;
+            const bytes = await readFile(await file.path());
+            const hash = createHash('sha256').update(bytes).digest('hex');
+            await expect(detail).toContainText(`Core SHA-256 matches Arkiv packHash: ${hash}`);
+            const requests = [];
+            page.on('request', request => {
+              try { const p = JSON.parse(request.postData() || '{}'); for (const call of Array.isArray(p) ? p : [p]) if (call.method === 'eth_call' && call.params?.[0]?.data?.startsWith('0x70a08231')) requests.push(call); } catch {}
+            });
+            const balance = detail.getByRole('button', { name: /^Read .* balance still at lookalike$/ }).first();
+            await balance.click();
+            await expect(detail).toContainText('Still at the lookalike now:', { timeout: 120000 });
+            expect(requests).toHaveLength(1); await expect(balance).toBeDisabled();
+          }
+        }
+        await page.screenshot({ path: path.join(out, `losses-${width}-${colorScheme}.png`), fullPage: false });
       }
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       expect(errors).toEqual([]);

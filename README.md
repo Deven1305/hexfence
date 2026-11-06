@@ -209,3 +209,29 @@ gh attestation verify <file> -R Deven1305/hexfence
 ```
 
 When the publisher secret is set, the same hashes go to Arkiv as a `hexfence.release.v1` record. This shows which workflow run built a file. It does not audit the code, and it only helps if you run the check.
+
+
+## Rescue: suspected follow-up payments
+
+The loss pass uses the same bulk Ethereum mainnet USDT/USDC logs as the poisoning detector. After a planting pattern is observed for a victim/lookalike pair, a later Transfer of at least one token to that lookalike, within 7,200 blocks, becomes a **suspected loss**. A record is an **investigative lead**. It does not establish intent, ownership, or causation. Amounts stay exact integer base units; USDT and USDC totals are shown separately, without a USD conversion.
+
+```powershell
+corepack pnpm@10.34.9 --filter @hexfence/detector detect:losses --window 25 --summary ../../apps/explorer/public/loss-run.json
+# After an RPC failure, resume the SAME fixed range from the local bulk-log cache:
+corepack pnpm@10.34.9 --filter @hexfence/detector detect:losses --window 25 --resume --summary ../../apps/explorer/public/loss-run.json
+# Check transaction calldata, retaining supported payment shapes only:
+corepack pnpm@10.34.9 --filter @hexfence/detector review:losses --summary ../../apps/explorer/public/loss-run.json
+# Explicit Rabdi write, using only the existing testnet publisher key and balance:
+corepack pnpm@10.34.9 --filter @hexfence/detector publish:losses --limit 5 --summary ../../apps/explorer/public/loss-run.json
+```
+
+`.env` supplies `MAINNET_RPC_URL`, `ARKIV_PRIVATE_KEY` and optional `ARKIV_ACCESS_KEY`. No browser key is required. Output/cache stays in ignored `apps/detector/out/`. The scan manifest is written only after the entire requested range completes; provisional counts are not final totals. `--resume` keeps the cached range, including its original end block. To scan a fresh latest range, omit `--resume`. Publication is idempotent by poisoning `evidenceId` plus `lossTx`, uses the 90-day `hexfence.loss.v1` schema and has a five-record CLI cap by default. A funding allowance stops writes with little remaining tGLM; it is not a fee estimate. A repeat run writes zero copies of already published records. Never transfer funds or use a faucet as part of these commands.
+
+The explorer reads loss entities in bulk from its configured publisher. Its only address-specific exception is the user's **Read balance still at lookalike** click: one mainnet `balanceOf`, with no automatic retry or polling. Receipt checks use public transaction hashes. A balance is a current holding, not a claim that the same funds remain. The scan can retain up to 20 outgoing transfers, at most two hops; no exchange label or owner is guessed. Multi-token or multi-victim payments sharing an entity key are retained as separate payment cases in its context; their tokens are never added as one asset. An incident is capped at 100 cases to fit the bounded record. Repeats are payment ordinals within the scanned window, not a lifetime count. The scan starts without prior-window history, so patterns requiring an earlier reference outside that range are absent.
+
+**Pack integrity:** the downloadable core Markdown is deterministic, normalized before hashing, and its SHA-256 must match `packHash` on Arkiv. No digest is embedded in its own input. Current balance and user-triggered receipt-check results are in a separate dated local supplement, so they cannot invalidate that published digest. A hash detects changed bytes; it does not prove a suspected incident. Review the pack before sending it. The browser never contacts an issuer, exchange or authority for you and includes no personal data.
+
+Official references: [Arkiv column types](https://docs.arkiv.network/schemas/column-types/), [expiry](https://docs.arkiv.network/writing/expiration/), [batches](https://docs.arkiv.network/writing/batches/), [India's reporting helpline](https://www.pib.gov.in/Pressreleaseshare.aspx?PRID=1814120&lang=2&reg=48), [Tether contact](https://cs.tether.to/), and [Circle support](https://help.circle.com/).
+
+
+The raw ≥1-token follow-up rule also matches automated contract movements: the first real run's largest candidates involved the PoolManager address in [Uniswap's official deployment list](https://developers.uniswap.org/docs/protocols/v4/deployments). The loss call-shape pass therefore fetches transactions by hash (never by recipient), retains explicit ERC-20 payments initiated by the recorded victim or encoded through `execTransaction`, and leaves unsupported calls unclassified. Only those supported payment shapes contribute to the loss headline or publisher input. Even a supported shape remains suspected and does not prove poisoning caused the payment. Raw candidate counts stay in the scan report separately. Five initial raw candidates were withdrawn from Arkiv before this feature was merged; the report records the retraction transaction.

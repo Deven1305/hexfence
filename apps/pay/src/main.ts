@@ -108,7 +108,7 @@ function render(): void {
     langBar(),
     stepper(),
     routeSection(),
-    ...(state.info ? [SafeHeader(state.info.address, `v${state.info.version} ? ${state.info.threshold}/${state.info.owners.length} ? Guard ${state.info.guard.active ? "active" : "inactive"}${state.info.v2 ? " / Auto-Fence V2" : ""}`)] : []),
+    ...(state.info ? [SafeHeader(state.info.address, `v${state.info.version} · ${state.info.threshold}/${state.info.owners.length} · Guard ${state.info.guard.active ? "active" : "inactive"}${state.info.v2 ? " / Auto-Fence V2" : ""}`)] : []),
     ...(state.info ? [radarPanel(state.reads, state.info)] : []),
     [walletSection, safeSection, paymentSection, setupSection][state.step]!(),
   );
@@ -158,7 +158,7 @@ function routeSection(): HTMLElement {
 function fillRoute(): void {
   const s = routeEl;
   if (!s) return;
-  s.replaceChildren(el("summary", {}, state.outcome?.active ? "Nox reads active" : state.outcome ? "Direct reads ? not anonymous" : "Nox connecting ? choose read route"));
+  s.replaceChildren(el("summary", {}, state.outcome?.active ? "Nox reads active" : state.outcome ? "Direct reads · not anonymous" : "Nox connecting · choose read route"));
   if (!state.outcome) {
     s.append(el("p", { class: "small" }, `Connecting to anonymous read routes (${state.trying ?? "starting"})… Safe and payee reads wait for this.`));
     const b = el("button", {}, "Skip: read directly (not anonymous)");
