@@ -1,30 +1,43 @@
 # How HexFence uses Arkiv
 
+Answers for [Build on Arkiv (from scratch)](https://ethglobal.com/events/mumbai/prizes/arkiv). Mainnet logs flow through the detector into Rabdi entities, then into the static explorer and Pay's bulk read. Actual writes and user-visible reads use the SDK.
+
+## Do filters, ownership and expiry fit the app?
+
+| Design | Fit and user-visible result |
+|---|---|
+| Indexed lookalike, impersonated, victim | Explorer searches all three addresses using findEvidenceByAddress. Pay never uses this search: it bulk-reads and matches locally. |
+| Schema tag and createdBy(publisher) | Readers choose whose claims to display; another writer's same-schema entities do not silently enter the dataset. |
+| Indexed variant | Explorer totals distinguish zero-value from dust. Live: 125 = 124 zero-value + 1 dust. |
+| Stable evidenceId | Writer bulk-reads existing IDs and skips them. Rerun: 0 created, 125 already present; no duplicate cards from that run. |
+| Key ordering, at most 100 rows/page | Explorer renders one page then Load more; hosted browser loaded all 125. Pay walks all pages before comparing locally. |
+| Wallet ownership | Publisher 0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec owns its records. Network rules restrict mutations to the owner; our app exposes no editor, and the writer creates records rather than editing claims. Attribution does not establish truth. |
+| ExpirationTime.fromDays(30) | Old warnings age out instead of accumulating forever. Configured in the writer; a full 30-day cycle has not elapsed in our test. |
+| executeBatch of 25 creates | Additional 100 records used four transactions; explorer then showed 125. Batching bounds write cost/flow, not verdict severity. |
+
+The complete indexed/plain split is in [schema.md](schema.md) and [schema.ts](../packages/arkiv/src/schema.ts). chainId, attackBlock and detectorVersion are indexed for dataset scoping/inspection; the current UI does not expose controls for every index. We do not claim each index creates a product feature.
+
+## Does each feature change something users see?
+
+The table maps each used Arkiv feature to a visible result and its limits. Explorer counts, search, cards and pagination read Rabdi. Pay reads bulk evidence for an exact-address signal. Its Guard/payee reads are Sepolia contract reads; the Guard never queries Arkiv. Synthetic L is not published as evidence and receives only the resemblance warning.
+
+Rows are validated with PoisoningEvidenceSchema before use; status is always **suspected**. Verify on Ethereum fetches both referenced mainnet receipts and checks the token transfer pattern. The live first-record check passed; it neither changes status nor proves malicious intent.
+
+## Runnable read and duplicate check
+
+From repo root, no key needed:
+
+```powershell
+corepack pnpm@10.34.9 --filter @hexfence/detector exec tsx ../../arkiv/query.ts
 ```
-Ethereum mainnet logs → detector → Arkiv (Rabdi, hexfence.poisoning.v1) → explorer (search, counts)
-                                                                        → HexFence Pay (bulk read, exact match)
+
+Observed: 125 records, 125 unique IDs, 124 zero-value, 1 dust, only suspected. [query.ts](query.ts) imports the [production reader](../packages/arkiv/src/read.ts). Configure a testnet publisher in ignored root .env for writes, then:
+
+```powershell
+corepack pnpm@10.34.9 --filter @hexfence/detector publish:arkiv --limit 125
+corepack pnpm@10.34.9 --filter @hexfence/detector publish:arkiv --limit 125
 ```
 
-Fields, indexes and the idempotency rule are in [schema.md](schema.md).
+The recorded rerun sent 0 transactions. Public RPC worked without an access key but is rate limited. No more tGLM will be transferred for this pass without Dhruv's explicit approval.
 
-## Writing: `apps/detector`, `packages/arkiv/src/write.ts`
-- The detector turns USDT and USDC Transfer logs into records, each carrying the attack and reference transaction hashes.
-- `publishEvidence` does one bulk read of what the publisher already has, skips those records, and creates the rest with `executeBatch`, 25 at a time, using `ExpirationTime.fromDays(30)`.
-- `evidenceId = keccak256(chainId, lookalike, impersonated, detectorVersion)` makes a re-run create 0 duplicates.
-
-## Reading
-
-| Reader | Call | Why |
-|---|---|---|
-| Explorer totals | `client.count().from(PoisoningSchema).createdBy(p).where(eq("variant", v))` | Totals without downloading tens of thousands of rows |
-| Explorer list | one page: `select().from(PoisoningSchema).createdBy(p).orderBy(asc("$key")).limit(100)`, then `gt("$key", last)` | Renders at once and loads more on request |
-| Explorer search | `findEvidenceByAddress`: `or(eq("lookalike", a), eq("impersonated", a), eq("victim", a))` | The three address columns are indexed, so the node does the filtering |
-| HexFence Pay | `fetchAllEvidence`, once, in bulk | A client never reveals a specific recipient through a lookup |
-
-Every row is re-validated by `PoisoningEvidenceSchema` (fingerprint match, `evidenceId`, status "suspected") before it is shown. Only the chosen publisher's rows are read, because anyone can write an entity with this schema tag.
-
-## Don't trust it, check it
-Records make a claim about Ethereum, so Arkiv does not have to be believed. The explorer's **Verify on Ethereum** button fetches both receipts from a mainnet RPC and checks for the `Transfer` log from the canonical token, the right from and to, the variant's value rule, and that the reference came first. It shows ✓ or "could not verify".
-
-## Run it yourself
-Commands are in the [README](../README.md): `detect`, `publish:arkiv`, and one query against the publisher.
+Off-Arkiv choices: [why-arkiv.md](why-arkiv.md). Measured reach: [reach.md](reach.md). Feedback: [friction.md](friction.md). **post-Mumbai plan: team to confirm**.

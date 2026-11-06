@@ -10,6 +10,7 @@ const { SEPOLIA_RPC_URL, DEPLOYER_PRIVATE_KEY, ETHERSCAN_API_KEY } = process.env
 module.exports = {
   solidity: { version: "0.8.26", settings: { optimizer: { enabled: true, runs: 200 } } },
   etherscan: {
+    enabled: Boolean(ETHERSCAN_API_KEY),
     apiKey: { sepolia: ETHERSCAN_API_KEY || "" },
     // 2.0.13 supports Hardhat 2.22.17 (^2.0.4); override its retired V1 URL.
     customChains: [{ network: "sepolia", chainId: 11155111, urls: {
@@ -17,6 +18,7 @@ module.exports = {
       browserURL: "https://sepolia.etherscan.io",
     } }],
   },
+  sourcify: { enabled: true },
   networks: {
     // Safe 1.4.1 compiled with 0.8.x is larger than 24 KB; only the in-process test network needs this.
     hardhat: { allowUnlimitedContractSize: true },

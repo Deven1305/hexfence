@@ -18,3 +18,11 @@ The detector found **43,227 suspected pairs in 24 hours**, far above what we pla
 
 ## What was easy
 `defineSchema` with `.indexed()` columns was a clean way to state which fields are queryable, and the same schema gave us typed reads and writes. Reading from a static page needed no backend and no proxy: the explorer's `count` and `select` calls worked from the browser straight away.
+
+## From-scratch criteria: concrete improvements and reproduction
+
+For [Build on Arkiv](https://ethglobal.com/events/mumbai/prizes/arkiv), the improvements we would value today are a prominent pagination/migration example (100-row cap, key continuation, createdBy) and an actionable insufficient-funds error naming the public address and faucet without dumping a request object. A documented preflight batch-cost estimate would help budget large imports.
+
+The pagination issue was our original spec assumption, not a network outage: we expected a 200-row page and hasNextPage; the pinned SDK exposes a 100-row cap and key continuation. Reproduce by inspecting MAX_LIMIT in the pinned SDK query package, then running the public [query.ts](query.ts): the 125-record read needs two pages. The [production reader](../packages/arkiv/src/read.ts) shows the working continuation code. For the funding path, an unfunded testnet publisher running publish:arkiv --limit 1 now stops at our balance check with a faucet link; previously a submission reached a low-level execution error. Do not import a generated key into a browser for this check.
+
+Live update, 6 November: the first 25 records cost 0.007013472 tGLM. An additional 100 cost 0.026641686 across four batches, using existing funds only. Both succeeded without an access key. The 125-record rerun created 0 and sent 0 transactions. These are measurements, not a future price or availability guarantee. The publication remains a deliberate subset; [reach.md](reach.md) carries its real scope. This resolves the earlier cost-measurement question above; no full-dataset publication is promised.

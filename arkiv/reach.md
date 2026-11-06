@@ -1,29 +1,44 @@
 # Arkiv: reach
 
-Who the data on Arkiv can reach, and what we have measured. We have no outside users yet, so nothing here claims adoption.
+Answers for [Build on Arkiv (from scratch)](https://ethglobal.com/events/mumbai/prizes/arkiv), measured 6 November 2026. We have **no measured external users or integrations**. Detector volume is not adoption.
 
-## How much evidence there is
-One real detector run (06 Nov, blocks 26343865–26351064, about 24 hours of mainnet USDT and USDC):
+## Who is it for, and would they use it?
 
-| Measure | Value |
+Safe operators checking suppliers can use [HexFence Pay](https://deven1305.github.io/hexfence/pay/). Wallet developers can bulk-read suspected patterns and compare locally. Investigators can search the [explorer](https://deven1305.github.io/hexfence/explorer/) and check both Ethereum receipts. These are intended uses, not validated demand: no user interviews, pilot or production usage measurement is claimed.
+
+## Can people try it today?
+
+Yes. Both hosted apps passed real-data browser checks. Explorer showed **125 suspected records** after Load more; Verify on Ethereum confirmed both receipts for the first record. Pay loaded the actual Safe, Guard and approved payees through Nox. Payments need a Sepolia wallet owning a configured Safe. The recorded T8 wallet was explicitly scripted, not Safe{Wallet}; H6 remains unticked. Explorer reading needs no HexFence account or test tokens.
+
+Publisher: `0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec`. Rabdi chain: `7794095`. Public read-only query from repo root:
+
+```powershell
+corepack pnpm@10.34.9 --filter @hexfence/detector exec tsx ../../arkiv/query.ts
+```
+
+Observed output: **125 records, 125 uniqueEvidenceIds, 124 zeroValue, 1 dust, statuses [suspected]**. [query.ts](query.ts) uses the production bulk reader with publisher filtering and key pagination. No key or wallet is needed.
+
+## Measured data and publication scope
+
+| Measure | Real output |
 |---|---|
-| Transfer logs scanned | 1,330,446 |
-| Suspected pairs | 43,227 (31,801 zero-value, 11,426 dust) |
-| Victim addresses involved | 26,532 |
-| Random records re-confirmed against mainnet receipts | 40 of 40 |
+| Fresh mainnet scan | Blocks 26345544–26352743; 1,366,618 USDT/USDC logs |
+| Detector output | 47,694 suspected pairs: 36,382 zero-value, 11,312 dust |
+| Published subset | 125 records: 124 zero-value, 1 dust; latest attack blocks selected by --limit 125, not a random precision sample |
+| First publication | 25 created in [0xe0b88b…bf0ea](https://rabdi.explorer.arkiv.network/tx/0xe0b88b37643fb0ff1c730ea2cc662789dd6992b1e38c5ac4fc13dfa70c7bf0ea) |
+| Additional publication | 100 created, 25 already present, 4 transactions; first [0xfadb29…efcca](https://rabdi.explorer.arkiv.network/tx/0xfadb29df57c9863d8b51433aa8f237001e0f78a16768da03c7fca66e647efcca) |
+| Rerun --limit 125 | **0 created, 125 already on Arkiv, 0 transactions** |
+| Additional publication cost | 0.026641686 tGLM; existing balance 0.092986528 → 0.066344842; no further transfer |
+| Human-labelled precision | Not measured; H9's 30 labels remain pending |
 
-These are detector output with status "suspected". Hand-labelled precision (30 records) is task T13 and is still waiting on the human labelling, so we state no precision number yet. Records published to Arkiv: *(filled in after the first publish; the scope is still being decided, see [friction.md](friction.md))*.
+Run detect, then publish:arkiv --limit 125 twice using the same evidence.jsonl (commands in [README](../README.md)). Writes require a funded testnet publisher; public queries do not. [Live results](../docs/T8_LIVE_RESULTS.md) records the gate evidence and limits.
 
-## Who can read it, and how
-Anyone, with no account and no API key from us:
-- **People:** the static explorer searches by lookalike, impersonated or victim address. It has no backend, so anyone can host it.
-- **Apps:** HexFence Pay reads the records in bulk and warns on an exact match, so it never sends a per-recipient lookup. Any wallet or tool can do the same with `createdBy(publisher)`.
-- **Developers:** one query, in the [README](../README.md#arkiv-publisher--query).
+## Will the team continue after Mumbai?
 
-## Who can write it
-Anyone can run the MIT-licensed detector and publish under their own wallet, so readers choose which publishers to trust. Because the schema tag is open, readers must filter by publisher, and our readers re-validate every row.
+**post-Mumbai plan: team to confirm**
 
-## Limits on reach
-- Only Ethereum mainnet USDT and USDC, and only the 4+4 fingerprint rule.
-- Records expire after 30 days by design.
-- Rabdi is a testnet. Its availability is outside our control, and the Guard does not depend on it.
+No production release, maintenance, funding or retention-renewal commitment is claimed. The [MIT-licensed](../LICENSE) detector can be run by others under their own publisher wallet. Readers choose publishers explicitly; our apps currently select the address above.
+
+## Limits
+
+Only mainnet USDT/USDC and 4+4 resemblance are covered. The publication is a subset, not comprehensive threat coverage. Entities expire after 30 days unless independently republished. Rabdi is a testnet with public-RPC rate limits; we make no hosted availability promise. The Guard does not depend on Arkiv.
