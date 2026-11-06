@@ -181,5 +181,6 @@ Decision (06 Nov, Codex 2): official Arkiv str limit is 128 UTF-8 bytes. The mer
 | ID | Status | Evidence / next step |
 |---|---|---|
 | B7 | In progress | Fixed release manifest str overflow with bounded bytes and digest validation, tested idempotence/conflict handling. gh provenance check succeeded under exact signer/main/commit/hosted-runner policy using a writable Sigstore cache; actual JSON committed. No live Arkiv release write: CI explicitly skipped for missing publisher secret. Full checks and PR merge next. |
+| B5 | Merged on PR | HexFenceModuleGuard for Safe 1.5.0: 8 tests on a real 1.5.0 Safe, 40 Hardhat tests pass. Deployed 0xa7Dc08C6fb15fCdBF4De484FaE393fea052c546B, Sourcify exact match 58620524. No live Safe uses it yet; no live module payment run. | Next: none. |
 
 Waiting on humans: optional release publication requires an existing testnet publisher secret and existing balance, configured by a human. Follow docs/ATTESTATIONS.md; inspect the real receipt. The agent neither adds the secret nor spends tGLM.
