@@ -44,17 +44,17 @@ export function hindiText(v: Verdict, ctx: CopyContext): VerdictText {
       guardNotice: false,
     };
   }
-  const t = (sentences: string[], guardNotice = false): VerdictText => ({ level: v.level, sentences, guardNotice });
+  const hi = (sentences: string[], guardNotice = false): VerdictText => ({ level: v.level, sentences, guardNotice });
   if (v.level === "RED") {
-    return t([`यह पता Arkiv पर सार्वजनिक पॉइज़निंग साक्ष्य में दर्ज है (Ethereum mainnet, प्रकाशक ${ctx.publisher ?? "अज्ञात"})। स्थिति: संदिग्ध। एक्सप्लोरर देखें।`]);
+    return hi([`यह पता Arkiv पर सार्वजनिक पॉइज़निंग साक्ष्य में दर्ज है (Ethereum mainnet, प्रकाशक ${ctx.publisher ?? "अज्ञात"})। स्थिति: संदिग्ध। एक्सप्लोरर देखें।`]);
   }
-  if (v.level === "GREEN") return t([`स्वीकृत प्राप्तकर्ता ${v.recipient}।`]);
+  if (v.level === "GREEN") return hi([`स्वीकृत प्राप्तकर्ता ${v.recipient}।`]);
   if (v.reason === "delegatecall") {
     return ctx.guardActive
-      ? t(["यह delegatecall है। आपका HexFence Guard इसे अस्वीकार करेगा।"])
-      : t(["यह delegatecall है।", GUARD_INACTIVE_SENTENCE], true);
+      ? hi(["यह delegatecall है। आपका HexFence Guard इसे अस्वीकार करेगा।"])
+      : hi(["यह delegatecall है।", GUARD_INACTIVE_SENTENCE], true);
   }
-  return t(["इस प्रकार के लेनदेन की जाँच संभव नहीं। HexFence केवल ETH और ERC-20 ट्रांसफ़र जाँचता है।"]);
+  return hi(["इस प्रकार के लेनदेन की जाँच संभव नहीं। HexFence केवल ETH और ERC-20 ट्रांसफ़र जाँचता है।"]);
 }
 
 export function verdictText(v: Verdict, ctx: CopyContext): VerdictText {
