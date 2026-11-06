@@ -49,11 +49,11 @@ HexFence puts the rule in the account. `HexFenceGuard` is a Safe transaction gua
 Around the Guard:
 - **Detector:** reads Ethereum mainnet USDT and USDC transfer logs and finds lookalike pairs. One 7,200-block run found 47,694 suspected pairs.
 - **Arkiv evidence:** 1,126 selected records from two scans are published as `hexfence.poisoning.v1` records with 30-day expiry, plus one suspected follow-up payment (303.635007 USDT) as `hexfence.loss.v1`. Every record is "suspected".
-- **Explorer:** reads Arkiv in the browser. Evidence, Losses (a downloadable rescue pack with a SHA-256), Campaigns (records grouped by attack transaction), and a private "Check my address" that runs on downloaded records.
+- **Explorer:** reads Arkiv in the browser; after a failed live read, it uses a dated `evidence-saved.json` copy when available and shows the read time. Evidence, Losses (a downloadable rescue pack with a SHA-256), Campaigns (records grouped by attack transaction), and a private "Check my address" that runs on downloaded records.
 - **HexFence Pay:** loads a Safe, reads its approved payees once, and gives a verdict in the browser before signing: RED for a lookalike, AMBER for a new recipient, GREEN for an approved payee. Sending a RED payment needs 6 typed characters. Reads go through the Nox mixnet by default. Pay can also run as a Safe App (not yet tried by a person inside Safe{Wallet}) and has a Hindi mode (not yet checked by a native speaker).
 - **For agents:** `@hexfence/check` (offline check SDK) and `@hexfence/mcp` (an MCP tool, `hexfence_check`) give the same verdict to AI agents before they sign.
 
-The demo has two clearly separate parts: real mainnet evidence read live from Arkiv, and a **synthetic re-enactment on Sepolia** with addresses we generated. Paying the lookalike reverted on-chain, paying a new supplier succeeded, paying the approved payee succeeded, and the lookalike still reverted with our client out of the path.
+The demo has two clearly separate parts: real mainnet evidence read from Arkiv (live, or from a dated saved copy with an on-page notice after a failed live read), and a **synthetic re-enactment on Sepolia** with addresses we generated. Paying the lookalike reverted on-chain, paying a new supplier succeeded, paying the approved payee succeeded, and the lookalike still reverted with our client out of the path.
 
 An opt-in learning Guard (V2) has a scripted Sepolia run: it learned the first recipient, then refused the lookalike. A module guard for Safe 1.5.0 and a governance guard also have scripted Sepolia drills on new isolated Safes: each refused the synthetic lookalike in a mined revert and allowed the non-lookalike case. No person has run these from a wallet. Limits are in the README.
 
