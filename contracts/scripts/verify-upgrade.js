@@ -20,14 +20,14 @@ async function main() {
     return result;
   }
   const job = await request(`/v2/verify/11155111/${address}`, {
-    method: "POST", body: JSON.stringify({ stdJsonInput: info.input, compilerVersion: info.solcLongVersion, contractIdentifier, creationTransactionHash }),
+    method: "POST", body: JSON.stringify({ stdJsonInput: info.input, compilerVersion: info.solcLongVersion.replace(/\.Emscripten\.clang$/, ""), contractIdentifier, creationTransactionHash }),
   });
   if (job.runtimeMatch && job.creationMatch) { console.log(JSON.stringify(job)); return; }
   console.log("Sourcify job:", job.verificationId);
   for (let i = 0; i < 40; i++) {
     const result = await request(`/v2/verify/${job.verificationId}`);
     if (result.isJobCompleted) {
-      console.log(JSON.stringify(result));
+      console.log(JSON.stringify({ verificationId: result.verificationId, contract: result.contract, error: result.error?.message }));
       if (!result.contract?.runtimeMatch || !result.contract?.creationMatch) process.exitCode = 1;
       return;
     }

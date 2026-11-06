@@ -41,3 +41,11 @@ Telegram receives the chat ID, Safe address, two public addresses and public tra
 - [HTTP POST](https://docs.chain.link/cre/guides/workflow/using-http-client/post-request-ts), [simulation secrets](https://docs.chain.link/cre/guides/workflow/secrets/using-secrets-simulation-ts), [simulation](https://docs.chain.link/cre/guides/operations/simulating-workflows)
 
 SDK 1.23.0 differs from older prose examples: `getSecret` belongs to the DON runtime, and HTTP cache settings use `store` and `maxAge`. The code follows the installed official SDK types. Workflow source is MIT; the CRE SDK dependency carries its own BUSL-1.1 license.
+
+## Recorded Sepolia preparation (06 Nov 2026)
+
+Consumer: [0x97F6f25D51DD52565FF30D22286392686A1ED80F](https://sepolia.etherscan.io/address/0x97F6f25D51DD52565FF30D22286392686A1ED80F); [deployment transaction](https://sepolia.etherscan.io/tx/0x6fa36eef483077cfa825de7d5273484011e3c2b0c528d9e8bd2eec196ba4a8c9). Sourcify v2 reports exact creation/runtime match, match ID 58607325. This consumer is configured for simulation, with no production identity claim.
+
+[Actual zero-value USDC trigger transaction](https://sepolia.etherscan.io/tx/0x7494d97df9468b822e32aa7008e8f336979b584558053457a03ef32e00b9af15), event index **0**, block 12075412. It is a synthetic demonstration of a lookalike that resembles the approved payee, not evidence of a real attack. The corresponding CRE command still stops at authentication. Public machine-readable records are in `deployments/`.
+
+All three required check commands and WASM compilation passed in the [Linux CI run](https://github.com/Deven1305/hexfence/actions/runs/42188282403). WASM compilation is not a CRE simulation. `cre init` and `cre workflow simulate` were attempted with CLI 1.39.0 and both rejected for missing login. No `SIMULATION.md` output has been fabricated.

@@ -35,10 +35,10 @@
 
 | ID | Task | Status | Evidence / next step |
 |---|---|---|---|
-| A2 | Sentinel + HexFenceAlerts | ? | Source, 4 classification tests and 4 consumer tests implemented; 14 v1 tests unchanged and passing. CRE CLI 1.39.0 init and simulate both stop at authentication. PR and deployment evidence follow after checks. |
+| A2 | Sentinel + HexFenceAlerts | ⏸ | [PR #29](https://github.com/Deven1305/hexfence/pull/29), commit 290ba1d: all 3 required checks and WASM compile pass in CI. Consumer deployed at 0x97F6f25D51DD52565FF30D22286392686A1ED80F, tx 0x6fa36eef483077cfa825de7d5273484011e3c2b0c528d9e8bd2eec196ba4a8c9; Sourcify exact creation/runtime match 58607325. Real zero-value Sepolia demonstration tx 0x7494d97df9468b822e32aa7008e8f336979b584558053457a03ef32e00b9af15, event index 0. CRE simulation remains blocked by human login; Telegram token absent. Radar wiring follows A1. |
 
 ## Waiting on humans (tick the box when done; then the agent continues)
-- [ ] A2 CRE: a human creates the Chainlink account and runs `cre login`. From `sentinel`, after creating the ignored config and supplying an actual Sepolia event: `cre workflow simulate hexfence-sentinel --target staging-settings --env ../.env --non-interactive --trigger-index 0 --evm-tx-hash <actual-tx-hash> --evm-event-index <event-index> --broadcast`. Save actual output and consumer receipt/hash to `sentinel/SIMULATION.md` only after success. CLI init also requires login; project files were prepared directly. No successful simulation is claimed.
+- [ ] A2 CRE: a human creates the Chainlink account and runs `cre login`. From `sentinel`, after creating the ignored config and supplying an actual Sepolia event: `cre workflow simulate hexfence-sentinel --target staging-settings --env ../.env --non-interactive --trigger-index 0 --evm-tx-hash 0x7494d97df9468b822e32aa7008e8f336979b584558053457a03ef32e00b9af15 --evm-event-index 0 --broadcast`. Save actual output and consumer receipt/hash to `sentinel/SIMULATION.md` only after success. CLI init also requires login; project files were prepared directly. No successful simulation is claimed.
 - [ ] A2 Telegram: human creates the bot, starts the intended chat, adds `TELEGRAM_BOT_TOKEN_ALL` to ignored root .env, enables Telegram and sets the opted-in chat ID in ignored `sentinel/hexfence-sentinel/config.json`. Agent does not create accounts, enter credentials, or send a message before that setup.
 
 - [ ] T14 go/no-go: follow apps/extension/TESTING.md with MetaMask on app.safe.global.
