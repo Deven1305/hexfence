@@ -117,6 +117,7 @@
 - 06 Nov (Dhruv, deviation from spec 3.4): Hindi now covers every verdict and the Pay interface, beyond the spec's two lines. Those two lines stay verbatim; the rest is AI-written and awaits H10.
 - 06 Nov (Dhruv): published 48 more records with existing publisher funds, one per equal slice of blocks 26345549-26352743, lowest evidenceId in each slice, excluding block 26352743. Txs 0x5a3c06f45380a75efaaf9989d8b33cf963ed17fe8ee4e4bcd97f0e060b040d36 and 0x0cc6e1053a87c84d370ad1fda375cb976a66643eb04c4759c4b7eac5bed42465. Total 173.
 - 06 Nov (Dhruv): published 953 more records from a fresh scan (blocks 26349302-26356501, 58,739 suspected pairs), funded by a 10 tGLM faucet claim to the publisher. Selection: one per equal block slice plus up to 20 from each of the 10 largest attack transactions. 60 of 60 sampled records matched mainnet receipts before writing. Hosted explorer: 1126 of 1126; hosted Pay read all pages through Nox and gave L a RED verdict. Scheduled publishing remains off because the repository secret is not set.
+- 06 Nov (Dhruv): allowed funding the V2 Safe and running its demo with Sepolia ETH. Scripted run: funding 0x0368f00e, P 0xfc93f063 status 1, L 0x2585f5ce status 0, known recipients = P only.
 
 ## Session log (append one line per task or stop)
 

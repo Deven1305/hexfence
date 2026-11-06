@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'none'; img-src 'none'; base-uri 'none'; form-action 'none'">
+<title>H9 human review</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f5f8;color:#182536;font:17px/1.55 system-ui,sans-serif}main{max-width:920px;margin:36px auto;padding:28px;background:white;border:1px solid #d9e0e8;border-radius:14px}h1{margin:0 0 12px}p{margin:12px 0}.setup,nav,.choices{display:flex;gap:16px;flex-wrap:wrap;align-items:center}label{display:block}input,textarea,button{font:inherit}input,textarea{padding:8px;border:1px solid #8a99aa;border-radius:5px}textarea{width:100%;min-height:76px}button{padding:9px 16px;border:1px solid #6b7c91;border-radius:6px;background:#edf2f8;color:#182536;cursor:pointer}button:disabled{opacity:.45;cursor:default}button:focus-visible,input:focus-visible,textarea:focus-visible,a:focus-visible{outline:3px solid #2763b5;outline-offset:3px}a{color:#184f9c}#status{min-height:1.6em}#comparison{overflow-x:auto;padding:12px;background:#f5f7fa;border:1px solid #e0e5ec}code{font:clamp(12px,1.9vw,17px)/1.8 ui-monospace,Consolas,monospace;white-space:pre}mark{background:#ffe38e;color:#172434;font-weight:bold}.tag{display:inline-block;min-width:142px;font:14px system-ui,sans-serif}.choices{margin:18px 0}.choices label{border:1px solid #bcc9d8;border-radius:6px;padding:8px 18px}nav{margin-top:18px}small{color:#485970}#summary{white-space:pre-wrap}@media(max-width:600px){main{margin:10px;padding:18px}.tag{display:block}}
+</style></head><body><main>
+<h1>H9 human review</h1>
+<p>Review suspected address poisoning, one row at a time. Open both transactions and make your own decision. Imported labels and notes are discarded. Answers start blank.</p>
+<div class="setup"><label>Reviewer name <input id="reviewer" required autocomplete="off" maxlength="120"></label><label>Choose h9-sample.csv <input id="file" type="file" accept=".csv,text/csv"></label></div>
+<p id="status" role="status" aria-live="polite">Choose the local CSV to begin. Nothing is uploaded or saved automatically.</p>
+<section id="review" hidden>
+<h2 id="position"></h2><p id="variant"></p><p id="victim"></p>
+<div id="comparison" aria-label="Address comparison"></div>
+<p id="links"></p>
+<p>Check the reference payment from the victim to the impersonated address; compare the different lookalike address's first 4 and last 4 hex characters. Inspect what the attack transaction moved, its sender and recipient, and its Transfer logs. Decide whether the row is address poisoning.</p>
+<fieldset><legend>Your decision (yes, no or unsure)</legend><div class="choices"><label><input type="radio" name="answer" value="yes"> yes</label><label><input type="radio" name="answer" value="no"> no</label><label><input type="radio" name="answer" value="unsure"> unsure</label></div></fieldset>
+<label>Your notes <textarea id="notes" placeholder="Optional observations from your review"></textarea></label>
+<nav><button id="previous" type="button">Previous</button><button id="next" type="button">Next</button><button id="clear" type="button">Clear answer</button></nav>
+<p id="summary" aria-live="polite"></p>
+<button id="download" type="button">Download answers CSV + summary</button>
+<p><small>Precision = yes / (yes + no). Unsure and unanswered rows are excluded. Partial exports are identified as incomplete. Downloads require your name. Keep the browser tab open until you have downloaded your answers; loading a file again starts a fresh review.</small></p>
+</section></main><script>
+'use strict';
+const HEADER = ['n','label','variant','victim','impersonated','lookalike','attack_tx','reference_tx','notes'];
+const LABELS = ['yes','no','unsure'];
+let rows = [], answers = [], index = 0;
+const el = id => document.getElementById(id);
+function parseCsv(text) {
+  const records = []; let record = [], cell = '', quoted = false, closed = false;
+  text = text.replace(/^\uFEFF/, '');
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (quoted) { if (c === '"') { if (text[i+1] === '"') { cell += '"'; i++; } else { quoted = false; closed = true; } } else cell += c; }
+    else if (c === '"' && cell === '' && !closed) quoted = true;
+    else if (c === ',' || c === '\n' || c === '\r') {
+      record.push(cell); cell = ''; closed = false;
+      if (c !== ',') { if (c === '\r' && text[i+1] === '\n') i++; records.push(record); record = []; }
+    } else { if (closed || c === '"') throw Error('Invalid CSV quoting.'); cell += c; }
+  }
+  if (quoted) throw Error('Unclosed CSV quote.');
+  if (cell !== '' || record.length || closed) { record.push(cell); records.push(record); }
+  return records.filter(r => r.some(c => c !== ''));
+}
+function loadRows(text) {
+  const records = parseCsv(text), header = records.shift();
+  if (!header || header.join(',') !== HEADER.join(',')) throw Error('Expected the h9-sample.csv column order.');
+  const seen = new Set();
+  const loaded = records.map(record => {
+    if (record.length !== HEADER.length) throw Error('A row has the wrong number of columns.');
+    const row = Object.fromEntries(HEADER.map((key,i) => [key, record[i]]));
+    if (!/^\d+$/.test(row.n) || seen.has(row.n)) throw Error('Row numbers must be unique integers.');
+    seen.add(row.n);
+    for (const key of ['victim','impersonated','lookalike']) if (!/^0x[0-9a-fA-F]{40}$/.test(row[key])) throw Error('Invalid address in row ' + row.n);
+    for (const key of ['attack_tx','reference_tx']) if (!/^https:\/\/etherscan\.io\/tx\/0x[0-9a-fA-F]{64}$/.test(row[key])) throw Error('Invalid Etherscan transaction link in row ' + row.n);
+    if (!['zero-value','dust'].includes(row.variant)) throw Error('Unknown detector variant.');
+    // Deliberately discard both the AI answer and its explanatory notes.
+    row.label = ''; row.notes = ''; return row;
+  });
+  if (!loaded.length) throw Error('The CSV has no review rows.');
+  return loaded;
+}
+function counts() {
+  const p = {yes:0,no:0,unsure:0,unlabelled:0};
+  for (const answer of answers) p[answer.label || 'unlabelled']++;
+  p.precision = p.yes + p.no ? p.yes / (p.yes + p.no) : null;
+  return p;
+}
+function summaryText(name) {
+  const p = counts();
+  return 'H9 human review — ' + name + '\n' + (p.unlabelled ? 'Incomplete review' : 'Complete review') + ': ' + (rows.length-p.unlabelled) + '/' + rows.length + ' answered\nYes: ' + p.yes + '; no: ' + p.no + '; unsure: ' + p.unsure + '; unanswered: ' + p.unlabelled + '\nPrecision (yes / (yes + no)): ' + (p.precision === null ? 'not available' : (p.precision*100).toFixed(2) + '%') + '\nUnsure and unanswered rows are excluded from precision.\n';
+}
+// labels.ts splits on commas/newlines, so keep the label cell unquoted and free of ambiguity.
+function plainCell(value) { const text = String(value).replace(/[\r\n,]+/g,'; ').replace(/"/g,"'"); return /^[=+@-]/.test(text) ? "'" + text : text; }
+function exportCsv(name) {
+  return HEADER.join(',') + '\n' + rows.map((row,i) => HEADER.map(key => {
+    if (key === 'label') return answers[i].label;
+    if (key === 'notes') return plainCell('Human reviewer: ' + name + '; ' + answers[i].notes);
+    return plainCell(row[key]);
+  }).join(',')).join('\n') + '\n';
+}
+function addressLine(title, address) {
+  const div = document.createElement('div'), label = document.createElement('span'), code = document.createElement('code');
+  label.className = 'tag'; label.textContent = title;
+  code.append('0x');
+  const first = document.createElement('mark'), last = document.createElement('mark');
+  first.textContent = address.slice(2,6); last.textContent = address.slice(-4);
+  code.append(first,address.slice(6,-4),last); div.append(label,code); return div;
+}
+function render() {
+  const row = rows[index]; el('review').hidden = false;
+  el('position').textContent = 'Row ' + row.n + ' · ' + (index+1) + ' of ' + rows.length;
+  el('variant').textContent = 'Detector variant: ' + row.variant + ' · status: suspected';
+  el('victim').textContent = 'Victim: ' + row.victim;
+  el('comparison').replaceChildren(addressLine('Impersonated',row.impersonated),addressLine('Lookalike',row.lookalike));
+  const links = el('links'); links.replaceChildren();
+  for (const [title,key] of [['Reference transaction','reference_tx'],['Attack transaction','attack_tx']]) {
+    const a = document.createElement('a'); a.textContent = title; a.href = row[key]; a.target = '_blank'; a.rel = 'noopener noreferrer'; links.append(a, document.createTextNode('  '));
+  }
+  for (const input of document.querySelectorAll('input[name="answer"]')) input.checked = input.value === answers[index].label;
+  el('notes').value = answers[index].notes;
+  el('previous').disabled = index === 0; el('next').disabled = index === rows.length-1;
+  el('summary').textContent = summaryText(el('reviewer').value.trim() || '(name required for export)');
+}
+el('file').addEventListener('change', async () => {
+  const file = el('file').files[0]; if (!file) return;
+  if (rows.length && !confirm('Start a fresh review? Download your current answers first if you need them.')) { el('file').value = ''; return; }
+  try {
+    const loaded = loadRows(await file.text());
+    rows = loaded; answers = rows.map(() => ({label:'',notes:''})); index = 0;
+    el('status').textContent = rows.length + ' rows loaded. All answers are blank. Review happens in this tab only.'; render();
+  } catch (error) { el('status').textContent = error.message; }
+});
+for (const input of document.querySelectorAll('input[name="answer"]')) input.addEventListener('change', () => {
+  if (!el('reviewer').value.trim()) { input.checked = false; el('reviewer').focus(); el('status').textContent = 'Enter your reviewer name before answering.'; return; }
+  answers[index].label = input.value; render();
+});
+el('notes').addEventListener('input', () => { answers[index].notes = el('notes').value; });
+el('reviewer').addEventListener('input', () => { if (rows.length) render(); });
+el('previous').addEventListener('click', () => { if (index>0) { index--; render(); } });
+el('next').addEventListener('click', () => { if (index<rows.length-1) { index++; render(); } });
+el('clear').addEventListener('click', () => { answers[index].label = ''; render(); });
+function download(name, text, type) {
+  const url = URL.createObjectURL(new Blob([text],{type}));
+  const a = document.createElement('a'); a.href = url; a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(url),1000);
+}
+el('download').addEventListener('click', () => {
+  const name = el('reviewer').value.trim();
+  if (!name) { el('reviewer').reportValidity(); el('reviewer').focus(); return; }
+  download('h9-human-labels.csv',exportCsv(name),'text/csv;charset=utf-8');
+  download('h9-human-summary.txt',summaryText(name),'text/plain;charset=utf-8');
+});
+window.addEventListener('beforeunload', event => { if (answers.some(a => a.label || a.notes)) { event.preventDefault(); event.returnValue = ''; } });
+</script></body></html>
