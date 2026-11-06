@@ -18,6 +18,7 @@ Values below come from the live T8 run (`docs/T8_LIVE_RESULTS.md`) unless the la
 | TX_L_REVERT_2 | 0xe77e6a7a8ba5b6f9742ec953826bc47c69ffffdced3a4d40b8fe3a220e1bb46f | `docs/T8_LIVE_RESULTS.md` (direct script transaction, not Safe{Wallet}) |
 | ARKIV_PUBLISHER | 0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec | README "Publisher wallet" |
 | RECORD_COUNT | 125 | `docs/T8_LIVE_RESULTS.md` (124 zero-value, 1 dust, all suspected) |
+| SITE_URL | https://deven1305.github.io/hexfence/ | Pages workflow |
 | EXPLORER_URL | https://deven1305.github.io/hexfence/explorer/ | Pages workflow, PROGRESS H11 |
 | PAY_URL | https://deven1305.github.io/hexfence/pay/ | same |
 | REPO_URL | https://github.com/Deven1305/hexfence | the public repo |
@@ -48,8 +49,8 @@ The core is `HexFenceGuard`, a Safe transaction guard with no owner and no upgra
 Around it:
 - **Detector:** reads Ethereum mainnet USDT and USDC transfer logs and finds lookalike pairs. Every record is marked "suspected".
 - **Arkiv:** the pairs are written as `hexfence.poisoning.v1` records with 30-day expiry, idempotently (a re-run creates 0 duplicates).
-- **Explorer:** searches the Arkiv records, links both transactions on Etherscan, and re-checks the receipts in the browser with "Verify on Ethereum".
-- **HexFence Pay:** decodes a Safe payment, reads the Safe's payees once, and shows a verdict (red: resembles an approved payee; amber: new recipient; green: approved). To send a red payment anyway the user must type 6 characters. It has two Hindi verdict lines and tries the Nox mixnet for its Sepolia reads.
+- **Explorer:** loads every Arkiv record, shows views by variant, token and attack block, checks an address inside the browser without sending it to a server, links both transactions on Etherscan, and re-checks the receipts with "Verify on Ethereum".
+- **HexFence Pay:** decodes a Safe payment, reads the Safe's payees once, and shows a verdict (red: resembles an approved payee; amber: new recipient; green: approved). To send a red payment anyway the user must type 6 characters. It has two Hindi verdict lines and tries the Nox mixnet for its Sepolia reads. Without a wallet it gives a read-only preview with real verdicts.
 
 The demo is in two clearly separate parts. Part 1 is real mainnet evidence read live from Arkiv. Part 2 is a **synthetic re-enactment on Sepolia** using a pair of addresses we generated ourselves, not a real attack: paying the lookalike reverts on-chain, paying a new supplier succeeds, paying the approved payee succeeds, and the lookalike still reverts with our client switched off.
 
@@ -61,9 +62,9 @@ Limits (stated in the README): module transactions bypass guards; MultiSend is r
 - **Shared logic:** TypeScript package with the fingerprint, the Safe payment decoder, the verdict logic and the evidence schema (zod). A parity test checks the TypeScript fingerprint rule against the real Guard on 411 transactions.
 - **Detector:** TypeScript and viem, reading Ethereum mainnet USDT/USDC `Transfer` logs through a public RPC. Read-only.
 - **Arkiv:** `@arkiv-network/sdk` on the Rabdi testnet. Records are bulk-read and written idempotently. One publisher wallet signs.
-- **Explorer:** static Vite app that reads Arkiv from the browser and verifies receipts against Ethereum mainnet in the browser.
+- **Explorer:** static Vite app that bulk-reads Arkiv from the browser, computes its views and address checks locally, and verifies receipts against Ethereum mainnet in the browser.
 - **HexFence Pay:** Vite and TypeScript, Safe Protocol Kit 8, viem, a browser wallet on Sepolia. RPC reads can go through Anon-RPC's Nox route (Sphinx mixnet).
-- **Tooling:** pnpm workspace, Node 22, vitest. Contracts are a standalone npm Hardhat project.
+- **Tooling:** static landing page; pnpm workspace, Node 22, vitest. Contracts are a standalone npm Hardhat project.
 - **AI:** we used Claude Code and Codex as coding agents under written rules (`AGENTS.md`, `docs/PARALLEL_PLAN.md`). All plans, prompts and reports are kept in `docs/planning/`; `docs/AI_USAGE.md` lists what was AI-generated.
 - **What's new vs reused:** built at this event: the detector, the Arkiv schema and publisher, the explorer, HexFence Pay and the shared logic. Reused: the reference Guard and its tests, Safe 1.4.1 contracts, Safe Protocol Kit, `@arkiv-network/sdk`, viem, zod, Hardhat, Vite, vitest. No code from any pre-event project.
 

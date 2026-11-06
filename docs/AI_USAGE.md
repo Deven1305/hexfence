@@ -14,7 +14,7 @@ AI agents wrote most of this repo's code and documentation. Humans chose the ide
 | C: explorer + docs | Claude Code (Opus) | Dhruv | T5 `apps/explorer`, T9 Verify on Ethereum, T7 these docs, `docs/DEMO.md` ([PR #3](https://github.com/Deven1305/hexfence/pull/3), [PR #4](https://github.com/Deven1305/hexfence/pull/4)) |
 | Codex follow-up | Codex | Dhruv (`dhruv4740`) | Pay browser tests, demo setup, Nox-only reads, Pages workflow, T8 checker and runbook, doc corrections ([PRs #7–#13](#codex-follow-up-prs)) |
 
-Dhruv's Claude Code session (Opus) also acted as organiser: it wrote the Lane B plan, checked each session's results, reviewed the PRs, resolved their merge conflicts and merged them. Lane C was planned for Codex and was done by Claude Code instead, because that account had usage left. The per-task history, with commit hashes, is in the logs in [docs/lanes/](lanes/).
+Dhruv's Claude Code session (Opus) also acted as organiser: it wrote the Lane B plan, checked each session's results, reviewed the PRs, resolved their merge conflicts and merged them. On 6 Nov Gemini was consulted on Hindi wording; that output has not been merged. Lane C was planned for Codex and was done by Claude Code instead, because that account had usage left. The per-task history, with commit hashes, is in the logs in [docs/lanes/](lanes/).
 
 Codex subsequently produced the follow-up PRs below. These credits are drawn from
 `git log` and `gh pr view`; the Git author account is `dhruv4740`. A commit's
@@ -37,6 +37,17 @@ read, not a hosted Guard/payee test. PR #10 records a successful build/artifact
 upload with deployment skipped. These do not establish the H6/H7 human wallet
 flow, a Sepolia demo deployment or live Pages hosting. PR #11's verify and checker
 have only run against local chains and scripted HTTP responses, not on Sepolia.
+
+### Scope additions, 6 Nov
+
+| PR | Work | Written by |
+|---|---|---|
+| [#22](https://github.com/Deven1305/hexfence/pull/22) | Landing page and styling | Codex |
+| [#23](https://github.com/Deven1305/hexfence/pull/23) | Scheduled publisher and explorer views | Codex |
+| [#21](https://github.com/Deven1305/hexfence/pull/21) | Pay read-only preview and owner setup | Claude Code (Sonnet) |
+| [#24](https://github.com/Deven1305/hexfence/pull/24) | Chrome extension | Codex |
+
+Dhruv's Claude Code organiser session (Opus) reviewed, ran the tests Codex's sandbox could not, checked the hosted site in a browser and merged these. Codex's tests were written without being run by Codex. No real wallet has exercised PR #21's setup panel or PR #24's interception.
 
 ## How the agents worked
 Rules are in [AGENTS.md](../AGENTS.md) and [docs/PARALLEL_PLAN.md](PARALLEL_PLAN.md): one agent per lane, each editing only its own paths, meeting through the frozen signatures in [docs/INTERFACES.md](INTERFACES.md), with tests before each commit.

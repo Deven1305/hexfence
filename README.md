@@ -2,6 +2,8 @@
 
 **A Safe Guard that refuses lookalike payments (deny by resemblance), with open address-poisoning evidence on Arkiv.** ETHGlobal Mumbai 2026.
 
+**Start here:** [live site](https://deven1305.github.io/hexfence/). **Working on the code?** Read [docs/TEAM_HANDOFF.md](docs/TEAM_HANDOFF.md).
+
 HexFence detects address poisoning, publishes the evidence openly on Arkiv, warns you locally before you sign, and makes a protected Safe refuse to pay a lookalike of an approved supplier, even one nobody has ever reported, while new suppliers still work.
 
 ## Architecture
@@ -11,7 +13,7 @@ Ethereum mainnet USDT/USDC logs
    apps/detector ── evidence.jsonl
         │ publish (idempotent, 30-day expiry)
         ▼
- Arkiv Rabdi testnet: hexfence.poisoning.v1 ──► apps/explorer (search, counts, Verify on Ethereum)
+ Arkiv Rabdi testnet: hexfence.poisoning.v1 ──► apps/explorer (data views, local search, Verify on Ethereum)
         │ bulk read
         ▼
    apps/pay (HexFence Pay): decode payment → read payees(safe) once → verdict → sign
@@ -22,10 +24,12 @@ Ethereum mainnet USDT/USDC logs
 - **`contracts/`:** `HexFenceGuard`, a Safe transaction guard with no owner and no upgrade path. A recipient that shares a fingerprint (first 4 + last 4 hex characters) with an approved payee, but is a different address, reverts with `LookalikeOfApprovedPayee`. Anyone else still goes through. The Guard reads nothing off-chain.
 - **`packages/shared/`:** fingerprint, Safe payment decoder, verdict logic and evidence schema, with a parity test against the real Guard on 411 transactions.
 - **`packages/arkiv/`:** the Arkiv schema, bulk readers and idempotent writer.
+- **`apps/site/`:** the static landing page, deployed with the two apps.
+- **`apps/extension/`:** a Chrome extension that reviews Safe payments on `app.safe.global`. Its interception has not yet been tested on the real site; see Limits.
 - **Real evidence and the synthetic test are separate.** Mainnet records are always status "suspected". The synthetic Sepolia L only ever gets "resembles your approved payee".
 
 ## What's new vs reused
-**Built at this event:** the detector, the Arkiv schema and publisher, the explorer, HexFence Pay, and the shared decoder and verdict logic.
+**Built at this event:** the detector, the Arkiv schema and publisher, the explorer, HexFence Pay, the landing page, the Chrome extension, and the shared decoder and verdict logic.
 
 **Reused:**
 - the reference `HexFenceGuard` and its tests, which are AI-generated and reviewed (see [docs/AI_USAGE.md](docs/AI_USAGE.md));
@@ -131,11 +135,19 @@ pnpm --filter @hexfence/explorer dev
 pnpm --filter @hexfence/explorer build    # dist/ works from any path on static hosting
 ```
 
-**HexFence Pay** (`VITE_GUARD_ADDRESS`, `VITE_SEPOLIA_RPC_URL`, a browser wallet on Sepolia; optional `VITE_ARKIV_PUBLISHER` turns on the "listed in public evidence" signal, and without it the page says the signal is off):
+**HexFence Pay** (`VITE_GUARD_ADDRESS`, `VITE_SEPOLIA_RPC_URL`; a browser wallet on Sepolia for signing, sending and owner setup, while `?safe=0x…` without a wallet gives a read-only preview; optional `VITE_ARKIV_PUBLISHER` turns on the "listed in public evidence" signal, and without it the page says the signal is off):
 ```bash
 pnpm --filter @hexfence/pay dev
 pnpm --filter @hexfence/pay build
 ```
+
+**Chrome extension** (load `apps/extension/dist` unpacked; steps in [apps/extension/TESTING.md](apps/extension/TESTING.md)):
+```bash
+pnpm --filter @hexfence/extension test
+pnpm --filter @hexfence/extension build
+```
+
+**Scheduled publisher:** [.github/workflows/publish-evidence.yml](.github/workflows/publish-evidence.yml) runs every 6 hours once the `ARKIV_PRIVATE_KEY` repository secret exists. Setup and budget rules are in [docs/LIVE_EVIDENCE.md](docs/LIVE_EVIDENCE.md).
 
 The `VITE_*` values end up in the public bundle, so never put a secret in one. Restrict an Arkiv access key to your origins at hub.arkiv.network.
 
@@ -151,6 +163,8 @@ P=0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec pnpm exec tsx -e 'import("./src/ind
 ```
 
 ## Live links
+- Landing page: https://deven1305.github.io/hexfence/
+- Read-only Pay preview, no wallet needed: https://deven1305.github.io/hexfence/pay/?safe=0x3BCc3969713778F3Ed26AE1490529eeBAD43FbD5
 - Explorer: https://deven1305.github.io/hexfence/explorer/
 - HexFence Pay: https://deven1305.github.io/hexfence/pay/
 
@@ -171,7 +185,10 @@ P=0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec pnpm exec tsx -e 'import("./src/ind
   - the limits are stated.
 
 ## Limits
-- Nox covers the configured Sepolia RPC read route only (see CROPS, P). Hosted Nox and Guard or payee reads through Nox are untested. Nox start-up took about 9 seconds in one browser check and more than 20 seconds (not timed) in another; neither is a benchmark.
+- Nox covers the configured Sepolia RPC read route only (see CROPS, P). Guard and payee reads through Nox worked on the hosted site. Nox start-up took 26–38 seconds in hosted browser runs and timed out at 60 seconds during a network outage; these are single observations, not benchmarks.
+- The Chrome extension's interception on `app.safe.global` has not been tested with a real wallet, so its go/no-go is open.
+- Pay's owner setup panel is unit-tested but has not been used with a real wallet.
+- All 125 published records currently share one Ethereum attack block (26352743), so they are a narrow sample of the detector's output. The scheduled publisher has not run with a key.
 - Module transactions bypass transaction guards.
 - MultiSend is refused (it's a delegatecall).
 - Only ETH, `transfer` and `transferFrom` are inspected; other calls are allowed and clients show "cannot verify".

@@ -44,7 +44,7 @@ One lookalike of one address is one record per detector version, however many vi
 `ExpirationTime.fromDays(30)`. Evidence older than a month is stale for warning purposes, and expiring keeps the dataset (and its cost) bounded.
 
 ## Reading it
-Records are read **in bulk per publisher**: `createdBy(publisher)`, `orderBy(asc("$key"))`, pages of ≤ 100 rows (the SDK's `MAX_LIMIT`), continued with `gt("$key", lastKey)`. Clients never send a per-recipient lookup. Code: `fetchAllEvidence` / `findEvidenceByAddress` in [`packages/arkiv/src/read.ts`](../packages/arkiv/src/read.ts).
+Records are read **in bulk per publisher**: `createdBy(publisher)`, `orderBy(asc("$key"))`, pages of ≤ 100 rows (the SDK's `MAX_LIMIT`), continued with `gt("$key", lastKey)`. Clients never send a per-recipient lookup. Code: `fetchAllEvidence` in [`packages/arkiv/src/read.ts`](../packages/arkiv/src/read.ts).
 
 Anyone can write an entity with this schema tag, so **trust comes from the publisher address**, and readers re-validate every row (fingerprint match, `evidenceId`, `status`) before showing it.
 

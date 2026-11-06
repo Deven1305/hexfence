@@ -10,7 +10,7 @@ Postgres could implement bulk downloads, filters, authentication and expiry too,
 
 The derived dataset connects victim, impersonated payee and lookalike to two Ethereum transactions. Raw Ethereum logs supply the transfers; our detector supplies the suspected relationship. Users can search those address fields and independently re-check receipts. The hosted browser displayed 125 records and verified the first record's receipts. Receipt verification does not prove malicious intent: status stays **suspected**.
 
-Pay bulk-reads evidence and compares recipients locally, avoiding a per-recipient request. That privacy property comes from the client design; another database could also support bulk reads. Explorer's explicit address search does disclose its search to the Arkiv RPC.
+Pay bulk-reads evidence and compares recipients locally, avoiding a per-recipient request. That privacy property comes from the client design; another database could also support bulk reads. Explorer's address search and check also run on bulk-downloaded records, so the address is not sent to the Arkiv RPC.
 
 ## What did we keep off Arkiv, and why?
 

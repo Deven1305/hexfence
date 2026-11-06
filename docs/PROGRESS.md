@@ -4,11 +4,12 @@
 > Status: ☐ todo · ▶ in progress · ✔ done · ⏸ waiting on humans
 
 ## Now
-- **Current task:** T8 passed; additional Arkiv publication and hosted 125-record check passed. PR #16 awaiting review.
-- **Agent working:** Codex (live pass authorised by Dhruv).
-- **Last updated:** 06 Nov 09:18 IST
-- **Tests (live branch, local only):** contracts 14; setup/checker/verify scripts 13; workspace 121 passed, 3 live integration tests skipped; recursive build passed; original local-chain Playwright E2E 1 passed. Sepolia production browser L/B/P passed, Nox Guard/payee reads passed first attempt (29,485 ms), and both real L hashes passed check-t8 (exit 0).
-- **Next step for whoever comes next:** review PR #16 and complete remaining human checks. H6 remains an actual human wallet-flow check; the successful T8 wallet was scripted. No more tGLM transfer without Dhruv explicit approval.
+- **Read first:** `docs/TEAM_HANDOFF.md` (current state, open work, rules for this pass).
+- **Current task:** scope additions merged (PRs #21–#24). Human checks and the open decisions in the handoff remain.
+- **Agent working:** none running; Claude Code organiser (Dhruv's laptop) last.
+- **Last updated:** 06 Nov 11:45 IST
+- **Tests:** contracts 14; workspace 169 passed, 4 skipped; recursive build passed. Hosted landing, explorer (125 of 125) and read-only Pay (L RED, P GREEN, through Nox) checked in headless Chrome.
+- **Next step for whoever comes next:** T14 go/no-go, Pay setup with a real wallet on an isolated Safe, then H6, H9, H10, Guard review. No more tGLM transfer without Dhruv's explicit approval.
 
 ## Tasks (strict order)
 
