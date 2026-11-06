@@ -58,10 +58,19 @@ const EXACT: Record<string, string> = {
   "Reload Safe state": "Safe की स्थिति दोबारा लोड करें",
   "Current state, read from the Safe: the HexFence Guard is not active.": "वर्तमान स्थिति, Safe से पढ़ी गई: HexFence Guard सक्रिय नहीं है।",
   "Read from the Guard: none approved.": "Guard से पढ़ा गया: कोई स्वीकृत नहीं।",
+  "Explain another call (ERC-7730)": "किसी और कॉल की व्याख्या (ERC-7730)",
+  "Paste an ERC-7730 descriptor for a contract, then the call. The descriptor only explains the call. It can never lower a risk level, and nothing is sent anywhere.": "किसी कॉन्ट्रैक्ट का ERC-7730 डिस्क्रिप्टर चिपकाएँ, फिर कॉल। डिस्क्रिप्टर केवल कॉल समझाता है। वह जोखिम स्तर कम नहीं कर सकता, और कुछ भी कहीं भेजा नहीं जाता।",
+  "ERC-7730 descriptor (JSON)": "ERC-7730 डिस्क्रिप्टर (JSON)",
+  "Contract the call goes to": "कॉल जिस कॉन्ट्रैक्ट पर जाता है",
+  "Call data": "कॉल डेटा",
+  "Explain call": "कॉल समझाएँ",
+  "No descriptor you pasted describes this call, so HexFence cannot explain it.": "आपके चिपकाए किसी डिस्क्रिप्टर में यह कॉल वर्णित नहीं है, इसलिए HexFence इसे समझा नहीं सकता।",
   [GUARD_INACTIVE_SENTENCE]: "HexFence Guard इस Safe पर सक्रिय नहीं है, इसलिए कोई ऑन-चेन नियम इस भुगतान को नहीं रोकेगा।",
 };
 
 const PATTERNS: [RegExp, string][] = [
+  [/^Described by your descriptor( \(.+\))?\. The wording comes from the descriptor you pasted, not from HexFence: (.+)$/s, "आपके डिस्क्रिप्टर से वर्णित$1। यह शब्दावली आपके चिपकाए डिस्क्रिप्टर से है, HexFence से नहीं: $2"],
+  [/^(.+) (0x\w+) resembles your approved payee (0x\w+) \(same first 4 and last 4 characters\) but is a different address\. HexFence Guard does not check this call type, so it will not stop it\.$/, "$1 $2 आपके स्वीकृत प्राप्तकर्ता $3 जैसा दिखता है (पहले 4 और आख़िरी 4 अक्षर समान), लेकिन यह अलग पता है। HexFence Guard इस प्रकार के कॉल की जाँच नहीं करता, इसलिए इसे नहीं रोकेगा।"],
   [/^Connecting to anonymous read routes \((.+)\)… Safe and payee reads wait for this\.$/, "गुमनाम रीड रूट से जुड़ रहा है ($1)… Safe और प्राप्तकर्ता के रीड इसका इंतज़ार कर रहे हैं।"],
   [/^Reads go through (.+)\.$/, "रीड $1 के ज़रिए जाते हैं।"],
   [/^Start-up order: (.+), then direct reads\. If this route fails later, reads fail with an error; they do not silently switch to direct\.$/, "शुरुआती क्रम: $1, फिर सीधे रीड। यह रूट बाद में विफल हो तो त्रुटि दिखेगी; रीड चुपचाप सीधे नहीं जाएँगे।"],

@@ -3,6 +3,7 @@ import "@hexfence/ui/style.css";
 import type { VerdictV2 as Verdict } from "@hexfence/shared";
 import { paymentVerdict, paymentVerdictText } from "./upgrade";
 import { radarPanel } from "./radar";
+import { explainPanel } from "./explain";
 import type { AnonOutcome } from "./anon";
 import { getAddress, getContract, type Address, type EIP1193Provider, type Hex } from "viem";
 import type Safe from "@safe-global/protocol-kit";
@@ -349,6 +350,7 @@ function paymentSection(): HTMLElement {
     void onCheck({ asset: asset.value, token: token.value, to: to.value, amount: amount.value }, out, () => version === revision);
   };
   s.append(el("label", { for: "asset" }, "Asset"), asset, tokenWrap, el("label", { for: "to" }, "Recipient"), to, el("label", { for: "amount" }, "Amount"), amount, preview, check, out);
+  s.append(explainPanel(state.info, state.config.guard, state.lang, state.config.publisher));
   for (const field of [asset, token, amount]) field.addEventListener("input", () => { ++revision; out.replaceChildren(); });
   return s;
 }
