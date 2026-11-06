@@ -4,7 +4,7 @@ Measured against SDK 1.0.1 and Rabdi. [Official limits](https://docs.arkiv.netwo
 
 | Expectation | Observation | Response |
 |---|---|---|
-| Spec assumed 200-row pages and hasNextPage | Pinned SDK caps pages at 100; no such helper | Production reader orders by entity key and continues after the last key. The 173-record public query needs two pages. This is not an atomic snapshot during concurrent writes. |
+| Spec assumed 200-row pages and hasNextPage | Pinned SDK caps pages at 100; no such helper | Production reader orders by entity key and continues after the last key. The 1,126-record public query needs 12 pages. This is not an atomic snapshot during concurrent writes. |
 | We initially misread creator filtering | createdBy(address) exists | Restrict reads to the selected publisher, revalidate returned records, and document that attribution is not truth. |
 | Any Node version | SDK requires >=22.10 | Node 22 run path. |
 | Clear insufficient-funds errors | Early writes reached low-level execution errors | Publisher preflights public balance and stops without dumping a signed request. No new faucet or funds transfer is part of this pass. |
@@ -13,9 +13,9 @@ Measured against SDK 1.0.1 and Rabdi. [Official limits](https://docs.arkiv.netwo
 
 ## Actual scale and cost
 
-Historical scan blocks 26345544–26352743 read 1,366,618 mainnet logs and produced 47,694 suspected pairs. Only a deliberate subset was published: [fresh read](../docs/research/arkiv-snapshot-2026-11-06.json) returned 173 unique records, 147 zero-value and 26 dust. These numbers do not establish precision or adoption.
+Historical scan blocks 26345544–26352743 read 1,366,618 mainnet logs and produced 47,694 suspected pairs. Only a deliberate subset was published: [fresh read](../docs/research/arkiv-snapshot-2026-11-06-1126.json) returned 1,126 unique records, 651 zero-value and 475 dust, after a second scan (blocks 26349302-26356501, 1,479,334 logs, 58,739 suspected pairs). These numbers do not establish precision or adoption.
 
-The first 25 records cost 0.007013472 tGLM. An additional 100 cost 0.026641686 in four batches. The 125-record rerun created zero and sent zero transactions. These are historical measurements, not price estimates. [Live results](../docs/T8_LIVE_RESULTS.md), [reach](reach.md).
+The first 25 records cost 0.007013472 tGLM. An additional 100 cost 0.026641686 in four batches. The 125-record rerun created zero and sent zero transactions. The final 953 cost 0.255031221 tGLM in 39 transactions, about 0.00027 per record. These are historical measurements, not price estimates. [Live results](../docs/T8_LIVE_RESULTS.md), [reach](reach.md).
 
 Explorer now bulk-loads all pages with progress and searches locally; Pay also bulk-loads before local comparisons. Earlier first-page/indexed-search descriptions no longer match these clients. Bulk reads improve query privacy but grow with dataset size; there is no demonstrated full-dataset production scale benchmark. Indexed variant counts remain useful without downloading all content.
 

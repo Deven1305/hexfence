@@ -12,6 +12,7 @@ module.exports = {
     compilers: [{ version: "0.8.26", settings: { optimizer: { enabled: true, runs: 200 } } }],
     overrides: {
       "contracts/HexFenceGuardV2.sol": { version: "0.8.28", settings: { optimizer: { enabled: true, runs: 200 }, evmVersion: "cancun" } },
+      "contracts/HexFenceGovernanceGuardV2.sol": { version: "0.8.28", settings: { optimizer: { enabled: true, runs: 200 }, evmVersion: "cancun" } },
       "contracts/test/V2Targets.sol": { version: "0.8.28", settings: { optimizer: { enabled: true, runs: 200 }, evmVersion: "cancun" } },
     },
   },

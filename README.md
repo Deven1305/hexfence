@@ -32,7 +32,7 @@ Sepolia Transfer log → Sentinel source/WASM [CRE login/run pending]
 - **Sentinel / Radar:** CRE source and WASM build, an on-chain consumer and a Pay bulk reader. **A successful CRE simulation and Telegram delivery are still missing.** The consumer trusts the public mock forwarder; banners say simulation/advisory. See [CHAINLINK.md](CHAINLINK.md).
 - **`packages/arkiv/`:** the Arkiv schema, bulk readers and idempotent writer.
 - **`packages/check/` and `packages/mcp/`:** an offline check SDK (verdict plus an evidence Bloom filter) and an MCP stdio server with one tool, `hexfence_check`, so an AI agent can compare a recipient with its approved payees before it signs. Both are offline: they read no chain data.
-- **Module guard:** `HexFenceModuleGuard` applies V2's checks to Safe 1.5.0 module transactions. It is deployed, but no live Safe uses it and no live module payment has run.
+- **Module guard:** `HexFenceModuleGuard` applies V2's checks to Safe 1.5.0 module transactions. A scripted Sepolia drill on a new isolated Safe 1.5.0 paid one wei to the recorded recipient ([success](https://sepolia.etherscan.io/tx/0x1b981af2679ec1e035b53ebe3950cf2c892416fb12f9826e406c02297529471d)) and refused one wei to the synthetic lookalike ([mined revert](https://sepolia.etherscan.io/tx/0x3f9035a29f220fe23995444a72d3821a8be34c4bc50b328ee3d9755df64bd935)). No person has run it from a wallet.
 - **`apps/site/`:** the static landing page, deployed with the two apps.
 - **`apps/explorer/`:** Evidence, Losses (A4 Rescue), Campaigns (B2) and Check my address tabs. It can read extra publishers (C3), but none exist yet, so the live explorer reads one.
 - **`apps/pay/`:** HexFence Pay, with the ERC-7730 explain panel (B6) and a Safe App mode (B8, not yet tried by a person inside Safe{Wallet}).
@@ -59,11 +59,12 @@ Full table with evidence: [docs/JUDGE_READINESS.md](docs/JUDGE_READINESS.md#ever
 | V2 Guard | [0x0adF080DE3DA9D672fDc7330B8750a0579A698c7](https://sepolia.etherscan.io/address/0x0adF080DE3DA9D672fDc7330B8750a0579A698c7), Sourcify exact creation/runtime match 58609655 |
 | Module Guard (Safe 1.5.0) | [0xa7Dc08C6fb15fCdBF4De484FaE393fea052c546B](https://sepolia.etherscan.io/address/0xa7Dc08C6fb15fCdBF4De484FaE393fea052c546B), Sourcify exact creation/runtime match 58620524. Reads V2's list. No live Safe uses it yet |
 | New isolated V2 Safe | [0x5142C7E9DE82726CaCb847c5469D460508738214](https://sepolia.etherscan.io/address/0x5142C7E9DE82726CaCb847c5469D460508738214), 1-of-1 Safe 1.4.1, learning enabled, empty list and zero balance at setup |
+| V2 payment run (scripted, agent key, not a human wallet test) | [Funding](https://sepolia.etherscan.io/tx/0x0368f00e05359c607a03a7bdd501646458bc62b9bb20206e74ae6028c4593007), [1 wei to P, success](https://sepolia.etherscan.io/tx/0xfc93f06334211546d1371ed3b2b5fbafc77842a03e227f7197a2e50680d866a5), [same Safe to L, mined and reverted](https://sepolia.etherscan.io/tx/0x2585f5ce7bce79a6c139d19f56e4f125f8c84a7c09fe59d27d2598eb83c328ff) with `LookalikeOfKnownRecipient` in preflight. [Record](contracts/deployments/v2-payment-demo-sepolia.json) |
 | V2 recovery drill | [Removal](https://sepolia.etherscan.io/tx/0x267d7fb1721c2c2c909ace707aeb77d7da75bd13b0e9bf638e6d381277dfd500) and [restoration](https://sepolia.etherscan.io/tx/0xa7a4afc8a75465d612c4615ec5acdd582d773dd18ed48898f0643d11142b330b) succeeded by script; positive-value live P/L remains human-run |
 | Alerts consumer | [0x97F6f25D51DD52565FF30D22286392686A1ED80F](https://sepolia.etherscan.io/address/0x97F6f25D51DD52565FF30D22286392686A1ED80F), simulation mode, Sourcify exact match 58607325 |
 | CRE input | [Real zero-value Sepolia USDC demonstration log](https://sepolia.etherscan.io/tx/0x7494d97df9468b822e32aa7008e8f336979b584558053457a03ef32e00b9af15), event index 0; no tokens moved |
 | Pay | [Read-only V2 preview](https://deven1305.github.io/hexfence/pay/?safe=0x5142C7E9DE82726CaCb847c5469D460508738214), [wiring/limits](apps/pay/UPGRADE.md); actual consumer read returned no alerts in four browser layouts |
-| Still missing | Successful CRE CLI run/report, Telegram notification, funded Sepolia V2 P/L demonstration, human wallet/Guard/Hindi review and uploaded final video |
+| Still missing | Successful CRE CLI run/report, Telegram notification, human wallet/Guard/Hindi review and uploaded final video |
 
 Use [V2 run/setup steps](contracts/README_V2.md) and the [exact human CRE steps](CHAINLINK.md#exact-human-steps-left). V2 timestamps mean successful recognized execution, not independently established token movement: zero-value or false-returning token-shaped calls can be learned. No on-chain loss-recovery service is claimed.
 
@@ -190,7 +191,7 @@ One public read-only query judges can run from the repo root, without a wallet o
 corepack pnpm@10.34.9 --filter @hexfence/detector exec tsx ../../arkiv/query.ts
 ```
 
-Fresh observation, 6 Nov 2026 at 09:47:52 UTC: **173 records, 173 unique IDs, 147 zero-value and 26 dust, all suspected**. [Recorded query result](docs/research/arkiv-snapshot-2026-11-06.json). This is a published subset of the historical 47,694-pair detector run, not comprehensive coverage or a user-adoption measure.
+Fresh observation, 6 Nov 2026 at 15:07:58 UTC: **1,126 records, 1,126 unique IDs, 651 zero-value and 475 dust, all suspected**. [Recorded query result](docs/research/arkiv-snapshot-2026-11-06-1126.json). This is a published subset of two 24-hour detector runs (47,694 and 58,739 suspected pairs, overlapping blocks), not comprehensive coverage or a user-adoption measure.
 
 ## Live links
 - Landing page: https://deven1305.github.io/hexfence/
@@ -225,22 +226,22 @@ Pay waits for route selection before Safe/history/alert reads. Explicit **Skip: 
 - Nox covers the configured Sepolia RPC read route only (see CROPS, P). Guard and payee reads through Nox worked on the hosted site. Nox start-up took 26–38 seconds in hosted browser runs and timed out at 60 seconds during a network outage; these are single observations, not benchmarks.
 - The Chrome extension's interception on `app.safe.global` has not been tested with a real wallet, so its go/no-go is open.
 - Pay's owner setup panel is unit-tested but has not been used with a real wallet.
-- 173 records are published: 125 from one Ethereum attack block (26352743) and 48 taken one per equal slice of the roughly 24-hour scan, so they are a sample of the detector's 47,694 records, not all of them. The scheduled publisher has not run with a key.
-- Module transactions bypass transaction guards. `HexFenceModuleGuard` covers Safe 1.5.0 modules, but no live Safe uses it and no live module payment has run.
+- 1,126 records are published: 125 from one Ethereum attack block (26352743), 48 taken one per equal slice of the first roughly 24-hour scan (47,694 pairs), and 953 from a second scan (58,739 pairs, blocks 26349302-26356501), selected as one per equal block slice plus up to 20 from each of the 10 largest attack transactions. They are a sample, not all detections. The scheduled publisher has not run with a key.
+- Module transactions bypass transaction guards. `HexFenceModuleGuard` covers Safe 1.5.0 modules. Its only live use is a scripted drill on one isolated Safe, with native ETH payments ([details](contracts/README.md#module-guard-scripted-live-receipts)).
 - MultiSend is refused (it's a delegatecall).
 - Only ETH, `transfer` and `transferFrom` are inspected; other calls are allowed and clients show "cannot verify".
 - A 4+4 fingerprint doesn't catch weaker lookalikes.
 - Evidence covers only Ethereum mainnet USDT and USDC, and every record is "suspected", not a finding about any person.
 - Human-labelled detector precision is not established. The 30-row H9 file was AI-assigned and awaits independent human review; it is not a validated human precision result. No H9 labels were changed in this pass.
 - V1 does not inspect ETH attached to unsupported calldata; V2 separately checks the ETH destination. V2 still has the recognized-call/EVM-success limits in [README_V2](contracts/README_V2.md).
-- A first-use mistake can become a V2 holder. The deployed V2 Safe is unfunded; positive-value behavior is locally tested, not yet demonstrated by a funded Sepolia P/L run.
+- A first-use mistake can become a V2 holder. The funded Sepolia P/L run on the V2 Safe was scripted with a testnet key; it is not a human wallet test.
 - Sentinel is not an always-on DON deployment, and no successful CLI simulation or Telegram receipt exists yet. The simulation consumer accepts the public mock forwarder, so its reports are advisory and not authenticated poisoning findings.
 - Rescue (A4) shows one supported suspected follow-up payment; it is a lead, not a confirmed loss or cause. Campaign counts (B2) describe the published records only; the hourly chart is not an attack rate.
 - The explorer can read several publishers (C3), but no second publisher with records exists and `pages.yml` does not pass `VITE_ARKIV_EXTRA_PUBLISHERS`, so the live explorer reads one publisher.
 - Pay as a Safe App (B8) has not been tested by a person inside Safe{Wallet}.
 - The ERC-7730 explain panel (B6) uses only descriptors you paste; an explained call still gets CANNOT VERIFY and the Guard does not check it.
 - `@hexfence/check` and `@hexfence/mcp` (C1) compare addresses offline; they do not read the Safe or the evidence set from the chain.
-- The live site reads Arkiv without an access key, through a rate-limited public endpoint; repeated loads can stall at "reading Arkiv…".
+- The public Arkiv endpoint is rate-limited. After a failed live read, the site, guided demo and explorer fall back to a dated saved copy (`evidence-saved.json`), when available, and show its Arkiv read time on the page. Pay uses the same copy for its listed check and says so above the fold.
 - Safe warns that a broken guard can lock a Safe: the demo Safe is isolated, holds test funds only, and the removal drill is tested.
 
 ## Licence
@@ -287,7 +288,7 @@ The raw ≥1-token follow-up rule also matches automated contract movements: the
 
 The Campaigns tab groups downloaded publisher records by attack transaction and counts distinct victims mentioned. These counts describe the downloaded, selected corpus, not every victim or attack on Ethereum. Expand a group to inspect its address comparisons.
 
-**Why one hour has most records:** 125 of the 173 published records come from one attack block (26352743, two attack transactions), because the first publication took the most recent records. The other 48 are spread evenly over the scan. So the hourly chart is titled "Published records per UTC hour" and, when one hour holds most records, it says how many attack blocks fill it. It shows what was published, not how many attacks happened each hour.
+**Why the hours are uneven:** 125 of the 1,126 published records come from one attack block (26352743, two attack transactions), because the first publication took the most recent records, and later records were selected by the rules above. So the hourly chart is titled "Published records per UTC hour" and, when one hour holds most records, it says how many attack blocks fill it. It shows what was published, not how many attacks happened each hour.
 
 **Read real block times** reads each distinct recorded attack block by number, validates the mainnet chain ID, caches timestamps for the page session, and assigns records to exact UTC hours. It does not infer dates from block height or interpolate timestamps. The read can be stopped and retried; an incomplete read does not render a complete hourly series. No recipient address is included in these requests. See [viem getBlock](https://viem.sh/docs/actions/public/getBlock).
 
@@ -295,6 +296,14 @@ The match-length chart compares observed full-address common prefix+suffix lengt
 
 The optional `hexfence.release.v1` publisher is a prototype, not a proved live integration. The B7 follow-up corrects the oversized manifest to tested `bytes` encoding with digest/size/path checks. No live publication has been performed; the inspected job skipped for a missing publisher secret. The publisher secret is also a human configuration step. Attestations establish build provenance, not an audit or protection against a compromised maintainer.
 
+
+## Optional governance guard
+
+A separate [HexFenceGovernanceGuardV2](contracts/README_GOVERNANCE.md) adds 4+4 checks for new owner/module addresses in three named Safe self-calls. It is deployed on Sepolia. A scripted drill on one new isolated Safe [refused the synthetic lookalike as a new owner](https://sepolia.etherscan.io/tx/0xfb0d8a277cb22620e07897b642b7fdf86a05f83fd8bafde37b6241d7747ea860) and [added a non-lookalike owner](https://sepolia.etherscan.io/tx/0xdb4af2e80f174712f060c263479ec9ee6c81eaad46be1d26668b578af5c09594); no pre-existing Safe was switched. **Only Safes that set this new transaction guard get these checks.** Its recipient state is separate; Pay and the existing demo still point to V2. setGuard remains unchecked and the real Safe removal drill passes. This is not a retrofit to the deployed V2, a state migration, batch support or protection from existing modules bypassing transaction guards.
+
+## Saved Arkiv copy
+
+Pages attempts one publisher-wide read at deploy time and publishes `evidence-saved.json` if it succeeds. The site, guided demo and explorer use this schema-validated copy only after a live bulk read fails, never merging it with live records. A visible notice says the live Arkiv read failed and gives the copy's Arkiv read time in UTC. Records remain suspected; the copy is not a live read. Pay uses the same copy for its listed check and says so above the fold. If deployment cannot read Arkiv, no copy is created. The optional `ARKIV_ACCESS_KEY` secret is scoped to the generation step and never included in the JSON or browser bundle.
 
 ## Provenance: Pramaan (pre-event prototype)
 

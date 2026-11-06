@@ -8,12 +8,12 @@ Answers for [Build on Arkiv (from scratch)](https://ethglobal.com/events/mumbai/
 |---|---|
 | Indexed lookalike, impersonated, victim | The fields stay indexed for other readers (`findEvidenceByAddress`, schema). Neither of our apps queries them today: explorer and Pay bulk-read and match addresses locally, so an address is not sent to the RPC. |
 | Schema tag and createdBy(publisher) | Readers choose whose claims to display; another writer's same-schema entities do not silently enter the dataset. |
-| Indexed variant | Explorer totals distinguish zero-value from dust. Live: 173 = 147 zero-value + 26 dust. |
+| Indexed variant | Explorer totals distinguish zero-value from dust. Live: 1,126 = 651 zero-value + 475 dust. |
 | Stable evidenceId | Writer bulk-reads existing IDs and skips them. Rerun: 0 created, 125 already present; no duplicate cards from that run. |
-| Key ordering, at most 100 rows/page | Explorer walks all pages automatically and shows progress; the hosted browser reached 173 of 173. Pay walks all pages before comparing locally. |
+| Key ordering, at most 100 rows/page | Explorer walks all pages automatically and shows progress; the hosted browser reached 1126 of 1126 (12 pages). Pay walks all pages before comparing locally. |
 | Wallet ownership | Publisher 0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec owns its records. Network rules restrict mutations to the owner; our app exposes no editor, and the writer creates records rather than editing claims. Attribution does not establish truth. |
 | ExpirationTime.fromDays(30) | Old warnings age out instead of accumulating forever. Configured in the writer; a full 30-day cycle has not elapsed in our test. |
-| executeBatch of 25 creates | Additional 100 records used four transactions; the 48 after them used two; explorer then showed 173. Batching bounds write cost/flow, not verdict severity. |
+| executeBatch of 25 creates | Additional 100 records used four transactions; the 48 after them used two; the final 953 used 39; explorer then showed 1126. Batching bounds write cost/flow, not verdict severity. |
 
 The complete indexed/plain split is in [schema.md](schema.md) and [schema.ts](../packages/arkiv/src/schema.ts). chainId, attackBlock and detectorVersion are indexed for dataset scoping/inspection; the current UI does not expose controls for every index. We do not claim each index creates a product feature.
 
@@ -31,7 +31,7 @@ From repo root, no key needed:
 corepack pnpm@10.34.9 --filter @hexfence/detector exec tsx ../../arkiv/query.ts
 ```
 
-Observed: 173 records, 173 unique IDs, 147 zero-value, 26 dust, only suspected. [query.ts](query.ts) imports the [production reader](../packages/arkiv/src/read.ts). Configure a testnet publisher in ignored root .env for writes, then:
+Observed: 1,126 records, 1,126 unique IDs, 651 zero-value, 475 dust, only suspected. [query.ts](query.ts) imports the [production reader](../packages/arkiv/src/read.ts). Configure a testnet publisher in ignored root .env for writes, then:
 
 ```powershell
 corepack pnpm@10.34.9 --filter @hexfence/detector publish:arkiv --limit 125
@@ -46,7 +46,7 @@ Off-Arkiv choices: [why-arkiv.md](why-arkiv.md). Measured reach: [reach.md](reac
 
 | Schema or state | Actual use at the research checkpoint |
 |---|---|
-| hexfence.poisoning.v1 | Live SDK writes, creator-filtered bulk reads, visible cards/counts and local comparisons. Fresh [machine-readable observation](../docs/research/arkiv-snapshot-2026-11-06.json). |
+| hexfence.poisoning.v1 | Live SDK writes, creator-filtered bulk reads, visible cards/counts and local comparisons. Fresh [machine-readable observation](../docs/research/arkiv-snapshot-2026-11-06-1126.json). |
 | hexfence.release.v1 | Code-only prototype: optional CI writer, no proved live write or browser reader. The 5,601-byte manifest exceeds its str column limit; a separate follow-up must fix/test this before claiming it works. |
 | Loss data | Later merged A4 schema and publication, described in schema.md; distinct from poisoning records. Campaign features remain unclaimed. |
 | V2 learned recipients / Sentinel alerts | Sepolia contracts, not Arkiv records. Neither Guard depends on Arkiv. |

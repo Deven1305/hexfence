@@ -52,7 +52,7 @@ try {
       } else {
         if (app === 'site') {
           await page.locator('.hf-xray-hero').evaluate(el => Promise.all(el.getAnimations().map(a => a.finished)));
-          await expect(page.locator('#live-stats .hf-stat').first()).toBeVisible({ timeout: 120000 });
+          await expect(page.locator('#live-stats .stat').first()).toBeVisible({ timeout: 120000 });
         }
         if (app === 'explorer') {
           await expect(page.locator('.bulk-status')).toContainText('All records loaded.', { timeout: 120000 });

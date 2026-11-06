@@ -8,7 +8,7 @@ Safe operators checking suppliers can use [HexFence Pay](https://deven1305.githu
 
 ## Can people try it today?
 
-Yes. Both hosted apps passed real-data browser checks. Explorer showed **173 suspected records**; Verify on Ethereum confirmed both receipts for the first record. Pay loaded the actual Safe, Guard and approved payees through Nox. Payments need a Sepolia wallet owning a configured Safe. The recorded T8 wallet was explicitly scripted, not Safe{Wallet}; H6 remains unticked. Explorer reading needs no HexFence account or test tokens.
+Yes. Both hosted apps passed real-data browser checks. Explorer showed **1126 suspected records**; Verify on Ethereum confirmed both receipts for the three records tried (rows 1, 301 and 901). Pay loaded the actual Safe, Guard and approved payees through Nox. Payments need a Sepolia wallet owning a configured Safe. The recorded T8 wallet was explicitly scripted, not Safe{Wallet}; H6 remains unticked. Explorer reading needs no HexFence account or test tokens.
 
 Publisher: `0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec`. Rabdi chain: `7794095`. Public read-only query from repo root:
 
@@ -16,7 +16,7 @@ Publisher: `0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec`. Rabdi chain: `7794095`.
 corepack pnpm@10.34.9 --filter @hexfence/detector exec tsx ../../arkiv/query.ts
 ```
 
-Observed output: **173 records, 173 uniqueEvidenceIds, 147 zeroValue, 26 dust, statuses [suspected]**. [query.ts](query.ts) uses the production bulk reader with publisher filtering and key pagination. No key or wallet is needed.
+Observed output: **1,126 records, 1,126 uniqueEvidenceIds, 651 zeroValue, 475 dust, statuses [suspected]**. [query.ts](query.ts) uses the production bulk reader with publisher filtering and key pagination. No key or wallet is needed.
 
 ## Measured data and publication scope
 
@@ -24,7 +24,7 @@ Observed output: **173 records, 173 uniqueEvidenceIds, 147 zeroValue, 26 dust, s
 |---|---|
 | Fresh mainnet scan | Blocks 26345544–26352743; 1,366,618 USDT/USDC logs |
 | Detector output | 47,694 suspected pairs: 36,382 zero-value, 11,312 dust |
-| Published subset | First 125 records: 124 zero-value, 1 dust; latest attack blocks selected by --limit 125, not a random precision sample. On 6 Nov 48 more were added, one per equal slice of the scan (lowest evidenceId in each slice), for 173 in total |
+| Published subset | First 125 records: 124 zero-value, 1 dust; latest attack blocks selected by --limit 125, not a random precision sample. On 6 Nov 48 more were added, one per equal slice of the scan (lowest evidenceId in each slice), for 173. Later on 6 Nov 953 more came from a second scan (blocks 26349302-26356501, 58,739 pairs), one per equal block slice plus up to 20 from each of the 10 largest attack transactions, for 1,126 in total. Before writing, 60 random selected records (30 per variant) were checked against mainnet receipts with the explorer's rule: 60 matched. That is a receipt check, not a precision measure |
 | First publication | 25 created in [0xe0b88b…bf0ea](https://rabdi.explorer.arkiv.network/tx/0xe0b88b37643fb0ff1c730ea2cc662789dd6992b1e38c5ac4fc13dfa70c7bf0ea) |
 | Additional publication | 100 created, 25 already present, 4 transactions; first [0xfadb29…efcca](https://rabdi.explorer.arkiv.network/tx/0xfadb29df57c9863d8b51433aa8f237001e0f78a16768da03c7fca66e647efcca) |
 | Rerun --limit 125 | **0 created, 125 already on Arkiv, 0 transactions** |
@@ -45,4 +45,4 @@ Only mainnet USDT/USDC and 4+4 resemblance are covered. The publication is a sub
 
 ## Upgrade checkpoint
 
-The read-only [6 Nov snapshot](../docs/research/arkiv-snapshot-2026-11-06.json) reproduced 173 unique records at 09:47:52 UTC. Pay's merged V2/Radar wiring reads the actual isolated V2 Safe and consumer; its four-layout browser run returned no Sentinel alerts. The new V2 Safe was unfunded, so no positive-value live V2 demo is claimed. [Requirements and gaps](../docs/JUDGE_READINESS.md) distinguishes local tests, public receipts and human work. No measured external use or maintenance commitment has appeared during this check.
+The read-only [6 Nov snapshot](../docs/research/arkiv-snapshot-2026-11-06-1126.json) reproduced 1,126 unique records at 15:07:58 UTC. Pay's merged V2/Radar wiring reads the actual isolated V2 Safe and consumer; its four-layout browser run returned no Sentinel alerts. The new V2 Safe was unfunded, so no positive-value live V2 demo is claimed. [Requirements and gaps](../docs/JUDGE_READINESS.md) distinguishes local tests, public receipts and human work. No measured external use or maintenance commitment has appeared during this check.

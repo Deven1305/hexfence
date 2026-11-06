@@ -1,0 +1,11 @@
+{
+  "safe": "0x5142C7E9DE82726CaCb847c5469D460508738214",
+  "guard": "0x0adF080DE3DA9D672fDc7330B8750a0579A698c7",
+  "payee": "0x4E185e251Ac7fB83E9DE10723EAda46cadE74120",
+  "lookalike": "0x4E185a3FC4B530244aB9ed0dE38167b403344120",
+  "payeeAmountWei": "1",
+  "payeeTransaction": "0xfc93f06334211546d1371ed3b2b5fbafc77842a03e227f7197a2e50680d866a5",
+  "lookalikeTransaction": "0x2585f5ce7bce79a6c139d19f56e4f125f8c84a7c09fe59d27d2598eb83c328ff",
+  "lookalikeReceiptStatus": 0,
+  "preflightError": "LookalikeOfKnownRecipient"
+}

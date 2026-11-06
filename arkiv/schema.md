@@ -48,7 +48,7 @@ Records are read **in bulk per publisher**: `createdBy(publisher)`, `orderBy(asc
 
 Anyone can write an entity with this schema tag, so **trust comes from the publisher address**, and readers re-validate every row (fingerprint match, `evidenceId`, `status`) before showing it.
 
-Publisher: `0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec`. [Public query](query.ts) and [fresh snapshot](../docs/research/arkiv-snapshot-2026-11-06.json).
+Publisher: `0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec`. [Public query](query.ts) and [fresh snapshot](../docs/research/arkiv-snapshot-2026-11-06-1126.json).
 
 
 ## `hexfence.loss.v1` (upgrade)
@@ -57,7 +57,7 @@ Loss entities live for 90 days (SDK `ExpirationTime.fromDays(90)`). Indexed fiel
 
 Writer idempotency is by `(evidenceId, lossTx)`, including input deduplication and one bulk read of existing publisher records. Each create is a separate transaction to keep the larger context bounded. Readers use publisher-scoped key pagination with at most 100 rows per page. There are no per-victim or per-lookalike queries. The canonical Rescue Markdown is generated locally from that immutable context; `packHash` is its SHA-256. Current balance and receipt recheck results are a separately dated local supplement. Expiry and idempotence do not establish that a suspected loss was caused by poisoning.
 
-Publisher: `0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec`. Run the read-only [query.ts](query.ts) with the [README command](../README.md#arkiv-publisher--query). The [6 Nov observation](../docs/research/arkiv-snapshot-2026-11-06.json) returned 173 unique records, all suspected.
+Publisher: `0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec`. Run the read-only [query.ts](query.ts) with the [README command](../README.md#arkiv-publisher--query). The [6 Nov observation](../docs/research/arkiv-snapshot-2026-11-06-1126.json) returned 1,126 unique records, all suspected.
 
 The ID deliberately excludes victim and attack transaction: one representative context is retained for a pair/version, not every incident. This poisoning schema is distinct from the later loss schema. Expiry is a storage policy, not a guarantee that a pattern stops mattering after 30 days. Key continuation prevents offset drift but is not an atomic snapshot while writes occur; no fixed-block read is currently used.
 

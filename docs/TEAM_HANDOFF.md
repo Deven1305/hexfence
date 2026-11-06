@@ -1,8 +1,8 @@
 # Team handoff: read this before working on HexFence
 
-For teammates and their coding agents. Checked against `main` at **8c3c175** (6 Nov 2026, evening). Check `git log` and open PRs for anything newer.
+For teammates and their coding agents. Checked against `main` at **2fa725b** (6 Nov 2026). Check `git log` and open PRs for anything newer.
 
-**Deadline:** submission Sat 7 Nov 2026, 09:00 IST (aim for 08:30). Stop new work at 21:30 IST on 6 Nov; freeze at 22:00. After the freeze: record the video, upload it and submit.
+**Deadline:** submission Sat 7 Nov 2026, 09:00 IST (aim for 08:30). Dhruv decides when work stops; there is no earlier freeze. Leave enough time to record the video, upload it and submit.
 
 **Read next, in this order:** `AGENTS.md`, `docs/PROGRESS.md`, `docs/JUDGE_READINESS.md`, then the files named in the section you work on. The locked spec is `docs/planning/10_FINAL_What_To_Build_HexFence.md`.
 
@@ -20,19 +20,19 @@ The detector reads Ethereum mainnet USDT and USDC logs and publishes suspected a
 
 URLs are case-sensitive (`/Pay/` is a 404). Pages deploys from `main` through `.github/workflows/pages.yml`. Hard-refresh if you see an old page.
 
-Checked in headless Chrome on 6 Nov at about 18:00 IST: the landing page showed 173 published records; the explorer loaded 173 of 173; Pay on the demo Safe reached "Nox reads active", "v1.4.1 · 1/2 · Guard active" and "Sentinel simulation: no alerts returned for this Safe", and gave the synthetic L a RED "Possible address poisoning" verdict. No console errors on any of the three pages.
+Recorded counts: 1,126 suspected evidence records and 1 suspected loss record (read 6 Nov 2026 16:28 UTC). In the earlier headless Chrome check on 6 Nov at about 18:00 IST, Pay on the demo Safe reached "Nox reads active", "v1.4.1 · 1/2 · Guard active" and "Sentinel simulation: no alerts returned for this Safe", and gave the synthetic L a RED "Possible address poisoning" verdict. No console errors on any of the three pages in that earlier check.
 
 ## What is on main
 
 | Item | PR | What exists | Not done |
 |---|---|---|---|
 | v1 Guard and demo | T1–T8 | `HexFenceGuard` 0xA061…9748, verified on Etherscan and Sourcify; demo Safe 0x3BCc…FbD5; real L revert, B and P success, removal drill | Payments ran from a script, not a person (H6) |
-| A1 Auto-Fence V2 | #32 | Separate `HexFenceGuardV2` 0x0adF…98c7 with opt-in learning; isolated Safe 0x5142…8214 | Safe is unfunded: no positive-value Sepolia payment |
+| A1 Auto-Fence V2 | #32 | Separate `HexFenceGuardV2` 0x0adF…98c7 with opt-in learning; isolated Safe 0x5142…8214 | Scripted P-then-L run done 6 Nov: [P](https://sepolia.etherscan.io/tx/0xfc93f06334211546d1371ed3b2b5fbafc77842a03e227f7197a2e50680d866a5), [L reverted](https://sepolia.etherscan.io/tx/0x2585f5ce7bce79a6c139d19f56e4f125f8c84a7c09fe59d27d2598eb83c328ff). No human wallet run |
 | A2 Sentinel (Chainlink CRE) | #29, #35 | Workflow source, WASM build in CI, consumer `HexFenceAlerts` 0x97F6…D80F, Pay Radar reads it | No successful `cre workflow simulate`; no Telegram message; Radar shows no alerts |
 | A3 UI | #28 | Shared UI package, Address X-Ray, step navigation | |
 | A4 Rescue | #36 | Explorer **Losses** tab: one supported suspected follow-up payment, 303.635007 USDT, published as `hexfence.loss.v1`; downloadable pack with SHA-256 | It is an investigative lead, not a confirmed loss |
 | B2 Campaigns | #38 | Explorer **Campaigns** tab: groups records by attack transaction, hourly chart from real block times, match-length model | The hourly chart counts published records, not attacks (see below) |
-| B5 Module guard | #41 | `HexFenceModuleGuard` for Safe 1.5.0 at 0xa7Dc…546B, reads V2's list; 8 tests on a real 1.5.0 Safe | **No live Safe uses it; no live module payment has run** |
+| B5 Module guard | #41 | `HexFenceModuleGuard` for Safe 1.5.0 at 0xa7Dc…546B, reads V2's list; 8 tests on a real 1.5.0 Safe | Scripted drill only, on isolated Safe 0x36cc…77b2: [recorded recipient paid](https://sepolia.etherscan.io/tx/0x1b981af2679ec1e035b53ebe3950cf2c892416fb12f9826e406c02297529471d), [lookalike refused](https://sepolia.etherscan.io/tx/0x3f9035a29f220fe23995444a72d3821a8be34c4bc50b328ee3d9755df64bd935). Native ETH; no human wallet |
 | B6 Explain layer | #40 | Pay panel "Explain another call (ERC-7730)": shows a pasted descriptor's intent and fields; the verdict stays CANNOT VERIFY | Nothing is fetched; the Guard still does not check those calls |
 | B7 Client attestation | #39 | Pages builds publish `SHA256SUMS.txt` and GitHub build attestations | No live Arkiv release record |
 | B8 Pay as a Safe App | #31 | Pay runs inside Safe{Wallet} via the Safe Apps SDK | **Not tested by a person inside Safe{Wallet}** |
@@ -40,11 +40,11 @@ Checked in headless Chrome on 6 Nov at about 18:00 IST: the landing page showed 
 | C3 Multi-publisher | #42 | Explorer can read extra publishers from `VITE_ARKIV_EXTRA_PUBLISHERS`; cards say "Published by N of M publishers read" | **No second publisher with records exists, and `pages.yml` does not pass that variable, so the live explorer reads one publisher** |
 | T14 Chrome extension | #24 | `apps/extension` builds and has unit tests | Not tested on app.safe.global with a real wallet |
 
-**Not built:** B3 (batch protection) was cut. C2 and C4 were scrapped. B1 was not built because it needs approval to spend tGLM. A governance guard (B4) is on `feat/governance-fence` with another agent and is not on main.
+**Not built:** B3 (batch protection) was cut. C2 and C4 were scrapped. B1 was not built because it needs approval to spend tGLM. The separately deployed governance guard (B4) is described in the follow-up below; only one isolated drill Safe uses it.
 
 ## Why the Campaigns hourly chart has one tall bar
 
-The live chart shows about 126 records in the last UTC hour and 1–3 in every other hour. That comes from how the records were published, not from attack activity. Read from Arkiv on 6 Nov: of the 173 records, 125 were published with `publish:arkiv --limit 125`, which takes the most recent attacks, and they all share attack block 26352743. The other 48 were spread evenly across the scan (2 in every 300-block slice). The detector itself found 47,694 pairs over the same 7,200 blocks, roughly 2,000 an hour. PR `fix/campaign-timeline` retitles the chart "Published records per UTC hour" and adds a computed note when one hour holds most records.
+The live chart's hourly shape comes from how the records were published, not from attack activity. Read from Arkiv on 6 Nov: of the 1,126 records, 125 were published with `publish:arkiv --limit 125`, which takes the most recent attacks, and they all share attack block 26352743. Another 48 were spread evenly across that scan, and the last 953 were selected from a second scan. The detector itself found 47,694 pairs over the same 7,200 blocks, roughly 2,000 an hour. Merged in PR #44 (`fix/campaign-timeline`): `apps/explorer/src/campaigns.ts` titles the chart "Published records per UTC hour" and adds a computed note when one hour holds most records.
 
 ## Open work
 
@@ -57,13 +57,12 @@ The live chart shows about 126 records in the last UTC hour and 1–3 in every o
 | A person with a Chainlink account | `cre login`, then the simulation in `CHAINLINK.md`; save only real output to `sentinel/SIMULATION.md` | Chainlink entry |
 | Dhruv | T14: extension go/no-go with MetaMask on app.safe.global (`apps/extension/TESTING.md`) | Extension claims |
 | A person | B8: add Pay as a custom Safe App on a Sepolia Safe and try one payment (`apps/pay/SAFE_APP.md`) | Safe App claims |
-| Optional, human | Fund the V2 Safe and run `contracts/scripts/demo-v2-payments.js` (`contracts/README_V2.md`) | Live V2 claim |
 | Dhruv | Post-Mumbai sentence at `arkiv/reach.md` | Arkiv reach answer |
 | Team | Record the video from `docs/DEMO.md`, upload, fill `‹VIDEO_URL›`, submit by 08:30 | Everything |
 
 ## Funds and addresses
 
-Publisher `0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec` published 173 poisoning records and 1 loss record. **Do not move tGLM without Dhruv's explicit approval.** Every public address and hash is in `docs/PROGRESS.md` and `docs/SUBMISSION.md`.
+Publisher `0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec` published 1,126 poisoning records and 1 loss record (it holds about 9.79 tGLM after a 10 tGLM faucet claim on 6 Nov). **Do not move tGLM without Dhruv's explicit approval.** Every public address and hash is in `docs/PROGRESS.md` and `docs/SUBMISSION.md`.
 
 ## Rules that are easy to break
 
@@ -72,7 +71,7 @@ Publisher `0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec` published 173 poisoning r
 - **UI copy:** no "safe" as an adjective, and no "verified", "scam" or "malicious" (Safe the product, "Verify on Ethereum" and "cannot verify" are fine).
 - **Privacy:** no per-recipient lookups to any server, no trackers, no remote fonts or CDNs.
 - **Secrets:** testnet keys only, in git-ignored `.env`; `.env.example` holds names only. Every `VITE_*` value is public.
-- **Contracts:** no changes to v1, V2 or the module guard and their tests.
+- **Contracts:** no changes to v1, V2 or the module guard and their tests. Read [PRAMAAN_MERGE.md](PRAMAAN_MERGE.md) before any Pramaan work.
 - **Do not edit** `AGENTS.md`, `docs/INTERFACES.md` or `docs/planning/`.
 - **H9 labels are human work.** AI labels are not human precision.
 
@@ -95,5 +94,9 @@ cd contracts && npm install --legacy-peer-deps && npx hardhat test
 ## Known behaviour that looks like a bug
 
 - Pay's Nox route takes 25–40 s to start on the hosted site. **Skip: read directly (not anonymous)** loads the Safe in a few seconds.
-- The public Arkiv endpoint is rate-limited. A second explorer load within a minute can sit at "reading Arkiv…"; wait or reload.
+- The public Arkiv endpoint is rate-limited. After a failed live read, the site, guided demo and explorer fall back to a dated saved copy (`evidence-saved.json`), when available, and show its Arkiv read time on the page. Pay uses the same copy for its listed check and says so above the fold.
 - Etherscan shows the Guard's verified source; Blockscout also decodes the `LookalikeOfApprovedPayee` revert reason on the L payment.
+
+## B4 governance guard follow-up
+
+Codex 2 added a separately deployed HexFenceGovernanceGuardV2; [installation scope, separate state, tests and public receipts](../contracts/README_GOVERNANCE.md). Only a new isolated drill Safe uses it, from a script; Pay remains pinned to original V2. Only Safes selecting the new guard receive its three governance checks. B3 stays cut; B5 is not reimplemented. Source match 58635387 is for this new contract, leaving original V2 unchanged.

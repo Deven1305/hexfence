@@ -5,21 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="referrer" content="no-referrer">
     <meta name="description" content="A guided HexFence demo: real Arkiv evidence, the demo Safe's approved payees read from Sepolia, verdicts computed in your browser, and the recorded receipts read live.">
-    <meta name="color-scheme" content="light dark">
+    <meta name="color-scheme" content="light">
     <title>HexFence guided demo</title>
     <link rel="stylesheet" href="./style.css">
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>
-    <header class="site-header wrap">
+    <header class="top"><div class="wrap topin">
       <a class="brand" href="./" aria-label="HexFence home">HexFence</a>
-      <nav aria-label="Main navigation"><a href="./">Home</a><a href="./explorer/">Explorer <span aria-hidden="true">↗</span></a><a href="./pay/?safe=0x3BCc3969713778F3Ed26AE1490529eeBAD43FbD5">Pay <span aria-hidden="true">↗</span></a></nav>
-    </header>
+      <nav aria-label="Main navigation"><a class="nav-home" href="./"><span aria-hidden="true">⌂</span> Home</a><a href="./explorer/">Explorer</a><a href="./pay/?safe=0x3BCc3969713778F3Ed26AE1490529eeBAD43FbD5">HexFence Pay</a></nav>
+    </div></header>
     <main id="main">
-      <section class="section wrap demo-intro" aria-labelledby="demo-title">
+      <section class="wrap demo-intro" aria-labelledby="demo-title">
         <p class="eyebrow">Guided demo / five steps / no wallet</p>
         <h1 id="demo-title">Watch one lookalike payment fail.</h1>
-        <p class="lead">Every number and status on this page is read live when you open it: evidence from Arkiv, the demo Safe and its Guard from Sepolia, and the recorded payments' receipts. The verdicts are computed in your browser.</p>
+        <p class="lead">Evidence comes from Arkiv, with a dated saved copy if the live read fails. The demo Safe, its Guard and the recorded payments' receipts are read from Sepolia. The verdicts are computed in your browser.</p>
         <p class="hero-note">Part 1 is real Ethereum mainnet evidence, status suspected. Parts 2–5 are a synthetic re-enactment on Sepolia with addresses we generated, not a real attack.</p>
       </section>
 
@@ -27,7 +27,7 @@
         <li class="demo-step" id="step-evidence">
           <p class="step-label">Step 1 · Ethereum mainnet · read from Arkiv</p>
           <h2>Poisoning is happening on Ethereum.</h2>
-          <p>The HexFence detector publishes suspected address-poisoning records to Arkiv. Here is what its publisher holds right now, and the latest record it found.</p>
+          <p>The HexFence detector publishes suspected address-poisoning records to Arkiv. Here are its published records and the latest record in this read.</p>
           <div class="demo-live" data-live="evidence"><p class="status" role="status">Reading published evidence…</p></div>
         </li>
 
@@ -52,7 +52,7 @@
           <div class="demo-live" data-live="verdicts"><p class="status" role="status">Waiting for the approved payees…</p></div>
           <form class="demo-check" data-live="check">
             <label for="demo-address">Try any Sepolia address against this Safe's payees</label>
-            <div><input id="demo-address" spellcheck="false" autocomplete="off" placeholder="0x…"><button class="button" type="submit">Check</button></div>
+            <div><input id="demo-address" spellcheck="false" autocomplete="off" placeholder="0x…"><button class="btn" type="submit">Check</button></div>
             <p class="status" role="status"></p>
           </form>
         </li>
@@ -65,15 +65,15 @@
         </li>
       </ol>
 
-      <section class="section wrap" aria-labelledby="next-title">
-        <div class="section-heading"><p class="eyebrow">Your turn</p><h2 id="next-title">Do it yourself.</h2></div>
-        <div class="try-grid">
-          <article class="try-card"><h3>Check a payment.</h3><p>Paste L, B or P into HexFence Pay on the demo Safe. Connect a Sepolia wallet that owns a Safe to sign and send.</p><a class="button" href="./pay/?safe=0x3BCc3969713778F3Ed26AE1490529eeBAD43FbD5">Open HexFence Pay <span aria-hidden="true">↗</span></a></article>
-          <article class="try-card"><h3>Inspect the evidence.</h3><p>Search records, re-check their Ethereum receipts, and look at campaigns and suspected losses.</p><a class="button secondary" href="./explorer/">Open evidence explorer <span aria-hidden="true">↗</span></a></article>
+      <section class="wrap block" aria-labelledby="next-title">
+        <div class="sec-h"><p class="eyebrow">Your turn</p><h2 id="next-title">Do it yourself.</h2></div>
+        <div class="two">
+          <article class="card tryc"><h3>Check a payment.</h3><p>Paste L, B or P into HexFence Pay on the demo Safe. Connect a Sepolia wallet that owns a Safe to sign and send.</p><a class="btn" href="./pay/?safe=0x3BCc3969713778F3Ed26AE1490529eeBAD43FbD5">Open HexFence Pay <span aria-hidden="true">↗</span></a></article>
+          <article class="card tryc"><h3>Inspect the evidence.</h3><p>Search records, re-check their Ethereum receipts, and look at campaigns and suspected losses.</p><a class="btn ghost" href="./explorer/">Open evidence explorer <span aria-hidden="true">↗</span></a></article>
         </div>
       </section>
     </main>
-    <footer class="wrap"><a class="brand" href="./">HexFence</a><p>Open evidence. Local checks. On-chain enforcement.</p><a href="#main">Back to top ↑</a></footer>
+    <footer class="foot"><div class="wrap"><a class="brand" href="./">HexFence</a><p>Open evidence. Local checks. On-chain enforcement.</p><a href="#main">Back to top ↑</a></div></footer>
     <script type="module" src="./demo.ts"></script>
   </body>
 </html>
