@@ -5,8 +5,8 @@ const hre = require("hardhat");
 const { ethers } = require("ethers");
 async function main() {
   const [name, address, creationTransactionHash] = process.argv.slice(2);
-  if (!["HexFenceAlerts", "HexFenceGuardV2"].includes(name) || !ethers.isAddress(address) || !ethers.isHexString(creationTransactionHash, 32))
-    throw Error("Usage: node scripts/verify-upgrade.js HexFenceAlerts|HexFenceGuardV2 ADDRESS CREATION_TX");
+  if (!["HexFenceAlerts", "HexFenceGuardV2", "HexFenceModuleGuard"].includes(name) || !ethers.isAddress(address) || !ethers.isHexString(creationTransactionHash, 32))
+    throw Error("Usage: node scripts/verify-upgrade.js HexFenceAlerts|HexFenceGuardV2|HexFenceModuleGuard ADDRESS CREATION_TX");
   const contractIdentifier = `contracts/${name}.sol:${name}`;
   const info = await hre.artifacts.getBuildInfo(contractIdentifier);
   if (!info) throw Error("Compile the contract first");
