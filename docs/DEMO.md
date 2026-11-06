@@ -9,7 +9,7 @@ Checked against the live pages on 6 Nov 2026 (about 18:00 IST, main 8c3c175). Ru
 1. Open these tabs and let each one finish loading. The public Arkiv endpoint is rate-limited: load the explorer once, then don't reload it.
    - Landing: https://deven1305.github.io/hexfence/
    - Guided demo (after PR #45 merges): https://deven1305.github.io/hexfence/demo.html. Every status on it is read live; a good backup if Pay or Arkiv is slow, and a good closing shot.
-   - Explorer: https://deven1305.github.io/hexfence/explorer/ (wait for "Showing 173 of 173 publisher records. All records loaded.")
+   - Explorer: https://deven1305.github.io/hexfence/explorer/ (wait for "Showing 1126 of 1126 publisher records. All records loaded."; it reads 12 pages, so open it before recording)
    - Pay preview: https://deven1305.github.io/hexfence/pay/?safe=0x3BCc3969713778F3Ed26AE1490529eeBAD43FbD5 (wait 25–40 s for "Nox reads active" and "Guard active")
    - L revert on Blockscout (decodes the reason): https://eth-sepolia.blockscout.com/tx/0xa43b0eeef7253281a741deca144e5ddf0c465da9cc6f48d54673a9aa9c0f6d8f
    - Direct-script L revert: https://sepolia.etherscan.io/tx/0xe77e6a7a8ba5b6f9742ec953826bc47c69ffffdced3a4d40b8fe3a220e1bb46f
@@ -26,7 +26,7 @@ Checked against the live pages on 6 Nov 2026 (about 18:00 IST, main 8c3c175). Ru
 | Time | Screen and action | Say (in your own words) |
 |---|---|---|
 | 0:00–0:15 🟢 | Landing hero and the X-Ray of P against L | "Address poisoning puts a lookalike in your history. These two addresses share the first 4 and last 4 characters. 31 of 40 differ. HexFence makes your Safe refuse the lookalike." |
-| 0:15–0:40 🟢 | Explorer, Evidence tab: "Showing 173 of 173", the "suspected" badge. Open one row's **X-Ray**, then **Verify on Ethereum** | "This is real Ethereum mainnet data, read from Arkiv in my browser. Our detector found 47,694 suspected pairs in one day of USDT and USDC transfers; we published 173. Each one is suspected, and anyone can re-check both transactions on Ethereum." |
+| 0:15–0:40 🟢 | Explorer, Evidence tab: "Showing 1126 of 1126", the "suspected" badge. Open one row's **X-Ray**, then **Verify on Ethereum** | "This is real Ethereum mainnet data, read from Arkiv in my browser. Our detector found 58,739 suspected pairs in one day of USDT and USDC transfers; we published a sample of 1,126 across two scans. Each one is suspected, and anyone can re-check both transactions on Ethereum." |
 | 0:40–0:55 🟢 | **Losses** tab: the one suspected follow-up payment, 303.635007 USDT. Then **Campaigns**: records grouped by attack transaction | "Losses shows a suspected payment that followed a planting, as a lead with a downloadable pack, not a confirmed loss. Campaigns groups records by attack transaction: one transaction here mentions dozens of victims." |
 | 0:55–1:00 | Cut to Pay | (no narration) |
 | 1:00–1:35 🟢 | Pay preview: point at "Nox reads active" and "v1.4.1 · 1/2 · Guard active". Paste **L**, amount 0.0001, **Check payment** → RED "Possible address poisoning". Then **B** → AMBER "New recipient". Then **P** → GREEN "Approved payee" | "Pay reads the Safe's approved payees once, through the Nox mixnet, and compares in the browser. L is a synthetic Sepolia address we made; it resembles our approved payee, so it's red. A new supplier is amber and still allowed. The approved payee is green." |
@@ -89,4 +89,4 @@ Real output on 6 Nov: `{"level":"RED","reason":"resembles","recipient":"0x4E185a
 | Modules, MultiSend, governance? | Module transactions bypass transaction guards; our module guard for Safe 1.5.0 is deployed but not used by a live Safe yet. MultiSend is a delegatecall and is refused. A separate governance guard checks new owner/module resemblance only for Safes that install it; no live Safe was switched. Pay still points to original V2. Owners can remove the Guard. |
 | Who uses it? | DAO treasuries and payment teams are the intended users. No pilots or paying users yet. |
 | Has a person checked it? | The Guard review in the repo is by AI. Human sign-off, a person-run wallet test and the Hindi check are still open, and we say so. |
-| Does the Campaigns hourly chart show attack rate? | No. 125 of the 173 records come from one block, because we published the most recent records first. The chart says so. |
+| Does the Campaigns hourly chart show attack rate? | No. It shows published records, which we selected: 125 of the 1,126 come from one block, and the rest were picked by block slice and largest attack transaction. The chart title says published. |
