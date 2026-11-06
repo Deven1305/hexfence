@@ -18,15 +18,15 @@ Checked **6 Nov 2026** against main **8c3c175** (after PRs #34, #36, #38, #39, #
 
 | Requirement | State | Evidence |
 |---|---|---|
-| Writes to the Arkiv testnet with the SDK | Met | [Writer](../packages/arkiv/src/write.ts). 173 `hexfence.poisoning.v1` records and 1 `hexfence.loss.v1` record by publisher `0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec`, Rabdi chain 7794095. Re-runs write 0. |
-| A user-visible feature reads it | Met | [Live explorer](https://deven1305.github.io/hexfence/explorer/) loads 173 of 173 (checked 6 Nov); Losses and Campaigns tabs; Pay's bulk evidence read. |
+| Writes to the Arkiv testnet with the SDK | Met | [Writer](../packages/arkiv/src/write.ts). 1,126 `hexfence.poisoning.v1` records and 1 `hexfence.loss.v1` record by publisher `0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec`, Rabdi chain 7794095. Re-runs write 0. |
+| A user-visible feature reads it | Met | [Live explorer](https://deven1305.github.io/hexfence/explorer/) loads 1126 of 1126 (checked 6 Nov); Losses and Campaigns tabs; Pay's bulk evidence read. |
 | README names the publisher and gives a query | Met | [README query](../README.md#arkiv-publisher--query), [query.ts](../arkiv/query.ts). |
 | schema, friction, reach, why-arkiv, how-you-use-arkiv | Present | [arkiv/](../arkiv/). Reach: no measured external users; post-Mumbai plan unconfirmed. |
 | Licence and AI statement | Present | [LICENSE](../LICENSE), [AI_USAGE](AI_USAGE.md). |
 | Multi-publisher reading (C3) | Code only | The explorer can read extra publishers from `VITE_ARKIV_EXTRA_PUBLISHERS`, but **no second publisher with records exists and `pages.yml` does not pass the variable**. The live explorer reads one publisher. |
 | Release records (B7) | Not live | Code and tests only; no release record on Arkiv. |
 
-Data note: the 173 records are a chosen subset of a 47,694-pair detector run. 125 of them come from one attack block (26352743), so the Campaigns hourly chart is about publication, not attack rate (fix in PR `fix/campaign-timeline`).
+Data note: the 1,126 records are a chosen subset of two 24-hour detector runs (47,694 and 58,739 pairs). 125 of them come from one attack block (26352743), so the Campaigns hourly chart is about publication, not attack rate (fix in PR `fix/campaign-timeline`).
 
 ## Ethereum Foundation: Best CROPS App
 
