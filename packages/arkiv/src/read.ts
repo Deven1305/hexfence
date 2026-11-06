@@ -115,15 +115,29 @@ function retryAfterSeconds(error: unknown): number | undefined {
   return undefined;
 }
 
+function httpStatus(error: unknown): number | undefined {
+  let current = error;
+  for (let depth = 0; current && typeof current === "object" && depth < 8; depth++) {
+    const link = current as { status?: number; cause?: unknown };
+    if (link.status !== undefined) return link.status;
+    current = link.cause;
+  }
+  return undefined;
+}
+
 /** A person will not wait longer than this on an open page; longer limits fail straight away. */
 const MAX_RETRY_AFTER_SECONDS = 20;
 
 async function retryPage<T>(fetch: () => Promise<T>): Promise<T> {
-  // Six attempts total. At most 46.5 seconds of backoff per page, plus transport timeouts.
+  // Six attempts outside a browser: at most 46.5 seconds of backoff per page, plus transport timeouts.
+  // A person is looking at a browser page, so three attempts there, then the caller's fallback.
+  const browser = typeof window !== "undefined";
   for (let attempt = 0; ; attempt++) {
     try { return await fetch(); } catch (error) {
-      if (attempt >= 5 || !isTransient(error)) throw error;
+      if (attempt >= (browser ? 2 : 5) || !isTransient(error)) throw error;
       const retryAfter = retryAfterSeconds(error);
+      // CORS hides Retry-After from page scripts unless exposed; the measured budget refill is minutes.
+      if (browser && retryAfter === undefined && httpStatus(error) === 429) throw error;
       if (retryAfter !== undefined && retryAfter > MAX_RETRY_AFTER_SECONDS) throw error;
       const delay = retryAfter !== undefined
         ? retryAfter * 1_000
