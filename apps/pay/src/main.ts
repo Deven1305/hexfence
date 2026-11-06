@@ -71,7 +71,7 @@ interface State {
 
 let state: State;
 
-function boot(): void {
+async function boot(): Promise<void> {
   let config: Config;
   try {
     config = loadConfig(import.meta.env as Record<string, string | undefined>);
@@ -79,9 +79,12 @@ function boot(): void {
     app.replaceChildren(el("h1", {}, "HexFence Pay"), el("div", { class: "error" }, e instanceof ConfigError ? e.message : String(e)));
     return;
   }
-  state = { config, reads: undefined as unknown as ReadClient, route: Promise.resolve(), skip: new AbortController(), lang: "en", step: 1 };
+  app.replaceChildren(el("h1", {}, "HexFence Pay"), el("p", { role: "status" }, "Loading payment tools?"));
+  await new Promise<void>((resolve) => requestAnimationFrame(() => setTimeout(resolve, 0)));
+  const { createReadClient } = await import("./rpc");
+  state = { config, reads: createReadClient(config.sepoliaRpcUrl), route: Promise.resolve(), skip: new AbortController(), lang: "en", step: 1 };
   state.pendingSafe = new URLSearchParams(window.location.search).get("safe")?.trim() || undefined;
-  state.route = new Promise((resolve, reject) => requestAnimationFrame(() => setTimeout(() => { startRoute().then(resolve, reject); }, 0)));
+  state.route = startRoute();
   new MutationObserver(applyLang).observe(app, { childList: true, subtree: true });
   render();
 }
@@ -597,4 +600,4 @@ function clearErrors(section: HTMLElement): void {
   section.querySelectorAll(".error").forEach((n) => n.remove());
 }
 
-boot();
+void boot().catch(() => { app.replaceChildren(el("p", { class: "error" }, "Payment tools could not load. Reload to retry.")); });
