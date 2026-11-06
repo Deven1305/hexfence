@@ -5,7 +5,7 @@ import { createPublicClient, decodeErrorResult, decodeFunctionData, isHex, getAd
 import { sepolia } from "viem/chains";
 
 // Public demo values recorded in docs/PROGRESS.md. Only the inputs are fixed here: every status,
-// payee list and recipient on the page is read live from Sepolia or Arkiv when it opens.
+// payee list and recipient on the page is read from Sepolia or Arkiv, with a labelled Arkiv copy on read failure.
 const SAFE: Address = "0x3BCc3969713778F3Ed26AE1490529eeBAD43FbD5";
 const P: Address = "0x4E185e251Ac7fB83E9DE10723EAda46cadE74120"; // approved supplier
 const L: Address = "0x4E185a3FC4B530244aB9ed0dE38167b403344120"; // synthetic lookalike we generated
@@ -59,14 +59,16 @@ const verdictRow = (label: string, address: Address, payees: Address[]) => {
 
 async function evidence() {
   if (!publisher || !isAddress(publisher, { strict: false })) return fail("evidence", "No Arkiv publisher is configured for this build.");
-  const { arkivReadClient, fetchAllEvidence } = await import("@hexfence/arkiv");
-  const records = await fetchAllEvidence(arkivReadClient({ accessKey: env.VITE_ARKIV_ACCESS_KEY || undefined }), publisher as Address);
+  const { arkivReadClient, evidenceWithSavedCopy, savedCopyNotice } = await import("@hexfence/arkiv");
+  const read = await evidenceWithSavedCopy(arkivReadClient({ accessKey: env.VITE_ARKIV_ACCESS_KEY || undefined }), publisher as Address, "./evidence-saved.json");
+  const records = read.evidence;
+  const notices = read.source === "saved" ? [el("p", "status saved-copy-notice", savedCopyNotice(read.readAt))] : [];
   const latest = [...records].sort((a, b) => b.attackBlock - a.attackBlock)[0];
   const tiles = el("div", "demo-tiles", StatTile("Published records", String(records.length)),
     StatTile("Status", [...new Set(records.map(e => e.status))].join(", ") || "none"),
     StatTile("Victims mentioned", String(new Set(records.map(e => e.victim.toLowerCase())).size)));
-  if (!latest) return part("evidence").replaceChildren(tiles);
-  part("evidence").replaceChildren(tiles,
+  if (!latest) return part("evidence").replaceChildren(...notices, tiles);
+  part("evidence").replaceChildren(...notices, tiles,
     el("p", "demo-caption", `Latest record: block ${latest.attackBlock}, ${latest.variant}, ${latest.token === "0xdAC17F958D2ee523a2206206994597C13D831ec7" ? "USDT" : "USDC"}. The victim had paid the impersonated address; then a ${latest.variant} transfer put the lookalike in their history. Status: suspected.`),
     AddressXray(latest.impersonated, latest.lookalike, "Impersonated address"), AddressXray(latest.lookalike, latest.impersonated, "Lookalike · suspected"),
     el("p", "demo-links", link("Suspected attack transaction on Etherscan ↗", `https://etherscan.io/tx/${latest.attackTx}`), link("Earlier real payment ↗", `https://etherscan.io/tx/${latest.referenceTx}`)));

@@ -80,13 +80,21 @@ describe("bulk read transport retries", () => {
     expect(t.queries.every((q) => !q.includes("lookalike ="))).toBe(true);
   });
 
-  it("gives up after six attempts and releases a failed in-progress read", async () => {
-    browser();
-    const t = transport([...Array.from({ length: 6 }, () => limited), { body: page() }]);
+  it("outside a browser, gives up after six attempts", async () => {
+    const t = transport(Array.from({ length: 6 }, () => limited));
     const result = expect(fetchAllEvidence(t.client, publisher)).rejects.toMatchObject({ status: 429 });
     await vi.runAllTimersAsync();
     await result;
     expect(t.fetch).toHaveBeenCalledTimes(6);
+  });
+
+  it("in a browser, gives up after three attempts and releases a failed in-progress read", async () => {
+    browser();
+    const t = transport([...Array.from({ length: 3 }, () => ({ status: 503, body: {} })), { body: page() }]);
+    const result = expect(fetchAllEvidence(t.client, publisher)).rejects.toMatchObject({ status: 503 });
+    await vi.runAllTimersAsync();
+    await result;
+    expect(t.fetch).toHaveBeenCalledTimes(3);
     expect(await fetchAllEvidence(t.client, publisher)).toEqual([record]);
   });
 
@@ -95,6 +103,13 @@ describe("bulk read transport retries", () => {
     const result = fetchAllEvidence(t.client, publisher);
     await vi.runAllTimersAsync();
     expect(await result).toEqual([record]);
+  });
+
+  it("in a browser, fails at once on a 429 whose Retry-After is hidden by CORS", async () => {
+    browser();
+    const { client, fetch } = transport([limited]);
+    await expect(fetchAllEvidence(client, publisher)).rejects.toMatchObject({ status: 429 });
+    expect(fetch).toHaveBeenCalledTimes(1);
   });
 
   it("fails at once when Retry-After is longer than a person will wait", async () => {
@@ -144,7 +159,7 @@ describe("bulk read transport retries", () => {
 describe("browser bulk read reuse", () => {
   it("shares one pending read across callers and clients", async () => {
     browser();
-    const a = transport([limited, { body: page() }]);
+    const a = transport([{ status: 503, body: {} }, { body: page() }]);
     const b = transport([]);
     const first = fetchAllEvidenceWithReadTime(a.client, publisher);
     const second = fetchAllEvidenceWithReadTime(b.client, publisher);
