@@ -75,6 +75,9 @@ const PATTERNS: [RegExp, string][] = [
   [/^Current state, read from the Safe: the HexFence Guard (0x\w+) is active\.$/, "वर्तमान स्थिति, Safe से पढ़ी गई: HexFence Guard $1 सक्रिय है।"],
   [/^Read from the Guard: (\d+) approved\.$/, "Guard से पढ़ा गया: $1 स्वीकृत।"],
   [/^Confirmed in block (\d+)\.$/, "ब्लॉक $1 में पुष्टि हुई।"],
+  [/^Tried first and failed: (.+)\.$/, "पहले आज़माया, विफल रहा: $1।"],
+  [/^(.+): skipped by the user\.$/, "$1: उपयोगकर्ता ने छोड़ दिया।"],
+  [/^(.+): .+ (?:start-up|test read) timed out after (\d+)s\.$/, "$1: $2 सेकंड में जवाब नहीं मिला।"],
 ];
 
 /** Hindi for one piece of interface text, or the text unchanged when there is no translation. */

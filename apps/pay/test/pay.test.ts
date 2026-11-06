@@ -100,6 +100,8 @@ describe("Hindi (T12, spec 3.4 verbatim)", () => {
     expect(toHindi("3. Payment")).toBe("3. भुगतान");
     expect(toHindi(`To continue, type the last 6 characters of ${L}`)).toContain(L);
     expect(toHindi(GUARD_INACTIVE_SENTENCE)).toMatch(/[\u0900-\u097F]/);
+    expect(toHindi("Nox (Sphinx mixnet): skipped by the user.")).toBe("Nox (Sphinx mixnet): उपयोगकर्ता ने छोड़ दिया।");
+    expect(toHindi("Nox (Sphinx mixnet): Nox (Sphinx mixnet) start-up timed out after 60s.")).toBe("Nox (Sphinx mixnet): 60 सेकंड में जवाब नहीं मिला।");
     expect(toHindi("Some technical error")).toBe("Some technical error");
   });
   it("default language is English", () => {

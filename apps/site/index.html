@@ -58,13 +58,13 @@
           <li><strong>Every common payment, checked twice.</strong> ETH payments and token <code>transfer</code> / <code>transferFrom</code> calls are checked before you sign and again at execution.</li>
           <li><strong>Hidden calls stopped.</strong> The Guard refuses delegatecall, so a payment can’t be tucked inside a batch.</li>
           <li><strong>Lookalikes refused on-chain.</strong> Same first 4 and last 4 characters as an approved payee, different address: the Guard reverts the payment.</li>
-          <li><strong>Real data at real scale.</strong> The detector found 47,694 suspected poisoning records in 7,194 Ethereum mainnet blocks, about a day of USDT and USDC transfers.</li>
-          <li><strong>Private by design.</strong> Recipients are compared in your browser, never looked up on a server, and Safe reads travel over the Nox mixnet.</li>
+          <li><strong>Real data at real scale.</strong> The detector found 47,694 suspected poisoning records in 7,200 Ethereum mainnet blocks, about a day of USDT and USDC transfers.</li>
+          <li><strong>Private by design.</strong> Recipients are compared in your browser, never looked up on a server, and Safe reads go through the Nox mixnet by default.</li>
         </ul>
       </section>
 
       <section class="section wrap" aria-labelledby="receipts-title">
-        <div class="section-heading"><p class="eyebrow">Public artifacts</p><h2 id="receipts-title">Inspect the work yourself.</h2><p>Every claim links to a public record, including the Guard refusing a test payment to an address that resembles your approved payee.</p></div>
+        <div class="section-heading"><p class="eyebrow">Public artifacts</p><h2 id="receipts-title">Inspect the work yourself.</h2><p>Each link below is a public record, including the Guard refusing a test payment to an address that resembles your approved payee.</p></div>
         <div class="artifacts">
           <a href="https://eth-sepolia.blockscout.com/address/0xA061fB511D69e5c92E50E3BE5c789472d6f19748"><span>Guard on Sepolia Blockscout <span aria-hidden="true">↗</span></span><code>0xA061fB511D69e5c92E50E3BE5c789472d6f19748</code></a>
           <a href="https://eth-sepolia.blockscout.com/tx/0xa43b0eeef7253281a741deca144e5ddf0c465da9cc6f48d54673a9aa9c0f6d8f"><span>Guard refusal on Sepolia <span aria-hidden="true">↗</span></span><code>0xa43b0eeef7253281a741deca144e5ddf0c465da9cc6f48d54673a9aa9c0f6d8f</code></a>
