@@ -143,7 +143,7 @@
 |---|---|---|---|---|
 | A3 | ✔ Merged [PR #28](https://github.com/Deven1305/hexfence/pull/28) | 73e8939 | Shared UI, live verdict, step navigation, deferred dependencies, expandable evidence rows and live landing counters. Final CI: 14 unchanged v1 contract tests, 173 workspace tests / 4 skips, builds and scripted-wallet regression passed. Initial Pay JavaScript including preloads: 309,603 bytes. All 12 captures at 375/1440 light/dark inspected. RadarBanner exported and unwired. | Complete; extension and remaining section 7 polish are separate rows below. |
 | A4 | ✔ Merged [PR #36](https://github.com/Deven1305/hexfence/pull/36) | 5c60874 | Completed real 7,200-block scan and call-shape check: one supported suspected case, 303.635007 USDT, USDC 0. Raw automated flows excluded; initial entities withdrawn with audit trail. Supported Arkiv create and zero-write live repeat passed. CI: 32 contracts, 220 workspace / 3 skips, builds, actual receipt/calldata checks, pack SHA-256, exactly one balanceOf and 16 inspected captures. | Complete. Human reviews any pack before contacting an issuer/exchange/authority; the app sends nothing. |
-| B2 | In progress | feat/campaigns-time | Grouping by transaction, distinct mentioned-victim counts, exact UTC-hour binning from real block timestamps, and explicit random-middle match model. Six fixtures pass. | Full checks, live chart captures and PR. |
+| B2 | ✔ Merged [PR #38](https://github.com/Deven1305/hexfence/pull/38) | feat/campaigns-time | Grouping by transaction, distinct mentioned-victim counts, exact UTC-hour binning from real block timestamps, and explicit random-middle match model. Six fixtures pass. | Done; CI build passed. |
 | Extension UI | Todo | ? | Use AddressXray/VerdictCard in review window. | After B2. |
 | UI polish | Todo | ? | Complete section 7 refinements within freeze. | After extension. |
 
@@ -184,3 +184,11 @@ Decision (06 Nov, Codex 2): official Arkiv str limit is 128 UTF-8 bytes. The mer
 | B5 | Merged on PR | HexFenceModuleGuard for Safe 1.5.0: 8 tests on a real 1.5.0 Safe, 40 Hardhat tests pass. Deployed 0xa7Dc08C6fb15fCdBF4De484FaE393fea052c546B, Sourcify exact match 58620524. No live Safe uses it yet; no live module payment run. | Next: none. |
 
 Waiting on humans: optional release publication requires an existing testnet publisher secret and existing balance, configured by a human. Follow docs/ATTESTATIONS.md; inspect the real receipt. The agent neither adds the secret nor spends tGLM.
+
+## Claude Code (Sonnet) B8 / B6 / C3 session
+
+| ID | Status | Evidence / next step |
+|---|---|---|
+| B8 | ✔ Merged [PR #31](https://github.com/Deven1305/hexfence/pull/31) | Pay runs inside Safe{Wallet} through `@safe-global/safe-apps-sdk` 9.1.0 and proposes the payment there; standalone Pay is unchanged. `apps/pay/SAFE_APP.md` has the steps. Tested with 7 unit tests and a stand-in parent speaking the SDK protocol; NOT tested inside real Safe{Wallet}. Human step: add `https://deven1305.github.io/hexfence/pay/` as a custom Safe App on a Sepolia Safe and try a payment. |
+| B6 | PR open (feat/explain-layer) | `packages/shared/src/explain.ts` + Pay panel "Explain another call (ERC-7730)". The user pastes an ERC-7730 descriptor and a call; it is used only if its `context.contract.deployments` lists that chain and address, and the called function is a `display.formats` key (matched by selector; duplicate signatures make it invalid). Output: the descriptor's intent and fields, and any `addressName` field that resembles an approved payee gets a warning. The verdict is computed first and never changed, so an explained call stays CANNOT VERIFY and the Guard still does not check it. Limits: nothing is fetched (no registry lookups), field formats such as tokenAmount are shown as raw values, EIP-712 descriptors are not read, the descriptor's own wording stays English (only HexFence's sentences have Hindi, unreviewed). Tests: 7 shared + 5 Pay. Checked in the browser on the demo Safe. |
+| C3 | Todo | feat/multi-publisher after B6 |
