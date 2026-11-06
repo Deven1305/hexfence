@@ -8,7 +8,7 @@
 //   pnpm merged:verify http://localhost:5182 [--chain 31337=http://127.0.0.1:8545] [--to 0x… --value 0.01 --payee 0x…]
 // Needs a running demo (pnpm merged:up) for the local chain, or a real ENS RPC for Sepolia.
 import { getAddress, isAddress, parseEther, type Address } from "viem";
-import { combine, type CheckRow, type Level } from "../../packages/core/src/index.js";
+import { combine, contractsRow, releaseRow, siteFilesRow, type CheckRow, type Level } from "../../packages/core/src/index.js";
 import { sha256Hex } from "../../pramaan/packages/manifest/src/hash.js";
 import { checkSite, compareContract, inspectAgreed, verifySiteRelease, type ObservedResource } from "../../pramaan/packages/verifier-core/src/index.js";
 import { loadEnsv2Config } from "../../pramaan/packages/release/src/index.js";
@@ -25,15 +25,13 @@ const rpcUrls = rpcList!.split(",");
 const cfg = { chainId, rpcUrls, universalResolver: loadEnsv2Config().universalResolver, minAgreement: chainId === 31337 ? 1 : Math.min(2, rpcUrls.length) };
 
 const rows: CheckRow[] = [];
-const lvl = (s: "green" | "amber" | "red"): Level => s;
 
 const origin = new URL(url).origin;
 const release = await verifySiteRelease({ origin, chains: { [chainId]: cfg } });
 for (const c of release.checks) console.log(`  ${c.status === "pass" ? "✓" : c.status === "fail" ? "✗" : c.status === "warn" ? "!" : "-"} ${c.id.padEnd(10)} ${c.detail}`);
 console.log(`release: ${release.status.toUpperCase()}${release.reason ? ` (${release.reason})` : ""}`);
 
-const releaseLevel: Record<string, Level> = { verified: "green", missing: "grey", unverifiable: "grey", mismatch: "red", "invalid-signature": "red", revoked: "red" };
-rows.push({ kind: "app", level: releaseLevel[release.status] ?? "grey", code: `RELEASE_${release.status.toUpperCase().replace(/-/g, "_")}`, params: { origin, ens: release.ensName ?? "" } });
+rows.push(releaseRow(release.status, origin, release.ensName ?? ""));
 
 if (release.manifest) {
   const observed: ObservedResource[] = [];
@@ -44,7 +42,7 @@ if (release.manifest) {
   }
   const site = checkSite(release.manifest, origin, observed);
   console.log(`files: ${site.status} (${site.severity}) - ${site.summary}`);
-  rows.push({ kind: "app", level: lvl(site.severity), code: `SITE_FILES_${site.status.toUpperCase().replace(/-/g, "_")}`, params: { summary: site.summary } });
+  rows.push(siteFilesRow(site.status, site.severity, site.summary));
 
   // contract row: every contract the release lists must still match what is deployed
   let worst: Level = "green"; let checked = 0; const notes: string[] = [];
@@ -55,7 +53,7 @@ if (release.manifest) {
     const r = compareContract(release.manifest, chainId, ins.inspection);
     if (r.status !== "verified") { worst = "red"; notes.push(`${c.label}: ${r.status}`); }
   }
-  rows.push({ kind: "contract", level: checked === 0 ? "grey" : worst, code: checked === 0 ? "NO_CONTRACTS_ON_THIS_CHAIN" : worst === "green" ? "CONTRACTS_MATCH_RELEASE" : "CONTRACT_NOT_AS_RELEASED", params: { checked: String(checked), notes: notes.join("; ") } });
+  rows.push(contractsRow(checked, worst, notes));
 }
 
 // optional payment on top of the page checks
