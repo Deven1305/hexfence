@@ -36,3 +36,7 @@ body, input, select, button { font-family: Inter, sans-serif; }
 .hf-stepper button[aria-current=step] { color:var(--accent); border-color:var(--accent); }
 .hf-difference-count { font-size:.75rem; margin:.25rem 0; }
 .hf-address { font-variant-numeric:tabular-nums; letter-spacing:.02em; }
+
+.hf-table { min-width:38rem; }
+.hf-table td { overflow-wrap:normal; }
+.hf-table .card { white-space:normal; }

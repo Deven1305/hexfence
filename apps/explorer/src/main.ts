@@ -91,9 +91,8 @@ if (!isAddress(publisherEnv, { strict: false })) {
       const address = el("a", undefined, `${e.lookalike.slice(0, 6)}?${e.lookalike.slice(-4)}`) as HTMLAnchorElement;
       address.href = `https://etherscan.io/address/${e.lookalike}`; address.target = "_blank"; address.rel = "noreferrer";
       return [String(e.attackBlock), e.variant, e.token.toLowerCase().startsWith("0xdac1") ? "USDT" : "USDC", address, e.status];
-    })));
-    if (replace || search) results.replaceChildren(...records.map((e) => recordCard(e, rpcUrl)));
-    else results.append(...added.map((e) => recordCard(e, rpcUrl)));
+    }), records.map(e => recordCard(e, rpcUrl))));
+    results.replaceChildren();
     searchStatus.textContent = search ?
       `${records.length} suspected ${records.length === 1 ? "record mentions" : "records mention"} ${search} among downloaded records. ` +
       (complete ? "" : "More pages are still loading. ") +

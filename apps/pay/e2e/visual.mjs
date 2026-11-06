@@ -49,8 +49,16 @@ try {
         await page.locator('#to').fill('0x4E185e251Ac7fB83E9DE10723EAda46cadE74120');
         await expect(page.locator('.verdict.GREEN')).toBeVisible();
       } else {
-        if (app === 'explorer') await expect(page.locator('article.card').first()).toBeVisible({ timeout: 120000 });
-        await page.screenshot({ path: path.join(out, `${app}-${width}-${colorScheme}.png`), fullPage: true });
+        if (app === 'site') {
+          await page.locator('.hf-xray-hero').evaluate(el => Promise.all(el.getAnimations().map(a => a.finished)));
+          await expect(page.locator('#live-stats .hf-stat').first()).toBeVisible({ timeout: 120000 });
+        }
+        if (app === 'explorer') {
+          await expect(page.getByRole('button', { name: 'X-Ray', exact: true }).first()).toBeVisible({ timeout: 120000 });
+          await page.getByRole('button', { name: 'X-Ray', exact: true }).first().click();
+          await expect(page.locator('article.card').first()).toBeVisible();
+        }
+        await page.screenshot({ path: path.join(out, `${app}-${width}-${colorScheme}.png`), fullPage: app !== 'explorer' });
       }
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       expect(errors).toEqual([]);
