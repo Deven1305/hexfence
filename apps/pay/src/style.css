@@ -1,43 +1,68 @@
-﻿* { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--ink); line-height: 1.65; }
-a { color: var(--accent); text-underline-offset: .22em; overflow-wrap: anywhere; }
-a:hover { text-decoration-thickness: 2px; }
-:where(a, button, input, select):focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
-main { max-width: 48rem; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
-h1 { margin: 0 0 .5rem; font-size: clamp(1.8rem, 5vw, 2.8rem); letter-spacing: -.045em; line-height: 1.15; font-weight: 650; }
-h2 { font-size: 1.1rem; letter-spacing: -.02em; margin: 0 0 .8rem; }
-p { margin: .6rem 0 1rem; }
-.sub { color: var(--muted); margin: .8rem 0 1.5rem; }
-section { border: 1px solid var(--line); border-radius: .3rem; padding: 1.5rem; margin: 0 0 1.25rem; background: var(--surface); min-width: 0; }
-section > p:last-child { margin-bottom: 0; }
-label { display: block; margin: 1rem 0 .35rem; font-size: .83rem; color: var(--muted); font-weight: 600; }
-input, select, button { font: inherit; padding: .7rem .8rem; border-radius: .3rem; border: 1px solid var(--line); min-height: 44px; }
-input, select { width: 100%; min-width: 0; background: var(--bg); color: var(--ink); }
+﻿/* HexFence Pay: one centred column. Tokens, header and footer come from @hexfence/ui. */
+main.wrap { max-width: 760px; padding-top: var(--s7); padding-bottom: var(--s8); }
+h1 { margin: 0 0 var(--s2); font-size: clamp(30px, 4.2vw, 46px); letter-spacing: -.02em; }
+h2 { font-size: 22px; margin: 0 0 var(--s3); }
+h3 { margin: var(--s5) 0 var(--s2); font-size: 18px; }
+p { margin: 0 0 var(--s3); }
+.sub { color: var(--muted); margin: 0 0 var(--s4); max-width: 62ch; font-size: 18px; }
+.small { font-size: 14px; color: var(--muted); overflow-wrap: anywhere; }
+.hidden, [hidden] { display: none !important; }
+code, .mono { font-family: var(--mono); font-size: 13px; overflow-wrap: anywhere; }
+
+/* Language toggle */
+main > p.small:has(button[aria-pressed]) { display: flex; gap: var(--s2); margin: 0 0 var(--s4); }
+
+/* Cards */
+section { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: var(--s5); margin: 0 0 var(--s4); min-width: 0; }
+section > :last-child { margin-bottom: 0; }
+
+/* Status chip bar */
+.statusbar { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: flex-start; margin: 0 0 var(--s4); }
+.statusbar .chip { margin: 0; }
+.chip.ok { color: var(--green); background: var(--green-bg); border-color: var(--green); }
+.chip.warn { color: var(--amber); background: var(--amber-bg); border-color: var(--amber); }
+.statusbar > details { border: 1px solid var(--line); border-radius: var(--rb); background: var(--surface); padding: 0 var(--s3); min-width: 0; max-width: 100%; }
+.statusbar > details[open] { flex: 1 1 100%; padding-bottom: var(--s4); }
+.statusbar > details > summary { cursor: pointer; min-height: 32px; display: flex; align-items: center; font: 600 13px/1.2 var(--body); color: var(--muted); }
+.fence-settings > summary { color: var(--brand); }
+.route-status { margin: 0; }
+
+/* Form */
+label { display: block; margin: var(--s4) 0 var(--s1); font-size: 14px; color: var(--muted); font-weight: 600; }
+input, select { width: 100%; min-width: 0; min-height: 44px; padding: 0 var(--s3); font: 400 15px/1 var(--mono); border: 1px solid var(--input-line); border-radius: var(--rb); background: var(--surface); color: var(--ink); }
+select { font-family: var(--body); }
+input[type=checkbox] { width: auto; min-height: 0; margin-right: var(--s2); }
 input::placeholder { color: var(--muted); opacity: 1; }
-button { cursor: pointer; margin: .7rem .5rem 0 0; background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-size: .85rem; font-weight: 600; max-width: 100%; overflow-wrap: anywhere; }
-button:hover:not(:disabled) { outline: 1px solid var(--accent); outline-offset: 2px; }
-button[aria-pressed="false"] { background: transparent; color: var(--accent); }
-button:disabled { opacity: .5; cursor: not-allowed; }
-code, .mono { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: .8rem; overflow-wrap: anywhere; }
-.row { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; }
+button { min-height: 44px; padding: 0 var(--s5); margin: var(--s3) var(--s2) 0 0; font: 600 15px/1 var(--body); border: 1px solid var(--brand); border-radius: var(--rb); background: var(--brand); color: var(--on-brand); cursor: pointer; max-width: 100%; overflow-wrap: anywhere; }
+button:hover:not(:disabled) { outline: 2px solid var(--brand); outline-offset: 2px; }
+button[aria-pressed="false"] { background: transparent; color: var(--brand); }
+button:disabled { cursor: not-allowed; background: var(--surface2); border-color: var(--line); color: var(--muted); }
+.statusbar button, main > p.small button { min-height: 36px; margin-top: var(--s2); padding: 0 var(--s4); font-size: 14px; }
+.row { display: flex; gap: var(--s3); align-items: center; flex-wrap: wrap; }
 .row > * { min-width: 0; }
-.verdict { border: 1px solid; border-left-width: .35rem; padding: 1rem 1.2rem; border-radius: .3rem; margin: 1rem 0; overflow-wrap: anywhere; }
-.verdict > strong { font-size: .8rem; letter-spacing: .1em; }
-.verdict p { margin: .5rem 0; }
+
+/* Verdict: a large card. Colours follow the verdict, never the brand colour. */
+.verdict { border: 1px solid; border-left-width: 6px; padding: var(--s5); border-radius: var(--r); margin: var(--s4) 0; overflow-wrap: anywhere; }
+.verdict > strong { display: block; font: 800 13px/1 var(--body); letter-spacing: .1em; margin-bottom: var(--s3); }
+.verdict p { margin: var(--s2) 0; font-size: 17px; }
+.verdict .small { color: inherit; }
 .RED { border-color: var(--red); background: var(--red-bg); color: var(--red); }
 .AMBER { border-color: var(--amber); background: var(--amber-bg); color: var(--amber); }
 .GREEN { border-color: var(--green); background: var(--green-bg); color: var(--green); }
 .GREY { border-color: var(--grey); background: var(--grey-bg); color: var(--grey); }
-.notice, .error { border-left: .25rem solid; padding: .8rem 1rem; margin: .8rem 0; overflow-wrap: anywhere; border-radius: .2rem; }
+.verdict .hf-xray { color: var(--ink); background: var(--surface); border-radius: var(--rb); padding: var(--s3); margin-top: var(--s3); }
+
+.notice, .error { border-left: 4px solid; padding: var(--s3) var(--s4); margin: var(--s3) 0; overflow-wrap: anywhere; border-radius: 0 var(--rb) var(--rb) 0; }
 .notice { border-color: var(--grey); background: var(--grey-bg); }
 .error { border-color: var(--red); background: var(--red-bg); color: var(--red); }
-.small { font-size: .83rem; color: var(--muted); overflow-wrap: anywhere; }
-.hidden, [hidden] { display: none; }
-@media (max-width: 600px) {
-    main { padding: 2rem 1rem 4rem; }
-  section { padding: 1.1rem; }
-  .verdict { padding: .85rem; }
-}
 
-.route-status { padding:.6rem 1rem; border:1px solid var(--line); margin-bottom:1rem; }
-.route-status summary { cursor:pointer; font-size:.8rem; color:var(--muted); }
+.route-status p { margin: 0 0 var(--s2); }
+.route-status button { margin-top: 0; }
+
+@media (max-width: 600px) {
+  main.wrap { padding-top: var(--s5); }
+  section { padding: var(--s4); }
+  .verdict { padding: var(--s4); }
+  button { width: 100%; margin-right: 0; }
+  .statusbar button, main > p.small button { width: auto; }
+}

@@ -71,7 +71,8 @@ interface State {
   /** Last Safe loaded, kept so the address survives connecting a wallet. */
   lastSafe?: Address;
   lang: Lang;
-  step: number;
+  /** Whether the Fence settings panel is open, kept across re-renders. */
+  fenceOpen?: boolean;
   shown?: { verdict: Verdict; box: HTMLElement };
 }
 
@@ -88,7 +89,7 @@ async function boot(): Promise<void> {
   app.replaceChildren(el("h1", {}, "HexFence Pay"), el("p", { role: "status" }, "Loading payment tools?"));
   await new Promise<void>((resolve) => requestAnimationFrame(() => setTimeout(resolve, 0)));
   const { createReadClient } = await import("./rpc");
-  state = { config, reads: createReadClient(config.sepoliaRpcUrl), route: Promise.resolve(), skip: new AbortController(), lang: "en", step: 1 };
+  state = { config, reads: createReadClient(config.sepoliaRpcUrl), route: Promise.resolve(), skip: new AbortController(), lang: "en" };
   state.pendingSafe = new URLSearchParams(window.location.search).get("safe")?.trim() || undefined;
   state.route = startRoute();
   new MutationObserver(applyLang).observe(app, { childList: true, subtree: true });
@@ -97,7 +98,6 @@ async function boot(): Promise<void> {
     if (!ctx) return;
     state.safeApp = ctx;
     if (ctx.chainId === SEPOLIA_CHAIN_ID) state.pendingSafe = ctx.safeAddress;
-    state.step = 1;
     render();
   });
 }
@@ -107,24 +107,29 @@ function render(): void {
     el("h1", {}, "HexFence Pay"),
     el("p", { class: "sub" }, "Checks a payment against your approved payees before you sign. Sepolia test network."),
     langBar(),
-    stepper(),
-    routeSection(),
-    ...(state.info ? [SafeHeader(state.info.address, `v${state.info.version} · ${state.info.threshold}/${state.info.owners.length} · Guard ${state.info.guard.active ? "active" : "inactive"}${state.info.v2 ? " / Auto-Fence V2" : ""}`)] : []),
-    ...(state.info ? [radarPanel(state.reads, state.info)] : []),
-    [walletSection, safeSection, paymentSection, setupSection][state.step]!(),
+    statusBar(),
+    walletSection(),
+    safeSection(),
+    ...(state.info ? [SafeHeader(state.info.address, `v${state.info.version} · ${state.info.threshold}/${state.info.owners.length} · Guard ${state.info.guard.active ? "active" : "inactive"}${state.info.v2 ? " / Auto-Fence V2" : ""}`), radarPanel(state.reads, state.info), paymentSection()] : []),
   );
 }
 
-function stepper(): HTMLElement {
-  const list = el("ol", { class: "hf-stepper", "aria-label": "Payment progress" });
-  ["Connect", "Safe", "Pay", "Fence settings"].forEach((label, i) => {
-    const button = el("button", { type: "button" }, `${i + 1}. ${label}`);
-    button.onclick = () => { state.step = i; render(); };
-    const item = el("li", {}, button);
-    if (i === state.step) button.setAttribute("aria-current", "step");
-    list.append(item);
-  });
-  return list;
+/** One row of status chips: network, Safe, Guard, read route and the Fence settings panel. */
+function statusBar(): HTMLElement {
+  const bar = el("div", { class: "statusbar" });
+  const chip = (text: string, tone = "") => el("span", { class: `chip ${tone}`.trim() }, text);
+  bar.append(chip("Sepolia"));
+  if (state.info) {
+    const a = state.info.address;
+    bar.append(chip(`Safe ${a.slice(0, 6)}…${a.slice(-4)}`), state.info.guard.active ? chip("Guard active", "ok") : chip("Guard inactive", "warn"));
+  }
+  bar.append(routeSection());
+  const fence = el("details", { class: "fence-settings" });
+  if (state.fenceOpen) fence.open = true;
+  fence.addEventListener("toggle", () => { state.fenceOpen = fence.open; });
+  fence.append(el("summary", {}, "⚙ Fence settings"), setupSection());
+  bar.append(fence);
+  return bar;
 }
 
 // ---------- anonymous reads (T11) ----------
@@ -173,7 +178,7 @@ function fillRoute(): void {
 // ---------- 1. wallet ----------
 function walletSection(): HTMLElement {
   const s = el("section");
-  s.append(el("h2", {}, "1. Wallet"));
+  s.append(el("h2", {}, "Wallet"));
   const status = el("p", { class: "small" });
   s.append(status);
   if (state.account) {
@@ -210,7 +215,6 @@ async function onConnect(w: WalletOption, section: HTMLElement): Promise<void> {
     state.provider = undefined;
     state.safe = undefined;
     state.info = undefined;
-    state.step = 1;
     render();
   } catch (e) {
     showError(section, isUserRejection(e) ? "Connection cancelled in the wallet." : errText(e));
@@ -220,7 +224,7 @@ async function onConnect(w: WalletOption, section: HTMLElement): Promise<void> {
 // ---------- 2. Safe ----------
 function safeSection(): HTMLElement {
   const s = el("section");
-  s.append(el("h2", {}, "2. Safe"));
+  s.append(el("h2", {}, "Safe"));
   if (state.safeApp && state.safeApp.chainId !== SEPOLIA_CHAIN_ID) {
     s.append(el("div", { class: "error" }, `This Safe is on chain ${state.safeApp.chainId}. HexFence Pay works on Sepolia only: open a Sepolia Safe in Safe{Wallet}.`));
   } else if (state.safeApp) {
@@ -261,7 +265,6 @@ async function onLoadSafe(raw: string, out: HTMLElement): Promise<void> {
     state.safe = safe;
     state.info = info;
     state.lastSafe = info.address;
-    state.step = 2;
     const { publisher, arkivAccessKey } = state.config;
     state.listed ??= loadListed(publisher !== undefined, async () => {
       const { arkivReadClient, fetchAllEvidence } = await import("@hexfence/arkiv");
@@ -309,7 +312,7 @@ function renderSafeInfo(out: HTMLElement, info: SafeInfo): void {
 // ---------- 3. payment ----------
 function paymentSection(): HTMLElement {
   const s = el("section");
-  s.append(el("h2", {}, "3. Payment"));
+  s.append(el("h2", {}, "Payment"));
   if (!state.info || !state.safe) {
     s.append(el("p", { class: "small" }, "Load a Safe first."));
     return s;
@@ -548,8 +551,7 @@ async function onExecute(call: SetupCall, out: HTMLElement): Promise<boolean> {
 
 // ---------- 4. setup (owner only) ----------
 function setupSection(): HTMLElement {
-  const s = el("section", { id: "setup" });
-  s.append(el("h2", {}, "4. Setup"));
+  const s = el("div", { id: "setup" });
   const { info, account } = state;
   if (!info) {
     s.append(el("p", { class: "small" }, "Load a Safe first."));
