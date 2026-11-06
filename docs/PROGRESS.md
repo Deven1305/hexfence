@@ -130,3 +130,5 @@
 ### Upgrade UI session log
 
 - 06 Nov 13:45 IST: A3 implementation and direct local checks. Git's original worktree metadata is outside the writable sandbox, so commands explicitly use local `.upgrade-git` metadata with the same working directory. `.upgrade-git/`, `.pnpm-store/` and `artifacts/` are ignored and must never be staged. No contract or Sentinel source changed. UI screenshot verification is delegated to a normal CI test job (no agents) because browser control was denied.
+
+- 06 Nov 13:44 IST: first A3 CI run passed all 14 v1 contract tests, then exposed an existing unquoted shell glob in Pay's Vitest command on Linux. Quoted the exclude pattern; adjusted the scripted v1 browser regression for step navigation, and added it to CI before real-data captures.

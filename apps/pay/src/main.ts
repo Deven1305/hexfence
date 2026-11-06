@@ -304,14 +304,19 @@ function paymentSection(): HTMLElement {
         if (version !== revision) return;
         const v = verdictFor({ kind: "eth", recipient, amount: 0n }, info.payees, listed?.status === "ok" ? listed.map : undefined);
         const box = VerdictCard(v.level); fillVerdictBox(box, v); preview.replaceChildren(box);
+        state.shown = { verdict: v, box };
       };
       paint(); void state.listed?.then(paint);
     } catch { /* Wait for a complete address. */ }
     }, 120);
   };
-  check.onclick = () => void onCheck({ asset: asset.value, token: token.value, to: to.value, amount: amount.value }, out);
+  check.onclick = () => {
+    clearTimeout(debounce); preview.replaceChildren();
+    const version = ++revision;
+    void onCheck({ asset: asset.value, token: token.value, to: to.value, amount: amount.value }, out, () => version === revision);
+  };
   s.append(el("label", { for: "asset" }, "Asset"), asset, tokenWrap, el("label", { for: "to" }, "Recipient"), to, el("label", { for: "amount" }, "Amount"), amount, preview, check, out);
-  for (const field of [asset, token, amount]) field.addEventListener("input", () => out.replaceChildren());
+  for (const field of [asset, token, amount]) field.addEventListener("input", () => { ++revision; out.replaceChildren(); });
   return s;
 }
 
@@ -331,7 +336,7 @@ async function resolveAsset(kind: string, tokenRaw: string): Promise<Asset> {
   return { kind: "erc20", token, decimals, symbol };
 }
 
-async function onCheck(f: { asset: string; token: string; to: string; amount: string }, out: HTMLElement): Promise<void> {
+async function onCheck(f: { asset: string; token: string; to: string; amount: string }, out: HTMLElement, current: () => boolean = () => true): Promise<void> {
   out.replaceChildren(el("p", { class: "small" }, "Checking…"));
   try {
     const { safe, info } = state;
@@ -343,9 +348,9 @@ async function onCheck(f: { asset: string; token: string; to: string; amount: st
     const decoded = decodeSafeCall(call, { safe: info.address, guard: state.config.guard });
     const listed = await state.listed;
     const verdict = verdictFor(decoded, info.payees, listed?.status === "ok" ? listed.map : undefined);
-    renderVerdict(out, verdict, recipient, call);
+    if (current()) renderVerdict(out, verdict, recipient, call);
   } catch (e) {
-    out.replaceChildren(el("div", { class: "error" }, errText(e)));
+    if (current()) out.replaceChildren(el("div", { class: "error" }, errText(e)));
   }
 }
 

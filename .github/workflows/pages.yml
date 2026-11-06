@@ -80,6 +80,7 @@ jobs:
       - name: Capture production UI at mobile and desktop in both themes
         run: |
           corepack pnpm@10.34.9 --filter @hexfence/pay exec playwright install --with-deps chromium
+          node apps/pay/e2e/run.mjs
           node apps/pay/e2e/visual.mjs
       - uses: actions/upload-artifact@v4
         if: always()
