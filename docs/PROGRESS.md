@@ -168,6 +168,12 @@
 - 06 Nov 15:10 IST: Supported record publication succeeded (1 created, tx 0x899bc5466cc62545cbfd69478a587605f412dbb0af51e63882e5e32fdbb3923e). Live repeat returned 0 created / 1 already present / 0 transactions, proving idempotence. The generated manifest retains the original publication receipt and initial retraction. Final CI, real receipt/balance/download checks and mobile/dark screenshots remain before merge.
 
 - 06 Nov 15:31 IST: A4 merged after both build checks passed and 16 screenshots were inspected. B2 implements local campaign grouping, actual per-block timestamps for exact UTC-hour counts (no interpolation), and observed address matches versus an explicit independent-uniform middle-digit model. Counts are scoped to downloaded publisher records. Six new fixtures pass; real chart capture pending.
+## Claude Code (Sonnet) C3
+
+| ID | Status | Evidence / next step |
+|---|---|---|
+| C3 | PR open (feat/multi-publisher) | Explorer reads extra publishers from the optional `VITE_ARKIV_EXTRA_PUBLISHERS` (comma-separated) and each record card says "Published by N of M publishers read", counting a publisher once per evidenceId (the id is a hash of chain, lookalike, impersonated address and detector version; every row is checked against it). Today only the one publisher is configured, so every card says 1 of 1 and that there is no second publisher to agree with it. Checked in the browser against the real publisher (173 records) with an empty second publisher: "1 of 2". An extra publisher that cannot be read is reported and not counted. Limits: agreement means the same record id, not independent proof, and a publisher could be run by the same person. No other publisher exists yet, so the multi-publisher case is proven only with unit tests and an empty one. Human step (optional): set the variable in the Pages build to add a publisher. |
+
 ## Codex 2 judge-research session
 
 | ID | Status | Evidence / next step |
