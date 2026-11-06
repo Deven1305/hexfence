@@ -1,6 +1,6 @@
 # Judge readiness: evidence and gaps
 
-Checked **6 Nov 2026** against main **8c3c175** (after PRs #34, #36, #38, #39, #40, #41, #42). It describes merged code and recorded observations only. Sources: the [official prize page](https://ethglobal.com/events/mumbai/prizes) and [submission rules](https://ethglobal.com/events/mumbai/details). Chosen partners: **Arkiv, EF CROPS, Chainlink CRE**. Final eligibility is the organisers' decision.
+Checked **6 Nov 2026** against main **2fa725b**. It describes merged code and recorded observations only. Sources: the [official prize page](https://ethglobal.com/events/mumbai/prizes) and [submission rules](https://ethglobal.com/events/mumbai/details). Chosen partners: **Arkiv, EF CROPS, Chainlink CRE**. Final eligibility is the organisers' decision.
 
 ## General rules
 
@@ -26,7 +26,7 @@ Checked **6 Nov 2026** against main **8c3c175** (after PRs #34, #36, #38, #39, #
 | Multi-publisher reading (C3) | Code only | The explorer can read extra publishers from `VITE_ARKIV_EXTRA_PUBLISHERS`, but **no second publisher with records exists and `pages.yml` does not pass the variable**. The live explorer reads one publisher. |
 | Release records (B7) | Not live | Code and tests only; no release record on Arkiv. |
 
-Data note: the 1,126 records are a chosen subset of two 24-hour detector runs (47,694 and 58,739 pairs). 125 of them come from one attack block (26352743), so the Campaigns hourly chart is about publication, not attack rate (fix in PR `fix/campaign-timeline`).
+Data note: the 1,126 records are a chosen subset of two 24-hour detector runs (47,694 and 58,739 pairs). 125 of them come from one attack block (26352743), so the Campaigns hourly chart is about publication, not attack rate (title "Published records per UTC hour" merged in PR #44, `apps/explorer/src/campaigns.ts`).
 
 ## Ethereum Foundation: Best CROPS App
 
