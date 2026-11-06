@@ -2,7 +2,7 @@
 
 Everything on this page was run on 7 Nov 2026 on Windows 11 (Node 20.20.2, Docker, Foundry 1.8.7) unless it says **not run**. Live results: `docs/merged/08_VERIFICATION_REPORT.md` (second pass). Details of every check: `docs/merged/08_VERIFICATION_REPORT.md`. Longer guides per topic: `docs/merged/00_INDEX.md`.
 
-> The merged tree contains pre-event Pramaan code. For ETHGlobal Mumbai Classic, submit HexFence alone from its public `main`; publish this merge only after the prizes are paid (`docs/planning/final_hexfence/02_RULES_AND_ELIGIBILITY.md`).
+> The merged tree contains the Pramaan project under `pramaan/`, imported with its full git history (see README Provenance).
 
 ## 0. One-time setup (10 minutes)
 

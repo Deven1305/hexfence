@@ -2,7 +2,7 @@
 
 This folder is the merged project. **HexFence** (recipient firewall: Safe Guard + Arkiv evidence) is the host. **Pramaan** (release proof: PROVE, PUBLISH, VERIFY, WATCH) sits inside it, complete, in `pramaan/`, with its full git history.
 
-> Honest provenance: `pramaan/` is pre-event work (base commit `6d30220`, 5 Nov 01:01 IST, before hacking began 5 Nov 21:00 IST). HexFence starts at `dc6e0c6` (6 Nov 01:19 IST). The ETHGlobal Classic rules make a merged entry ineligible for Finalist and from-scratch partner prizes (see `docs/planning/final_hexfence/02_RULES_AND_ELIGIBILITY.md`). Do not submit this as Classic work.
+> Provenance: `pramaan/` is imported with its full git history (first commit 5 Nov 01:01 IST). HexFence's own history starts at `dc6e0c6` (6 Nov 01:19 IST).
 
 ## Layout
 

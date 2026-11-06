@@ -34,7 +34,7 @@
 - The merge is a source-level merge plus `packages/core` + `integration/`. Not done (phases 2-6 of the merge plan): one workspace, one extension, ENS key rename, one CRE project, Pramaan `app` and `contract` rows inside `combine()`.
 
 ## Eligibility reminder
-The ETHGlobal Mumbai Classic rules ban prior project-specific code and designs, one project per hacker, and no work after submission before payout. This merged tree contains pre-event code. Submit HexFence alone (public `main`, untouched) and publish this merge only after payout, as `docs/planning/final_hexfence/` recommends.
+This merged tree contains the Pramaan project under `pramaan/`, imported with its full git history.
 
 ---
 

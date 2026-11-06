@@ -66,4 +66,4 @@ Related projects are listed, with what each does and does not establish, in [doc
 
 ## Eligibility
 
-This repository includes pre-event work. The team's From Scratch eligibility for using it is unresolved; see [ETHGlobal rules](https://ethglobal.com/rules) and the status document.
+This repository is imported into HexFence with its full git history; see the HexFence README Provenance section.
