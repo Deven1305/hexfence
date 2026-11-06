@@ -1,6 +1,6 @@
 // Read-only production UI checks. Uses published records and the existing demo Safe.
 import { createServer } from 'node:http';
-import { readFile, mkdir } from 'node:fs/promises';
+import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium, expect } from '@playwright/test';
@@ -8,6 +8,12 @@ import { chromium, expect } from '@playwright/test';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 const out = path.join(root, 'artifacts/xray');
 await mkdir(out, { recursive: true });
+const html = await readFile(path.join(root, 'apps/pay/dist/index.html'), 'utf8');
+const initialFiles = [...new Set([...html.matchAll(/(?:src|href)="([^" ]+\.js)"/g)].map(m => m[1]))];
+let initialBytes = 0;
+for (const file of initialFiles) initialBytes += (await readFile(path.join(root, 'apps/pay/dist', file.replace(/^\.\//, '')))).length;
+expect(initialBytes).toBeLessThan(400000);
+await writeFile(path.join(out, 'bundle.json'), JSON.stringify({ initialBytes, initialFiles }, null, 2));
 const servers = [];
 for (const [i, name] of ['site', 'explorer', 'pay'].entries()) {
   const dir = path.join(root, `apps/${name}/dist`);

@@ -1,7 +1,7 @@
 import { AddressXray, SafeHeader, VerdictCard } from "@hexfence/ui";
 import "@hexfence/ui/style.css";
 import { decodeSafeCall, verdictFor, type Verdict } from "@hexfence/shared";
-import { connectAnon, routeStatusText, type AnonOutcome } from "./anon";
+import type { AnonOutcome } from "./anon";
 import { getAddress, getContract, type Address, type EIP1193Provider, type Hex } from "viem";
 import type Safe from "@safe-global/protocol-kit";
 import { ConfigError, loadConfig, SEPOLIA_CHAIN_ID, SEPOLIA_EXPLORER, type Config } from "./config";
@@ -10,7 +10,7 @@ import { frictionSatisfied, frictionSuffix, requiresFriction } from "./friction"
 import { planFromSimulation, simulateExec } from "./execute";
 import { buildPaymentCall, erc20Abi, InputError, parseAddress, parseAmount, type Asset } from "./payment";
 import { describeRevert } from "./revert";
-import { compositeProvider, createReadClient, type ReadClient } from "./rpc";
+import type { ReadClient } from "./rpc";
 import { loadSafeInfo, openSafe, openSafeReadOnly, type SafeInfo } from "./safe";
 import {
   buildApprovePayeeCall,
@@ -58,6 +58,7 @@ interface State {
   route: Promise<void>;
   outcome?: AnonOutcome;
   trying?: string;
+  routeLines?: string[];
   skip: AbortController;
   /** Safe address from `?safe=0x…`, loaded once when the Safe section first renders. */
   pendingSafe?: string;
@@ -78,7 +79,7 @@ function boot(): void {
     app.replaceChildren(el("h1", {}, "HexFence Pay"), el("div", { class: "error" }, e instanceof ConfigError ? e.message : String(e)));
     return;
   }
-  state = { config, reads: createReadClient(config.sepoliaRpcUrl), route: Promise.resolve(), skip: new AbortController(), lang: "en", step: 1 };
+  state = { config, reads: undefined as unknown as ReadClient, route: Promise.resolve(), skip: new AbortController(), lang: "en", step: 1 };
   state.pendingSafe = new URLSearchParams(window.location.search).get("safe")?.trim() || undefined;
   state.route = new Promise((resolve, reject) => requestAnimationFrame(() => setTimeout(() => { startRoute().then(resolve, reject); }, 0)));
   new MutationObserver(applyLang).observe(app, { childList: true, subtree: true });
@@ -114,6 +115,9 @@ let routeEl: HTMLElement | undefined;
 
 async function startRoute(): Promise<void> {
   const c = state.config;
+  const { createReadClient } = await import("./rpc");
+  state.reads = createReadClient(c.sepoliaRpcUrl);
+  const { connectAnon, routeStatusText } = await import("./anon");
   const outcome = await connectAnon({
     sepoliaRpcUrl: c.sepoliaRpcUrl,
     signal: state.skip.signal,
@@ -124,6 +128,7 @@ async function startRoute(): Promise<void> {
   });
   state.trying = undefined;
   state.outcome = outcome;
+  state.routeLines = routeStatusText(outcome);
   if (outcome.fetchFn) state.reads = createReadClient(c.sepoliaRpcUrl, outcome.fetchFn);
   fillRoute();
 }
@@ -145,7 +150,7 @@ function fillRoute(): void {
     s.append(b);
     return;
   }
-  for (const line of routeStatusText(state.outcome)) s.append(el("p", { class: "small" }, line));
+  for (const line of state.routeLines ?? []) s.append(el("p", { class: "small" }, line));
 }
 
 // ---------- 1. wallet ----------
@@ -181,7 +186,7 @@ async function onConnect(w: WalletOption, section: HTMLElement): Promise<void> {
     if ((await walletChainId(w.provider)) !== SEPOLIA_CHAIN_ID) await switchToSepolia(w.provider);
     state.wallet = w;
     state.account = getAddress(account);
-    state.provider = compositeProvider(w.provider, state.reads);
+    state.provider = undefined;
     state.safe = undefined;
     state.info = undefined;
     state.step = 1;
@@ -220,7 +225,10 @@ async function onLoadSafe(raw: string, out: HTMLElement): Promise<void> {
   try {
     const address = parseAddress(raw, "Safe address");
     await state.route;
-    if (state.wallet) state.provider = compositeProvider(state.wallet.provider, state.reads);
+    if (state.wallet) {
+      const { compositeProvider } = await import("./rpc");
+      state.provider = compositeProvider(state.wallet.provider, state.reads);
+    }
     const code = await state.reads.getCode({ address });
     if (!code || code === "0x") throw new InputError("There is no contract at that address on Sepolia.");
     const safe = state.provider && state.account ? await openSafe(state.provider, state.account, address) : await openSafeReadOnly(state.reads, address);
