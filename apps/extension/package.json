@@ -1,0 +1,21 @@
+{
+  "name": "@hexfence/extension",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "build": "tsc --noEmit && node build.mjs",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@hexfence/shared": "workspace:*",
+    "@hexfence/arkiv": "workspace:*",
+    "viem": "2.57.16"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "vite": "8.3.6",
+    "vitest": "4.1.12"
+  }
+}

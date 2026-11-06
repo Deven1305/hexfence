@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>HexFence options</title></head>
+<body><main><h1>HexFence options</h1>
+<p>Use an isolated Sepolia demo account. Settings remain in this browser profile. Do not enter wallet keys or seed phrases.</p>
+<form id="options">
+<label>Sepolia HTTPS RPC URL<input id="rpc" type="url" required autocomplete="off" spellcheck="false"></label>
+<label>HexFence Guard address<input id="guard" required autocomplete="off" spellcheck="false"></label>
+<label>Arkiv publisher address (optional)<input id="publisher" autocomplete="off" spellcheck="false"></label>
+<p>Save grants network access only to the RPC host you enter and, when a publisher is entered, the Rabdi RPC host. All evidence is read in bulk.</p>
+<button type="submit">Save settings</button><button id="clear" type="button">Clear settings and network grants</button>
+</form><p id="status" role="status"></p></main><script type="module" src="/src/options.ts"></script></body></html>
