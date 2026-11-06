@@ -1,6 +1,6 @@
 # Judge readiness: evidence and gaps
 
-Checked **6 Nov 2026** against main **2fa725b**. It describes merged code and recorded observations only. Sources: the [official prize page](https://ethglobal.com/events/mumbai/prizes) and [submission rules](https://ethglobal.com/events/mumbai/details). Chosen partners: **Arkiv, EF CROPS, Chainlink CRE**. Final eligibility is the organisers' decision.
+Checked **6 Nov 2026** against main **2fa725b**. It describes merged code and recorded observations only. Sources: the [official prize page](https://ethglobal.com/events/mumbai/prizes) and [ETHGlobal rules](https://ethglobal.com/rules). Chosen partners: **Arkiv, EF CROPS, Chainlink CRE**. Final eligibility is the organisers' decision.
 
 ## General rules
 
