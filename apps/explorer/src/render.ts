@@ -59,7 +59,7 @@ function verifyControl(e: PoisoningEvidence, rpcUrl: string | undefined): HTMLEl
   return el("div", "verify", button, result);
 }
 
-export function recordCard(e: PoisoningEvidence, rpcUrl: string | undefined): HTMLElement {
+export function recordCard(e: PoisoningEvidence, rpcUrl: string | undefined, publishedBy?: string): HTMLElement {
   const match = { prefixLen: e.prefixLen, suffixLen: e.suffixLen };
   return el(
     "article",
@@ -81,6 +81,7 @@ export function recordCard(e: PoisoningEvidence, rpcUrl: string | undefined): HT
       el("span", "key", "Reference tx"),
       el("span", undefined, link(etherscanTx(e.referenceTx), `${e.referenceTx.slice(0, 18)}…`), ` block ${e.referenceBlock}`),
     ),
+    ...(publishedBy ? [el("p", "small", publishedBy)] : []),
     verifyControl(e, rpcUrl),
   );
 }

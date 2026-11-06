@@ -2,10 +2,11 @@ import { campaignsPanel } from "./campaigns.js";
 import { lossesPanel } from "./losses.js";
 import { DataTable } from "@hexfence/ui";
 import "@hexfence/ui/style.css";
-import { arkivReadClient } from "@hexfence/arkiv";
+import { arkivReadClient, fetchAllEvidence } from "@hexfence/arkiv";
 import type { PoisoningEvidence } from "@hexfence/shared";
 import { isAddress, type Address, type Hex } from "viem";
 import { fetchEvidencePage } from "./evidence.js";
+import { agreement, agreementText, parsePublishers } from "./publishers.js";
 import { checkOwnAddress } from "./dashboard.js";
 import { EVIDENCE_LABEL, parseSearch } from "./format.js";
 import { el, recordCard } from "./render.js";
@@ -14,10 +15,12 @@ import "./dashboard.css";
 
 const app = document.querySelector<HTMLElement>("#app")!;
 const publisherEnv = (import.meta.env.VITE_ARKIV_PUBLISHER as string | undefined)?.trim() ?? "";
+const extraPublishersEnv = (import.meta.env.VITE_ARKIV_EXTRA_PUBLISHERS as string | undefined)?.trim() ?? "";
 const rpcUrl = (import.meta.env.VITE_MAINNET_RPC_URL as string | undefined)?.trim() || undefined;
 const status = el("p", "status bulk-status");
 status.setAttribute("role", "status");
 const searchStatus = el("p", "status");
+const publishersNote = el("p", "status");
 const dashboard = el("div");
 const results = el("section", "results");
 const retry = el("button", "more", "Retry remaining pages") as HTMLButtonElement;
@@ -69,7 +72,7 @@ if (!isAddress(publisherEnv, { strict: false })) {
     const b = el("button", undefined, name) as HTMLButtonElement; b.type = "button"; b.onclick = () => choose(name); tabs.append(b);
   }
   app.append(tabs);
-  app.append(el("p", "publisher", `Publisher ${publisher}`), status, retry, dashboard, ownPanel, form, searchStatus, tablePanel, results, lossPanel);
+  app.append(el("p", "publisher", `Publisher ${publisher}`), publishersNote, status, retry, dashboard, ownPanel, form, searchStatus, tablePanel, results, lossPanel);
   choose(view);
   const downloaded: PoisoningEvidence[] = [];
   const seen = new Set<string>();
@@ -78,6 +81,8 @@ if (!isAddress(publisherEnv, { strict: false })) {
   let loading = false;
   let search: Address | undefined;
   let ownChecked = false;
+  const extra = parsePublishers(publisher, extraPublishersEnv);
+  const others = new Map<string, PoisoningEvidence[]>(); // extra publishers read completely
 
   function updateOwnCheck(): void {
     if (!ownChecked) return;
@@ -90,11 +95,12 @@ if (!isAddress(publisherEnv, { strict: false })) {
 
   function updateSearch(replace = true, added: PoisoningEvidence[] = []): void {
     const records = search ? checkOwnAddress(downloaded, search)! : downloaded;
+    const counts = agreement(new Map([[publisher.toLowerCase(), downloaded], ...others]));
     tablePanel.replaceChildren(DataTable(["Block", "Pattern", "Token", "Lookalike", "Status"], records.map(e => {
       const address = el("a", undefined, `${e.lookalike.slice(0, 6)}…${e.lookalike.slice(-4)}`) as HTMLAnchorElement;
       address.href = `https://etherscan.io/address/${e.lookalike}`; address.target = "_blank"; address.rel = "noreferrer";
       return [String(e.attackBlock), e.variant, e.token.toLowerCase().startsWith("0xdac1") ? "USDT" : "USDC", address, e.status];
-    }), records.map(e => recordCard(e, rpcUrl))));
+    }), records.map(e => recordCard(e, rpcUrl, agreementText(counts.get(e.evidenceId.toLowerCase()) ?? 1, 1 + others.size)))));
     results.replaceChildren();
     searchStatus.textContent = search ?
       `${records.length} suspected ${records.length === 1 ? "record mentions" : "records mention"} ${search} among downloaded records. ` +
@@ -154,4 +160,12 @@ if (!isAddress(publisherEnv, { strict: false })) {
   clear.addEventListener("click", () => { input.value = ""; search = undefined; updateSearch(); });
   retry.addEventListener("click", () => void loadAll());
   void loadAll();
+  void (async () => {
+    for (const other of extra.publishers.slice(1)) {
+      try { others.set(other.toLowerCase(), await fetchAllEvidence(client, other)); }
+      catch { publishersNote.textContent += ` Could not read extra publisher ${other}; it is not counted.`; }
+      updateSearch(false);
+    }
+    if (extra.invalid.length) publishersNote.textContent += ` Ignored extra publishers that are not addresses: ${extra.invalid.join(", ")}.`;
+  })();
 }
