@@ -29,7 +29,7 @@ The repo relies on a plan that is not in it. [PROGRESS.md](../hexfence/docs/PROG
 On a branch `docs/planning-artifacts`, through a PR as the handoff requires:
 
 1. Copy `../13_HexFence_Upgrade_Plan.md` and `../13_HexFence_Upgrade_Plan.pdf` into `hexfence/docs/planning/`.
-2. In README "What's new vs reused", add one sentence. Suggested wording, edit as you see fit: *"Two feature ideas (B6 explain layer, B7 client attestation) came from the team's pre-event research notes, as `docs/planning/13_HexFence_Upgrade_Plan.md` §4 records; no code from those projects is used."* That plan's §4 already says this, so the sentence only makes it easy to find.
+2. In README "What's new vs reused", add one sentence. Suggested wording, edit as you see fit: *"Two feature ideas (B6 explain layer, B7 client attestation) came from the team's research notes, as `docs/planning/13_HexFence_Upgrade_Plan.md` §4 records; no code from those projects is used."* That plan's §4 already says this, so the sentence only makes it easy to find.
 3. If you follow this file tonight, also add it as `docs/planning/agent-reports/final-hexfence-tonight-plan.md`. It is a planning artifact too.
 
 This is documentation, so it fits the freeze. Do not touch code in the same PR.

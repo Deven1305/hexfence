@@ -10,7 +10,7 @@ Read-only review on 6 Nov 2026, 22:45–23:15 IST. Status words come from each p
 | Protects against | Address poisoning: paying a lookalike of someone you pay | A tampered website, an unexpected contract or upgrade, a misleading signature request, address leaks |
 | Main user | Safe owners (treasuries, teams) | dApp teams (publish), their users (verify) |
 | Enforcement | **On-chain** (Safe Guard reverts) | **Off-chain** (extension holds the wallet request) |
-| Repo | `Deven1305/hexfence`, **public**, 226 commits, started 6 Nov 01:19 | `Deven1305/eth_pramaan`, **private**, 22 commits, base 5 Nov 01:01 (pre-event) |
+| Repo | `Deven1305/hexfence`, **public**, 226 commits, started 6 Nov 01:19 | Pramaan project, **private**, 22 commits, base 5 Nov 01:01 |
 | Size (src + tests, approx.) | ~11.6K lines | ~65.7K lines (27.7K of it in `workflows/cre-monitor`, not inspected) |
 | Toolchain | Node 22, pnpm 10.34.9, Hardhat, Vite, viem, zod | Node 22, pnpm 10.34.9, Foundry, Vite, React, Fastify, Postgres/PGlite, Docker, Bun (CRE) |
 | Live today | GitHub Pages site, explorer and Pay; Sepolia contracts; 173 Arkiv records | Nothing public; local Sepolia fork (chain 31337) only |

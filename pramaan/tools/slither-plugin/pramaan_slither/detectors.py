@@ -46,7 +46,7 @@ class PramaanUnprotectedSweep(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = "https://github.com/pramaan-dev/pramaan/blob/main/docs/SECURITY.md#detectors"
+    WIKI = "https://github.com/Deven1305/hexfence/blob/main/pramaan/tools/slither-plugin/pramaan_slither/detectors.py"
     WIKI_TITLE = "Unprotected balance sweep"
     WIKI_DESCRIPTION = (
         "A public or external function sends the contract's whole ETH or token balance and checks nothing about "
@@ -84,7 +84,7 @@ class PramaanUnprotectedInitializer(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = "https://github.com/pramaan-dev/pramaan/blob/main/docs/SECURITY.md#detectors"
+    WIKI = "https://github.com/Deven1305/hexfence/blob/main/pramaan/tools/slither-plugin/pramaan_slither/detectors.py"
     WIKI_TITLE = "Unprotected initializer"
     WIKI_DESCRIPTION = (
         "An initialize-style function writes an owner/admin variable without an `initializer` guard, an "
@@ -172,7 +172,7 @@ class PramaanUncheckedOracle(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = "https://github.com/pramaan-dev/pramaan/blob/main/docs/SECURITY.md#detectors"
+    WIKI = "https://github.com/Deven1305/hexfence/blob/main/pramaan/tools/slither-plugin/pramaan_slither/detectors.py"
     WIKI_TITLE = "Unchecked oracle answer"
     WIKI_DESCRIPTION = (
         "A state-changing function reads `latestRoundData()` / `latestAnswer()` and converts the signed answer to "

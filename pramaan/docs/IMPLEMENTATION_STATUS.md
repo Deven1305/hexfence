@@ -55,8 +55,7 @@ Pending/revocation browser test is now enabled and passed alongside the other2V2
 
 ## Docker-laptop pass (6 November 2026)
 
-Run on the Windows laptop with Docker, Foundry 1.8.7, Node 20.20.2, Bun 1.4.4 and CRE CLI 1.39.0 (checksum verified). Details, commands
-and the list of what is still not done: [NEXT_LAPTOP.md](NEXT_LAPTOP.md); evidence files in [evidence/](evidence/).
+Run on the Windows laptop with Docker, Foundry 1.8.7, Node 20.20.2, Bun 1.4.4 and CRE CLI 1.39.0 (checksum verified). Details, commands and evidence files in [evidence/](evidence/).
 
 - PROVE ran for real in the sandbox (7 e2e tests, 4 example projects). New: oracle-maths template (detector, exploit template, deterministic fixer, `examples/oracle-lending`).
 - `demo:up` now runs PROVE and records the verified finding in the VaultLab release; `--fixtures` builds and serves the attack fixture and tracker.

@@ -11,7 +11,7 @@ Pramaan joins four things that are normally separate, so that a person about to 
 
 A matching release is **not an audit and not a guarantee of safety**. A scanner finding is a candidate until reproduced.
 
-> Status, test evidence and everything that is **not** done: [docs/IMPLEMENTATION_STATUS.md](docs/IMPLEMENTATION_STATUS.md), [docs/NEXT_LAPTOP.md](docs/NEXT_LAPTOP.md). Plain-language walkthrough: [EXPLANATION.md](EXPLANATION.md). Run it: [RUN.md](RUN.md).
+> Status, test evidence and everything that is **not** done: [docs/IMPLEMENTATION_STATUS.md](docs/IMPLEMENTATION_STATUS.md). Plain-language walkthrough: [EXPLANATION.md](EXPLANATION.md). Run it: [RUN.md](RUN.md).
 
 ## Try it locally (about 10 minutes, no real funds)
 

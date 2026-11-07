@@ -451,7 +451,7 @@
     "check": "pramaan-unprotected-sweep",
     "impact": "High",
     "confidence": "Medium",
-    "reference": "https://github.com/pramaan-dev/pramaan/blob/main/docs/SECURITY.md#detectors"
+    "reference": "https://github.com/Deven1305/hexfence/blob/main/pramaan/tools/slither-plugin/pramaan_slither/detectors.py"
    },
    {
     "elements": [
