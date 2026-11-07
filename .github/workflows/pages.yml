@@ -11,6 +11,8 @@ on:
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
       - 'package.json'
+      - 'pramaan/**'
+      - 'integration/**'
       - 'tsconfig*.json'
       - '.github/workflows/pages.yml'
   pull_request:
@@ -22,6 +24,8 @@ on:
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
       - 'package.json'
+      - 'pramaan/**'
+      - 'integration/**'
       - 'tsconfig*.json'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
