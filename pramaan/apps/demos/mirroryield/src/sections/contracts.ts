@@ -10,7 +10,7 @@ export function createContractsSection(): HTMLElement {
     "div",
     { class: "card-header" },
     el("h2", { id: "contracts-heading", class: "card-title" }, "Contract References"),
-    el("p", { class: "card-subtitle" }, "Verified on-chain contracts powering MirrorYield.")
+    el("p", { class: "card-subtitle" }, "On-chain contracts configured for MirrorYield.")
   );
 
   function makeRow(label: string, address: string): HTMLElement {
