@@ -100,6 +100,14 @@ import type { ContentToInpage, InpageToContent } from "./shared/messages.js";
       }, port ? 600_000 : 5_000);
     });
     if (decision.decision !== "continue") throw rejection(decision.reason || "request rejected");
+    // A wallet chain change during review voids the decision.
+    let chainNow: string | null = null;
+    try {
+      chainNow = String(await originals.get(provider)!({ method: "eth_chainId" }));
+    } catch {
+      chainNow = null;
+    }
+    if (chainNow !== chainId) throw rejection("the wallet changed chain during review");
   }
 
   function wrap(candidate: unknown, walletName: string | null): void {
@@ -113,8 +121,14 @@ import type { ContentToInpage, InpageToContent } from "./shared/messages.js";
     originals.set(provider, original);
     const guarded = async function (args: { method: string; params?: unknown }) {
       const method = args?.method;
-      if (typeof method === "string" && GUARDED.has(method)) await ask(method, args.params, provider, walletName);
-      const result = await original(args);
+      let request = args;
+      if (typeof method === "string" && GUARDED.has(method)) {
+        // Freeze what is reviewed now, and forward that copy: callers cannot change it during review.
+        const params = args.params === undefined ? undefined : parse(stringify(args.params, (_k, x) => (typeof x === "bigint" ? `0x${x.toString(16)}` : x)));
+        request = params === undefined ? { method } : { method, params };
+        await ask(method, params, provider, walletName);
+      }
+      const result = await original(request);
       if (typeof method === "string" && ACCOUNT_METHODS.has(method) && Array.isArray(result)) {
         post({ type: "accounts", accounts: result.filter((a): a is string => typeof a === "string") });
       }

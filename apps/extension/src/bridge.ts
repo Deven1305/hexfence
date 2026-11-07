@@ -1,12 +1,13 @@
 import { record, type Request } from './interception';
-const origin = 'https://app.safe.global';
 let busy = false;
-window.addEventListener('message', event => {
+const channel = new MessageChannel();
+const page = channel.port1;
+window.postMessage({ channel: 'hexfence:init' }, window.location.origin, [channel.port2]);
+page.onmessage = (event: MessageEvent) => {
   const data: unknown = event.data;
-  if (event.source !== window || event.origin !== origin || !record(data) ||
-      data.channel !== 'hexfence:request' || typeof data.id !== 'string' || !record(data.request)) return;
+  if (!record(data) || typeof data.id !== 'string' || !record(data.request)) return;
   const request = data.request as unknown as Request;
-  const reply = (approved: boolean) => window.postMessage({ channel: 'hexfence:result', id: data.id, approved }, origin);
+  const reply = (approved: boolean) => page.postMessage({ id: data.id, approved });
   if (busy) { reply(false); return; }
   busy = true;
   void (async () => {
@@ -30,4 +31,4 @@ window.addEventListener('message', event => {
       reply(approved);
     }
   })();
-});
+};
