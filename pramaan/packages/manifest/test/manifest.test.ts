@@ -28,7 +28,7 @@ import {
 const sample = () =>
   buildManifest({
     app: { name: "Pramaan Vault", ensName: "pramaan-demo.eth", domain: "http://localhost:5180" },
-    repo: "https://github.com/pramaan-dev/vault-app",
+    repo: "local:vault-app",
     commit: "0123456789abcdef0123456789abcdef01234567",
     tag: "v1.0.0",
     workflow: ".github/workflows/release.yml",

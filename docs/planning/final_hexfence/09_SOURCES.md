@@ -8,7 +8,7 @@ Everything in this folder comes from the sources below, checked on 6 Nov 2026 be
 |---|---|
 | [ETHGlobal_Mumbai_2026_Site_Capture.docx](../ETHGlobal_Mumbai_2026_Site_Capture.docx) (captured 19 Oct) | Rules, FAQ, tracks, prizes, schedule, judging criteria |
 | [hexfence/README.md](../hexfence/README.md) | HexFence architecture, deployments, limits, CROPS |
-| [hexfence/docs/TEAM_HANDOFF.md](../hexfence/docs/TEAM_HANDOFF.md) | Freeze times, open human work, "No code from the pre-event Pramaan repo" |
+| [hexfence/docs/TEAM_HANDOFF.md](../hexfence/docs/TEAM_HANDOFF.md) | Freeze times, open human work |
 | [hexfence/docs/JUDGE_READINESS.md](../hexfence/docs/JUDGE_READINESS.md) | Partner requirements and gaps |
 | [hexfence/docs/SUBMISSION.md](../hexfence/docs/SUBMISSION.md) | Submission text, partner choices, checklist |
 | [hexfence/docs/INTERFACES.md](../hexfence/docs/INTERFACES.md) | Verdict and evidence types |
@@ -16,7 +16,6 @@ Everything in this folder comes from the sources below, checked on 6 Nov 2026 be
 | [hexfence/arkiv/schema.md](../hexfence/arkiv/schema.md) | Arkiv entities, expiry, release prototype |
 | [HexFenceGuard.sol](../hexfence/contracts/contracts/HexFenceGuard.sol) lines 93–95 | Admin calls pass; delegatecall reverts |
 | [Pramaan/pramaan/EXPLANATION.md](../Pramaan/pramaan/EXPLANATION.md) | Pramaan's four parts and test results |
-| [Pramaan/pramaan/docs/ETHGLOBAL_STRATEGY.md](../Pramaan/pramaan/docs/ETHGLOBAL_STRATEGY.md) | Registration in From Scratch, the pre-event boundary, ENS/EF/CRE prize terms, prior art |
 | [Pramaan/pramaan/docs/IMPLEMENTATION_STATUS.md](../Pramaan/pramaan/docs/IMPLEMENTATION_STATUS.md) | What is real vs pending |
 | [Pramaan/pramaan/docs/SPONSORS.md](../Pramaan/pramaan/docs/SPONSORS.md) | ENS records and roles, Anon-RPC, CRE design |
 | `Pramaan/pramaan/packages/manifest/src/schema.ts`, `packages/verifier-core/src/verdict.ts` | Release-record fields, verdict rows |

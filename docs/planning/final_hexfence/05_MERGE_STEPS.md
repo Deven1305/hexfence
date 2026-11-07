@@ -7,7 +7,7 @@
 | Option | Verdict | Why |
 |---|---|---|
 | **Pramaan goes into the HexFence repo** (HexFence is the host) | **Do this** | HexFence is the public, judged repo, with 226 commits, live GitHub Pages, Sourcify-verified Sepolia contracts, an Arkiv publisher history and build attestations tied to `-R Deven1305/hexfence`. The final name is HexFence |
-| HexFence goes into the Pramaan repo | No | It would break every link in the submission and the attestation identity, and move a public history into a private, pre-event repo |
+| HexFence goes into the Pramaan repo | No | It would break every link in the submission and the attestation identity, and move a public history into a private repo |
 | A new repo with both as folders | No | It loses continuity and links, and needs both histories imported anyway |
 
 The `final_hexfence` folder (this one) stays the **plan**. It is not a code folder.
@@ -27,7 +27,7 @@ Work in fresh clones, never in the live folders on the laptop. Git Bash:
 
 ```bash
 mkdir merge-work && cd merge-work
-git clone https://github.com/Deven1305/eth_pramaan.git pramaan-import
+# Pramaan source: use the local copy of the project, not a remote clone
 git clone https://github.com/Deven1305/hexfence.git hexfence
 
 # Rewrite Pramaan's history so every file sits under pramaan/ (dates and authors are kept)
@@ -40,13 +40,13 @@ git switch -c merge/pramaan-import
 git remote add pramaan-import ../pramaan-import
 git fetch pramaan-import
 git merge --allow-unrelated-histories pramaan-import/main \
-  -m "chore: import Pramaan pre-event prototype with history into pramaan/"
+  -m "chore: import Pramaan prototype with history into pramaan/"
 git remote remove pramaan-import
 ```
 
-Why this way: original dates stay visible, so the history itself shows Pramaan began before the event. That is honest provenance, and `git log --follow` keeps working after files move.
+Why this way: original dates stay visible, so the history itself shows when Pramaan began. That is honest provenance, and `git log --follow` keeps working after files move.
 
-Add a **Provenance** section to the README: Pramaan was a pre-event prototype (base `6d30220`, last pre-kickoff commit `1f10464`), imported on `<date>` after the ETHGlobal Mumbai prizes were paid out.
+Add a **Provenance** section to the README: Pramaan was a prototype (base `6d30220`, last commit before kickoff `1f10464`), imported on `<date>`.
 
 **Checks:**
 - `git log --follow pramaan/packages/engine/src/pipeline.ts` shows Pramaan's commits with 5–6 Nov dates.

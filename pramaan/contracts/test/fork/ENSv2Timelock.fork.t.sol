@@ -67,7 +67,7 @@ contract ENSv2TimelockForkTest is Test {
         Grant[] memory grants = new Grant[](1);
         grants[0] = Grant({account: owner, roleBitmap: ALL_ROLES});
         bytes[] memory calls = new bytes[](2);
-        calls[0] = abi.encodeCall(IPermissionedResolver.setText, (NAME, "pramaan.repo", "github.com/pramaan-dev/vault-app"));
+        calls[0] = abi.encodeCall(IPermissionedResolver.setText, (NAME, "pramaan.repo", "local:vault-app"));
         calls[1] = abi.encodeCall(IPermissionedResolver.setText, (NAME, "pramaan.domain", "https://vault.pramaan.example"));
         vm.prank(owner);
         resolver = IPermissionedResolver(
@@ -89,7 +89,7 @@ contract ENSv2TimelockForkTest is Test {
     }
 
     function test_ownerRecordsWrittenDuringInitialize() public view {
-        assertEq(_text("pramaan.repo"), "github.com/pramaan-dev/vault-app");
+        assertEq(_text("pramaan.repo"), "local:vault-app");
         assertEq(_text("pramaan.domain"), "https://vault.pramaan.example");
     }
 

@@ -7,7 +7,7 @@ import urllib.request
 
 BASE = "https://binaries.soliditylang.org/linux-amd64"
 # The CDN rejects Python's default "Python-urllib/x.y" agent with 403.
-HEADERS = {"User-Agent": "pramaan-sandbox-build/0.1 (+https://github.com/pramaan-dev/pramaan)"}
+HEADERS = {"User-Agent": "pramaan-sandbox-build/0.1"}
 
 
 def fetch(url: str, timeout: int) -> bytes:

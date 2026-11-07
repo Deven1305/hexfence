@@ -12,7 +12,7 @@ The plan files (01-09) hold no code. The merged code lives in `hexfence_merged/`
 1. **Do not merge Pramaan into HexFence before the deadline. Submit HexFence alone, as it is, in Classic (From Scratch).**
    - Pramaan's code was written on 4 Nov, and its first commit (`6d30220`) is dated **5 Nov 01:01 IST**. Hacking began **5 Nov 21:00 IST**.
    - The Classic rules ban "prior project-specific code, designs, or assets". The FAQ says a team that ports or continues an existing project "won't be eligible for being an ETHGlobal Finalist".
-   - HexFence's own handoff already says *"No code from the pre-event Pramaan repo"*. HexFence's code freeze started at 22:00 tonight.
+   - HexFence's code freeze started at 22:00 tonight.
 2. **There can only be one submission.** The FAQ asks "Can I join two teams/projects?" and answers **"No."** Pramaan's contributors (Deven, Dhruv, Aksaht) are HexFence's team. Pramaan cannot also be submitted.
 3. **Merge after prizes are paid out.** The rules say that after submission you "should not be working on your project again until PRIZES have been officially paid out". After payout, merge Pramaan **into the HexFence repo** (HexFence is the host) and keep both git histories. Steps are in [05](05_MERGE_STEPS.md).
 4. **The merged product is HexFence, a pre-sign firewall with on-chain enforcement.** Before any signature it answers three questions, and the Safe enforces the answer on-chain:
@@ -32,7 +32,7 @@ The plan files (01-09) hold no code. The merged code lives in `hexfence_merged/`
 | EF | Best CROPS App ($3,500 pool) | Only "CROPS Upgrade to an Existing Project" ($1,500) | At risk |
 | Organiser approval needed tonight | No | Yes, a track change | Not allowed at all |
 | Engineering risk before 09:00 | None (freeze already on) | Very high: two monorepos, two extensions, new video | Very high |
-| Honest? | Yes | Yes, if pre-event work is documented | **No**: it would misstate when code was written |
+| Honest? | Yes | Yes, if prior work is documented | **No**: it would misstate when code was written |
 
 Details and exact rule quotes are in [02](02_RULES_AND_ELIGIBILITY.md).
 
