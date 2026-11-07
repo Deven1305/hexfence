@@ -71,7 +71,7 @@ Publisher `0x36141ba063390f0d91Af7a5a9dF8dc1d80D699ec` published 1,126 poisoning
 - **UI copy:** no "safe" as an adjective, and no "verified", "scam" or "malicious" (Safe the product, "Verify on Ethereum" and "cannot verify" are fine).
 - **Privacy:** no per-recipient lookups to any server, no trackers, no remote fonts or CDNs.
 - **Secrets:** testnet keys only, in git-ignored `.env`; `.env.example` holds names only. Every `VITE_*` value is public.
-- **Contracts:** no changes to v1, V2 or the module guard and their tests. No code from the pre-event Pramaan repo: read [PRAMAAN_MERGE.md](PRAMAAN_MERGE.md) before any Pramaan work.
+- **Contracts:** no changes to v1, V2 or the module guard and their tests. Read [PRAMAAN_MERGE.md](PRAMAAN_MERGE.md) before any Pramaan work.
 - **Do not edit** `AGENTS.md`, `docs/INTERFACES.md` or `docs/planning/`.
 - **H9 labels are human work.** AI labels are not human precision.
 
