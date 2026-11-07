@@ -4,10 +4,10 @@ Fallback: the tag `hexfence-pre-pramaan` marks the last `main` without Pramaan. 
 
 ## Rules that apply
 
-From [ETHGlobal's rules](https://ethglobal.com/rules), section "Rules on Prior Work":
+From [ETHGlobal's rules](https://ethglobal.com/rules), section "Rules on Pre-existing Work":
 
-- Only bring in work made after kick-off. Prior project-specific code, designs or assets are not allowed on the Classic "From Scratch" track, and they make a submission ineligible for Partner prizes and the Finalist category.
-- Any prior work must be disclosed in writing to ETHGlobal and in the submission.
+- Only bring in work made after kick-off. Pre-existing project-specific code, designs or assets are not allowed on the Classic "From Scratch" track, and they make a submission ineligible for Partner prizes and the Finalist category.
+- Any pre-existing work must be disclosed in writing to ETHGlobal and in the submission.
 - Repos with single commits of large files and no proper history are assumed unqualified unless proven otherwise, so keep the commit history.
 
 ## How to work

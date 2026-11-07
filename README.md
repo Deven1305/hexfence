@@ -304,7 +304,3 @@ A separate [HexFenceGovernanceGuardV2](contracts/README_GOVERNANCE.md) adds 4+4 
 ## Saved Arkiv copy
 
 Pages attempts one publisher-wide read at deploy time and publishes `evidence-saved.json` if it succeeds. The site, guided demo and explorer use this schema-validated copy only after a live bulk read fails, never merging it with live records. A visible notice says the live Arkiv read failed and gives the copy's Arkiv read time in UTC. Records remain suspected; the copy is not a live read. Pay uses the same copy for its listed check and says so above the fold. If deployment cannot read Arkiv, no copy is created. The optional `ARKIV_ACCESS_KEY` secret is scoped to the generation step and never included in the JSON or browser bundle.
-
-## Provenance: Pramaan
-
-`pramaan/` is the **Pramaan** project, imported with its full git history (original dates and authors kept; its first commit is dated 5 Nov 2026 01:01 IST). HexFence's own history starts at `dc6e0c6` (6 Nov 01:19 IST). Merge plan: `docs/planning/final_hexfence/`.
