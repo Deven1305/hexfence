@@ -483,6 +483,7 @@ program
     const release = await verifySiteRelease({ origin, chains, ipfsGateways: [env("IPFS_GATEWAY_URL") ?? "http://127.0.0.1:8080", "https://ipfs.io"] });
     for (const c of release.checks) log(`${c.status === "pass" ? "✓" : c.status === "fail" ? "✗" : c.status === "warn" ? "!" : "-"} ${c.id.padEnd(10)} ${c.detail}`);
     log(`release: ${release.status.toUpperCase()}`);
+    if (release.status !== "verified") process.exitCode = 1;
     if (release.manifest) {
       const observed: ObservedResource[] = [];
       for (const f of release.manifest.files.filter((x) => x.path.endsWith(".html") || x.path.endsWith(".js") || x.path.endsWith(".css"))) {
@@ -493,6 +494,7 @@ program
       const site = checkSite(release.manifest, origin, observed);
       for (const r of site.resources.filter((x) => x.status !== "match")) log(`  ${r.status} ${r.path ?? r.url}`);
       log(`files: ${site.status} (${site.severity}) – ${site.summary}`);
+      if (site.status !== "verified") process.exitCode = 1;
     }
   });
 

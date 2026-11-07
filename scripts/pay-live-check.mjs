@@ -2,7 +2,7 @@ import { createRequire } from "node:module";
 import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
 import { join, extname, resolve } from "node:path";
-const root = process.argv[2];
+const root = resolve(process.argv[2] ?? ".");
 const require = createRequire(join(root, "pramaan/apps/extension/package.json"));
 const { chromium } = require("@playwright/test");
 const dir = join(root, "apps/pay/dist");
