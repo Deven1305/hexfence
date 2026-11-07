@@ -11,7 +11,7 @@ export function render(root: HTMLElement): void {
 
   const header = el("div", { class: "card-header" },
     el("h2", { class: "card-title" }, "Contract Addresses"),
-    el("p", { class: "card-subtitle" }, "Verified smart contracts powering VaultLab on this network.")
+    el("p", { class: "card-subtitle" }, "Smart contracts configured for VaultLab on this network.")
   );
   container.appendChild(header);
 

@@ -1,4 +1,4 @@
-# Merged status (local, not pushed)
+# Merged status
 
 - `pramaan/` = Pramaan imported with history (see README Provenance).
 - `packages/core` = unified verdict model; adapters for HexFence and Pramaan; 6 tests.

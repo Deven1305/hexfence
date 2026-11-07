@@ -14,7 +14,7 @@ From `hexfence_merged/` after `pnpm install`:
 
 **Claude Code**
 ```bash
-claude mcp add hexfence -- pnpm --silent --dir D:/Deven/1_Hackathon_proj/my/eth/final_hexfence/hexfence_merged --filter @hexfence/mcp start
+claude mcp add hexfence -- pnpm --silent --dir "$PWD" --filter @hexfence/mcp start
 ```
 **Claude Desktop / any MCP client** (`claude_desktop_config.json`):
 ```json
@@ -22,7 +22,7 @@ claude mcp add hexfence -- pnpm --silent --dir D:/Deven/1_Hackathon_proj/my/eth/
   "mcpServers": {
     "hexfence": {
       "command": "pnpm",
-      "args": ["--silent", "--dir", "D:/Deven/1_Hackathon_proj/my/eth/final_hexfence/hexfence_merged", "--filter", "@hexfence/mcp", "start"]
+      "args": ["--silent", "--dir", "<absolute path to this repo>", "--filter", "@hexfence/mcp", "start"]
     }
   }
 }

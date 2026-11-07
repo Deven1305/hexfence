@@ -75,10 +75,10 @@ Full steps: `docs/merged/02_DEPLOY.md`, `pramaan/docs/DEPLOY_SIMPLE.md`.
 | Explorer / Pay / Site | `pnpm --filter @hexfence/<name> dev` | evidence browser / pay and Guard setup / landing |
 | HexFence extension | build + load `apps/extension/dist` | review Safe payments on app.safe.global (untested on the real site) |
 | Sentinel | `cre workflow simulate hexfence-sentinel …` | alerts on dust/lookalike transfers (needs `cre login`) |
-| `pnpm pramaan decode` | `--method eth_sendTransaction --params '[…]'` | explain a request in EN/HI/MR |
-| `pnpm pramaan verify <url>` | | verify a site's release from the terminal |
-| `pnpm pramaan prove <dir> --fix` | | PROVE (Docker sandbox) |
-| `pramaan keygen / manifest / sign / ens / publish / revoke / scan / record-page / doctor / deploy` | `pnpm pramaan --help` | release pipeline |
+| `pnpm --dir pramaan pramaan decode` | `--method eth_sendTransaction --params '[…]'` | explain a request in EN/HI/MR |
+| `pnpm --dir pramaan pramaan verify <url>` | | verify a site's release from the terminal |
+| `pnpm --dir pramaan pramaan prove <dir> --fix` | | PROVE (Docker sandbox) |
+| `pramaan keygen / manifest / sign / ens / publish / revoke / scan / record-page / doctor / deploy` | `pnpm --dir pramaan pramaan --help` | release pipeline |
 | Pramaan extension | build + load `pramaan/apps/extension/dist` | verify page + contracts, decode and hold wallet requests |
 | Pramaan server + dashboard | `pnpm --dir pramaan server` / `dev:web` | developer dashboard (:8787 / :5173) |
 | Demo controls | `pnpm --dir pramaan demo:tamper|restore|upgrade|release` | live attacks for the demo |
@@ -87,7 +87,7 @@ Full steps: `docs/merged/02_DEPLOY.md`, `pramaan/docs/DEPLOY_SIMPLE.md`.
 
 1. **Payments (MCP):** register once, then the agent calls `hexfence_check(recipient, approvedPayees[])`.
    ```bash
-   claude mcp add hexfence -- pnpm --silent --dir "D:/Deven/1_Hackathon_proj/my/eth/final_hexfence/hexfence_merged" --filter @hexfence/mcp start
+   claude mcp add hexfence -- pnpm --silent --dir "$PWD" --filter @hexfence/mcp start
    ```
    Rule for the agent: never send on RED; on AMBER/GREY ask a human (AMBER = "not cleared", not "safe").
 2. **What a call does:** `pnpm --dir pramaan --silent pramaan decode --method … --params …` → refuse `high`/`critical` without a human.
