@@ -49,7 +49,7 @@ if (release.manifest) {
   for (const c of release.manifest.contracts.filter((x) => x.chainId === chainId)) {
     const ins = await inspectAgreed(cfg, c.address as Address);
     checked++;
-    if (ins.status !== "ok") { worst = "grey"; notes.push(`${c.label}: could not read`); continue; }
+    if (ins.status !== "ok") { if (worst !== "red") worst = "grey"; notes.push(`${c.label}: could not read`); continue; }
     const r = compareContract(release.manifest, chainId, ins.inspection);
     if (r.status !== "verified") { worst = "red"; notes.push(`${c.label}: ${r.status}`); }
   }
