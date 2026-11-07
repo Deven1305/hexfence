@@ -2,18 +2,27 @@ import { gateRequest, matchRequest, record, type Request } from './interception'
 
 interface Provider { request: (request: Request) => Promise<unknown>; providers?: unknown[] }
 const wrapped = new WeakSet<object>();
-const origin = 'https://app.safe.global';
+// Replies travel over a port only the bridge holds: page scripts on this origin can post window
+// messages, so a window-message reply could be forged. This capture listener runs before any page
+// script exists and stops propagation, so the page never sees the port.
+let port: MessagePort | null = null;
+const waiting = new Map<string, (approved: boolean) => void>();
+window.addEventListener('message', event => {
+  if (port || event.source !== window || !record(event.data) || event.data.channel !== 'hexfence:init' || !event.ports[0]) return;
+  event.stopImmediatePropagation();
+  port = event.ports[0];
+  port.onmessage = (reply: MessageEvent) => {
+    if (reply.isTrusted && record(reply.data) && typeof reply.data.id === 'string') waiting.get(reply.data.id)?.(reply.data.approved === true);
+  };
+}, true);
 function review(request: Request, chainId: unknown): Promise<boolean> {
   const id = crypto.randomUUID();
   return new Promise(resolve => {
-    const finish = (approved: boolean) => { clearTimeout(timer); window.removeEventListener('message', receive); resolve(approved); };
-    const receive = (event: MessageEvent) => {
-      if (event.source === window && event.origin === origin && record(event.data) &&
-          event.data.channel === 'hexfence:result' && event.data.id === id) finish(event.data.approved === true);
-    };
+    if (!port) { resolve(false); return; }
+    const finish = (approved: boolean) => { clearTimeout(timer); waiting.delete(id); resolve(approved); };
     const timer = setTimeout(() => finish(false), 180_000);
-    window.addEventListener('message', receive);
-    window.postMessage({ channel: 'hexfence:request', id, request, chainId }, origin);
+    waiting.set(id, finish);
+    port.postMessage({ id, request, chainId });
   });
 }
 function wrap(value: unknown, source: string): void {
